@@ -31,10 +31,6 @@ components:
       required:
         - id
       properties:
-        id:
-          type: string
-          description: The ID of the test to run
-          example: "cm8d9gt6v000c9fe5glmyi33u"
         application_version_id:
           type: string
           description: Optional application version ID to use for the test run
@@ -46,13 +42,7 @@ components:
           example: "api"
     RunFolderRequest:
       type: object
-      required:
-        - folder_id
       properties:
-        folder_id:
-          type: string
-          description: The ID of the folder containing tests to run
-          example: "cm7t223mk00154mzy2jwk2pqy"
         application_version_id:
           type: string
           description: Optional application version ID to use for all tests in the folder
@@ -284,7 +274,7 @@ components:
           example: "running"
         url:
           type: string
-          example: "New Test 2025-06-11T21:25:47.442Z"
+          example: "https://autonoma.app/run/folder/xt80n05xgkolyyhidswgw1z6"
     BadRequestError:
       type: object
       properties:
@@ -313,15 +303,119 @@ components:
           type: string
           example: "Resource with id `cm8d9gt6v000c9fe5glmyi33u` not found"
 paths:
-  /run/test:
+  /test:
+    get:
+      summary: List tests
+      description: Retrieve a list of test definitions with optional pagination
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of tests to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 20
+        - name: offset
+          in: query
+          description: Number of tests to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: steps
+          in: query
+          description: Include step details in response
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: folder
+          in: query
+          description: Retrieve tests by folder id
+          required: false
+          schema:
+            type: string
+            example: true
+      responses:
+        "200":
+          description: List of tests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Test"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+  /test/{testID}:
+    get:
+      summary: Get a specific test
+      description: Retrieve details of a specific test definition by ID
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: testID
+          in: path
+          required: true
+          description: The ID of the test
+          schema:
+            type: string
+            example: "cmbjp2vva000u0j01vtfu5kdj"
+        - name: steps
+          in: query
+          description: Include step details in response
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        "200":
+          description: Test details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Test"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "404":
+          description: Test not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+  /test/{testID}/run:
     post:
-      summary: Run a test by test ID
+      summary: Run test
       description: Run a test by test ID
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
+      parameters:
+        - name: testID
+          in: path
+          required: true
+          description: ID of the test to run
+          schema:
+            type: string
+            example: "g41k688vndxzt7kh4kq5m12s"
       requestBody:
-        required: true
+        required: false
+        description: "Request body (optional)"
         content:
           application/json:
             schema:
@@ -345,15 +439,98 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NotFoundError"
-  /run/folder:
-    post:
-      summary: Run tests by folder ID
-      description: Run tests by folder ID
+  /folder:
+    get:
+      summary: List Folders
+      description: Retrieve a list of folder definitions with optional pagination
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of folders to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 20
+        - name: offset
+          in: query
+          description: Number of folders to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+      responses:
+        "200":
+          description: List of Folders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Folder"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+  /folder/{folderID}:
+    get:
+      summary: Get a specific folder
+      description: Retrieve details of a specific folder definition by ID
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: folderID
+          in: path
+          required: true
+          description: The ID of the folder
+          schema:
+            type: string
+            example: "cmbjp2vva000u0j01vtfu5kdj"
+      responses:
+        "200":
+          description: Folder details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Folder"
+        "404":
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+  /folder/{folderID}/run:
+    post:
+      summary: Run all tests within a folder
+      description: "Executes all tests contained within the specified folder."
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: folderID
+          in: path
+          required: true
+          description: id of the folder to run
+          schema:
+            type: string
+            example: "g41k688vndxzt7kh4kq5m12s"
       requestBody:
-        required: true
+        required: false
+        description: "Request body (optional)"
         content:
           application/json:
             schema:
@@ -507,59 +684,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /run/{runID}/steps:
-    get:
-      summary: Get steps for a test run
-      description: Retrieve the steps of a specific test run
-      security:
-        - ApiKeyAuth: []
-          ApiSecretAuth: []
-      parameters:
-        - name: runID
-          in: path
-          required: true
-          description: The ID of the test run
-          schema:
-            type: string
-            example: "g41k688vndxzt7kh4kq5m12s"
-        - name: limit
-          in: query
-          description: Maximum number of steps to return
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-        - name: offset
-          in: query
-          description: Number of steps to skip for pagination
-          required: false
-          schema:
-            type: integer
-            minimum: 0
-            example: 0
-      responses:
-        "200":
-          description: List of test run steps
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Step"
-        "404":
-          description: Test run not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundError"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidCredentialsError"
   /run/{runID}/status:
     get:
       summary: Get a specific run status
@@ -618,175 +742,6 @@ paths:
                 $ref: "#/components/schemas/FolderRunStatus"
         "404":
           description: Folder run not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundError"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidCredentialsError"
-  /test:
-    get:
-      summary: List tests
-      description: Retrieve a list of test definitions with optional pagination
-      security:
-        - ApiKeyAuth: []
-          ApiSecretAuth: []
-      parameters:
-        - name: limit
-          in: query
-          description: Maximum number of tests to return
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-        - name: offset
-          in: query
-          description: Number of tests to skip for pagination
-          required: false
-          schema:
-            type: integer
-            minimum: 0
-            example: 0
-        - name: steps
-          in: query
-          description: Include step details in response
-          required: false
-          schema:
-            type: boolean
-            example: true
-        - name: folder
-          in: query
-          description: Retrieve tests by folder id
-          required: false
-          schema:
-            type: string
-            example: true
-      responses:
-        "200":
-          description: List of tests
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Test"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidCredentialsError"
-  /test/{testID}:
-    get:
-      summary: Get a specific test
-      description: Retrieve details of a specific test definition by ID
-      security:
-        - ApiKeyAuth: []
-          ApiSecretAuth: []
-      parameters:
-        - name: testID
-          in: path
-          required: true
-          description: The ID of the test
-          schema:
-            type: string
-            example: "cmbjp2vva000u0j01vtfu5kdj"
-        - name: steps
-          in: query
-          description: Include step details in response
-          required: false
-          schema:
-            type: boolean
-            example: true
-      responses:
-        "200":
-          description: Test details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Test"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidCredentialsError"
-        "404":
-          description: Test not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundError"
-  /folder:
-    get:
-      summary: List Folders
-      description: Retrieve a list of folder definitions with optional pagination
-      security:
-        - ApiKeyAuth: []
-          ApiSecretAuth: []
-      parameters:
-        - name: limit
-          in: query
-          description: Maximum number of folders to return
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-        - name: offset
-          in: query
-          description: Number of folders to skip for pagination
-          required: false
-          schema:
-            type: integer
-            minimum: 0
-            example: 0
-      responses:
-        "200":
-          description: List of Folders
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Folder"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidCredentialsError"
-  /folder/{folderID}:
-    get:
-      summary: Get a specific folder
-      description: Retrieve details of a specific folder definition by ID
-      security:
-        - ApiKeyAuth: []
-          ApiSecretAuth: []
-      parameters:
-        - name: folderID
-          in: path
-          required: true
-          description: The ID of the folder
-          schema:
-            type: string
-            example: "cmbjp2vva000u0j01vtfu5kdj"
-      responses:
-        "200":
-          description: Folder details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Folder"
-        "404":
-          description: Folder not found
           content:
             application/json:
               schema:

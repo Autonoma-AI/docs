@@ -90,24 +90,23 @@
                 "group": "Test",
                 "pages": [
                   "api-reference/list-tests",
-                  "api-reference/get-a-specific-test"
+                  "api-reference/get-a-specific-test",
+                  "api-reference/run-a-test-by-test-id"
                 ]
               },
               {
                 "group": "Folder",
                 "pages": [
                   "api-reference/list-folders",
-                  "api-reference/get-a-specific-folder"
+                  "api-reference/get-a-specific-folder",
+                  "api-reference/run-tests-by-folder-id"
                 ]
               },
               {
                 "group": "Run",
                 "pages": [
-                  "api-reference/run-a-test-by-test-id",
-                  "api-reference/run-tests-by-folder-id",
                   "api-reference/list-test-runs",
                   "api-reference/get-a-specific-test-run",
-                  "api-reference/get-steps-for-a-test-run",
                   "api-reference/get-a-specific-run-status",
                   "api-reference/get-a-specific-run-folder-status"
                 ]
