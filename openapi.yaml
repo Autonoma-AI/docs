@@ -684,59 +684,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /run/{runID}/steps:
-    get:
-      summary: Get steps for a test run
-      description: Retrieve the steps of a specific test run
-      security:
-        - ApiKeyAuth: []
-          ApiSecretAuth: []
-      parameters:
-        - name: runID
-          in: path
-          required: true
-          description: The ID of the test run
-          schema:
-            type: string
-            example: "g41k688vndxzt7kh4kq5m12s"
-        - name: limit
-          in: query
-          description: Maximum number of steps to return
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-        - name: offset
-          in: query
-          description: Number of steps to skip for pagination
-          required: false
-          schema:
-            type: integer
-            minimum: 0
-            example: 0
-      responses:
-        "200":
-          description: List of test run steps
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Step"
-        "404":
-          description: Test run not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundError"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidCredentialsError"
   /run/{runID}/status:
     get:
       summary: Get a specific run status

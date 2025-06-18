@@ -107,7 +107,6 @@
                 "pages": [
                   "api-reference/list-test-runs",
                   "api-reference/get-a-specific-test-run",
-                  "api-reference/get-steps-for-a-test-run",
                   "api-reference/get-a-specific-run-status",
                   "api-reference/get-a-specific-run-folder-status"
                 ]
