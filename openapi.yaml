@@ -357,7 +357,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /test/{testID}:
+  /test/{test_id}:
     get:
       summary: Get a specific test
       description: Retrieve details of a specific test definition by ID
@@ -365,7 +365,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: testID
+        - name: test_id
           in: path
           required: true
           description: The ID of the test
@@ -398,7 +398,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NotFoundError"
-  /test/{testID}/run:
+  /test/{test_id}/run:
     post:
       summary: Run test
       description: Run a test by test ID
@@ -406,7 +406,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: testID
+        - name: test_id
           in: path
           required: true
           description: ID of the test to run
@@ -479,7 +479,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /folder/{folderID}:
+  /folder/{folder_id}:
     get:
       summary: Get a specific folder
       description: Retrieve details of a specific folder definition by ID
@@ -487,7 +487,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: folderID
+        - name: folder_id
           in: path
           required: true
           description: The ID of the folder
@@ -513,7 +513,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /folder/{folderID}/run:
+  /folder/{folder_id}/run:
     post:
       summary: Run all tests within a folder
       description: "Executes all tests contained within the specified folder."
@@ -521,7 +521,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: folderID
+        - name: folder_id
           in: path
           required: true
           description: id of the folder to run
@@ -636,7 +636,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /run/{runID}:
+  /run/{run_id}:
     get:
       summary: Get a specific test run
       description: Retrieve details of a specific test run by ID
@@ -644,7 +644,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: runID
+        - name: run_id
           in: path
           required: true
           description: The ID of the test run
@@ -684,7 +684,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /run/{runID}/status:
+  /run/{run_id}/status:
     get:
       summary: Get a specific run status
       description: Retrieve just the run status
@@ -692,7 +692,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: runID
+        - name: run_id
           in: path
           required: true
           description: The ID of the run
@@ -718,7 +718,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
-  /run/folder/{folderRunID}/status:
+  /run/folder/{folder_run_id}/status:
     get:
       summary: Get a specific run folder status
       description: Retrieve run folder status and run status linked to folder run
@@ -726,7 +726,7 @@ paths:
         - ApiKeyAuth: []
           ApiSecretAuth: []
       parameters:
-        - name: folderRunID
+        - name: folder_run_id
           in: path
           required: true
           description: The ID of the run folder
@@ -752,3 +752,354 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
+  /application:
+    post:
+      summary: Create application
+      description: Create a new application by uploading a file (APK for Android, ZIP for iOS) or providing web application details
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: x-platform
+          in: header
+          required: true
+          description: Application platform type
+          schema:
+            type: string
+            enum: [android, ios, web]
+            example: "android"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Application file (APK for Android, ZIP for iOS)
+                name:
+                  type: string
+                  description: Name of the application
+                  example: "My Mobile App"
+                cookies:
+                  type: string
+                  description: Optional cookies for web applications
+                  example: "session=abc123"
+                path:
+                  type: string
+                  description: URL path for web applications
+                  example: "https://myapp.com"
+                version:
+                  type: string
+                  description: Version string for web applications
+                  example: "1.0.0"
+                geolocation:
+                  type: string
+                  description: JSON string containing geolocation data
+                  example: '{"latitude": 40.7128, "longitude": -74.0060}'
+            examples:
+              android_app:
+                summary: Android APK Upload
+                description: Example of uploading an Android APK file
+                value:
+                  name: "TestApiAndroid"
+                  file: "@/path/to/your/app.apk"
+              ios_app:
+                summary: iOS ZIP Upload
+                description: Example of uploading an iOS ZIP file
+                value:
+                  name: "TestApiIOS"
+                  file: "@/Users/axel/Downloads/autonoma-bank.zip"
+              web_app:
+                summary: Web Application
+                description: Example of creating a web application
+                value:
+                  name: "My Web App"
+                  path: "https://myapp.com"
+                  version: "1.0.0"
+                  cookies: "session=abc123"
+                  geolocation: '{"latitude": 40.7128, "longitude": -74.0060}'
+      x-codeSamples:
+        - lang: curl
+          label: "Android"
+          source: |
+            curl --location --request POST 'https://autonoma.app/api/mobile' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: android' \
+            --form 'name=TestApiAndroid' \
+            --form 'file=@"/path/to/your/app.apk"'
+        - lang: curl
+          label: "iOS ZIP"
+          source: |
+            curl --location --request POST 'https://autonoma.app/api/mobile' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: ios' \
+            --form 'name=TestApiIOS' \
+            --form 'file=@"/Users/axel/Downloads/autonoma-bank.zip"'
+        - lang: curl
+          label: "Web Application"
+          source: |
+            curl --location --request POST 'https://autonoma.app/api/mobile' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: web' \
+            --form 'name=My Web App' \
+            --form 'path=https://myapp.com' \
+            --form 'version=1.0.0' \
+            --form 'cookies=session=abc123'
+        - lang: javascript
+          label: "JavaScript (FormData)"
+          source: |
+            const formData = new FormData();
+            formData.append('name', 'TestApiIOS');
+            formData.append('file', fileInput.files[0]);
+
+            fetch('https://autonoma.app/api/mobile', {
+              method: 'POST',
+              headers: {
+                'autonoma-client-id': 'YOUR_CLIENT_ID',
+                'autonoma-client-secret': 'YOUR_CLIENT_SECRET',
+                'x-platform': 'ios'
+              },
+              body: formData
+            });
+        - lang: python
+          label: "Python (requests)"
+          source: |
+            import requests
+
+            files = {'file': open('/Users/axel/Downloads/autonoma-bank.zip', 'rb')}
+            data = {'name': 'TestApiIOS'}
+            headers = {
+                'autonoma-client-id': 'YOUR_CLIENT_ID',
+                'autonoma-client-secret': 'YOUR_CLIENT_SECRET',
+                'x-platform': 'ios'
+            }
+
+            response = requests.post(
+                'https://autonoma.app/api/mobile',
+                files=files,
+                data=data,
+                headers=headers
+            )
+      responses:
+        "200":
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  application_id:
+                    type: string
+                    example: "cm7dbowr80042waka7thyjhkq"
+                  application_version_id:
+                    type: string
+                    example: "cm7dbowr80042waka7thyjhkr"
+                  message:
+                    type: string
+                    example: "App uploaded successfully"
+              examples:
+                success_response:
+                  summary: Successful upload
+                  value:
+                    application_id: "cm7dbowr80042waka7thyjhkq"
+                    application_version_id: "cm7dbowr80042waka7thyjhkr"
+                    message: "App uploaded successfully"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    example: "Failed to create application"
+  /application/{application_id}:
+    patch:
+      summary: Update application version
+      description: Create a new version of an existing application by uploading a new file or updating web application details
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          description: The ID of the application to update
+          schema:
+            type: string
+            example: "cm7dbowr80042waka7thyjhkq"
+        - name: x-platform
+          in: header
+          required: true
+          description: Application platform type
+          schema:
+            type: string
+            enum: [android, ios, web]
+            example: "android"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Application file (APK for Android, ZIP for iOS)
+                tag:
+                  type: string
+                  description: Version tag
+                  enum: [dev, staging, production]
+                  example: "staging"
+                appName:
+                  type: string
+                  description: Updated application name
+                  example: "My Mobile App v2"
+                cookies:
+                  type: string
+                  description: Optional cookies for web applications
+                  example: "session=xyz789"
+                version:
+                  type: string
+                  description: Version string (required for web applications)
+                  example: "2.0.0"
+                path:
+                  type: string
+                  description: URL path (required for web applications)
+                  example: "https://myapp.com/v2"
+                geolocation:
+                  type: string
+                  description: JSON string containing geolocation data
+                  example: '{"latitude": 40.7128, "longitude": -74.0060}'
+            examples:
+              update_android:
+                summary: Update Android App
+                description: Example of updating an Android application
+                value:
+                  file: "@/path/to/updated_app.apk"
+                  tag: "production"
+                  appName: "My Android App v2.0"
+              update_ios:
+                summary: Update iOS App
+                description: Example of updating an iOS application
+                value:
+                  file: "@/Users/axel/Downloads/autonoma-bank-v2.zip"
+                  tag: "staging"
+                  appName: "TestApiIOS v2.0"
+      x-codeSamples:
+        - lang: curl
+          label: "Android"
+          source: |
+            curl --location --request PATCH 'https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: android' \
+            --form 'file=@"/path/to/updated_app.apk"' \
+            --form 'tag=production' \
+            --form 'appName=My Android App v2.0'
+        - lang: curl
+          label: "iOS"
+          source: |
+            curl --location --request PATCH 'https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: ios' \
+            --form 'file=@"/Users/axel/Downloads/autonoma-bank-v2.zip"' \
+            --form 'tag=staging' \
+            --form 'appName=TestApiIOS v2.0'
+        - lang: javascript
+          label: "JavaScript Update"
+          source: |
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('tag', 'production');
+            formData.append('appName', 'My App v2.0');
+
+            fetch('https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq', {
+              method: 'PATCH',
+              headers: {
+                'autonoma-client-id': 'YOUR_CLIENT_ID',
+                'autonoma-client-secret': 'YOUR_CLIENT_SECRET',
+                'x-platform': 'ios'
+              },
+              body: formData
+            });
+      responses:
+        "200":
+          description: Application version created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  application_version_id:
+                    type: string
+                    example: "cm7dbowr80042waka7thyjhks"
+                  message:
+                    type: string
+                    example: "App uploaded successfully"
+              examples:
+                update_success:
+                  summary: Successful update
+                  value:
+                    application_version_id: "cm7dbowr80042waka7thyjhks"
+                    message: "App version updated successfully"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "404":
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    example: "Failed to create application version"

@@ -87,6 +87,13 @@
             "group": "API Reference",
             "pages": [
               {
+                "group": "Application",
+                "pages": [
+                  "api-reference/create-application",
+                  "api-reference/update-application-version"
+                ]
+              },
+              {
                 "group": "Test",
                 "pages": [
                   "api-reference/list-tests",
