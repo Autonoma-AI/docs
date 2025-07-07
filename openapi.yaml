@@ -52,6 +52,18 @@ components:
           description: Source of the test run request
           default: "api"
           example: "api"
+    RunTagRequest:
+      type: object
+      properties:
+        application_version_id:
+          type: string
+          description: Optional application version ID to use for all tests in the folder
+          example: "cm7dbowr80042waka7thyjhkq"
+        source:
+          type: string
+          description: Source of the test run request
+          default: "api"
+          example: "api"
     TestFolder:
       type: object
       properties:
@@ -150,6 +162,18 @@ components:
           type: string
           example: "https://autonoma.app/run/folder/pby4qnbppbvimimuls4v5ajq"
         folder_run_id:
+          type: string
+          example: pby4qnbppbvimimuls4v5ajq
+    RunTag:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Tag with id cm9r0nog10012v301qtollv01 was scheduled to run. Since no applicationVersionID was provided, the latest version ('STG') for the application associated with the tag's tests was used."
+        url:
+          type: string
+          example: "https://autonoma.app/run/tag/pby4qnbppbvimimuls4v5ajq"
+        tag_run_id:
           type: string
           example: pby4qnbppbvimimuls4v5ajq
     TestRun:
@@ -556,6 +580,53 @@ paths:
                 $ref: "#/components/schemas/InvalidCredentialsError"
         "404":
           description: Folder not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+  /tag/{tag_id}/run:
+    post:
+      summary: Run all tests that have the specified tag
+      description: "Executes all tests that have the specified tag."
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          description: id of the tag to run
+          schema:
+            type: string
+            example: "g41k688vndxzt7kh4kq5m12s"
+      requestBody:
+        required: false
+        description: "Request body (optional)"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunTagRequest"
+      responses:
+        "201":
+          description: Run creation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunTag"
+        "400":
+          description: Bad request (e.g., missing application version)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "404":
+          description: Tag not found
           content:
             application/json:
               schema:
