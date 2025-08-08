@@ -117,6 +117,12 @@
                   "api-reference/get-a-specific-run-status",
                   "api-reference/get-a-specific-run-folder-status"
                 ]
+              },
+              {
+                "group": "Tag",
+                "pages": [
+                  "api-reference/run-all-tests-that-have-the-specified-tag.mdx"
+                ]
               }
             ]
           }
