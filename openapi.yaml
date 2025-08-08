@@ -55,10 +55,21 @@ components:
     RunTagRequest:
       type: object
       properties:
-        application_version_id:
-          type: string
-          description: Optional application version ID to use for all tests in the folder
-          example: "cm7dbowr80042waka7thyjhkq"
+        application_versions:
+          type: object
+          description: Map of applicationID to applicationVersionID
+          properties:
+            id:
+              type: string
+              description: Application ID
+              example: "cm7dbowr80042waka7thyjhkq"
+            applicationVersionID:
+              type: array
+              items:
+                type: string
+              description: Application version ID
+              example: ["cm7dbowr80042waka7thyjhkq", "cm7dbowr80042waka7thyjwer"]
+          example: { "cm7dbowr80042waka7thyjhkq": ["cm7dbowr80042waka7thyjhkq", "cm7dbowr80042waka7thyjwer"], "cm8d9gt6v000c9fe5glmyi33u": ["cm8d9gt6v000c9fe5glmyi33u"] }
         source:
           type: string
           description: Source of the test run request
@@ -308,6 +319,24 @@ components:
         message:
           type: string
           example: "No applicationVersionID provided, and could not automatically determine an application from the tests within folder cmbsgljfr00fd060153r9x8ek. Please specify an applicationVersionID or ensure at least one test has an associated application."
+    TagsBadRequestError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "No application_versions provided."
+    TagsBadRequestError2:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Application ID cm8d9gt6v000c9fe5glmyi33u is not present in the provided application_versions but it is required by a tag's test group."
     InvalidCredentialsError:
       type: object
       properties:
@@ -600,8 +629,8 @@ paths:
             type: string
             example: "g41k688vndxzt7kh4kq5m12s"
       requestBody:
-        required: false
-        description: "Request body (optional)"
+        required: true
+        description: "Request body"
         content:
           application/json:
             schema:
@@ -618,7 +647,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BadRequestError"
+                oneOf:
+                  - $ref: "#/components/schemas/TagsBadRequestError"
+                  - $ref: "#/components/schemas/TagsBadRequestError2"
         "401":
           description: Unauthorized
           content:
