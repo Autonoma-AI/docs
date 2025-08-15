@@ -1069,7 +1069,7 @@ paths:
                 tag:
                   type: string
                   description: Version tag
-                  enum: [dev, staging, production]
+                  enum: [main, staging, other]
                   example: "staging"
                 appName:
                   type: string
@@ -1097,7 +1097,7 @@ paths:
                 description: Example of updating an Android application
                 value:
                   file: "@/path/to/updated_app.apk"
-                  tag: "production"
+                  tag: "main"
                   appName: "My Android App v2.0"
               update_ios:
                 summary: Update iOS App
@@ -1115,7 +1115,7 @@ paths:
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
             --header 'x-platform: android' \
             --form 'file=@"/path/to/updated_app.apk"' \
-            --form 'tag=production' \
+            --form 'tag=main' \
             --form 'appName=My Android App v2.0'
         - lang: curl
           label: "iOS"
@@ -1132,7 +1132,7 @@ paths:
           source: |
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
-            formData.append('tag', 'production');
+            formData.append('tag', 'main');
             formData.append('appName', 'My App v2.0');
 
             fetch('https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq', {
