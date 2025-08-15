@@ -40,6 +40,15 @@ components:
           description: Source of the test run request
           default: "api"
           example: "api"
+        runtime_metadata:
+          type: object
+          description: Variables to override when test is running, if variable does not match any of your saved variables it will ignore it
+          additionalProperties:
+            type: string
+          example:
+            NAME: "CompanyName"
+            ENVIRONMENT: "staging"
+            API_KEY: "test-key-123"
     RunFolderRequest:
       type: object
       properties:
@@ -55,15 +64,27 @@ components:
     RunTagRequest:
       type: object
       properties:
-        application_version_id:
-          type: string
-          description: Optional application version ID to use for all tests in the folder
-          example: "cm7dbowr80042waka7thyjhkq"
-        source:
-          type: string
-          description: Source of the test run request
-          default: "api"
-          example: "api"
+        application_versions:
+          type: array
+          description: Applications used by running tests
+          items:
+            type: object
+            properties:
+              application_id:
+                type: string
+                description: Optional application ID 
+                example: "cm7dbowr80042waka7thyjhkq"
+              application_version_ids:
+                type: array
+                description: Optional application version IDs
+                items:
+                  type: string
+                example: ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
+          example:
+            - application_id: "cm7dbowr80042waka7thyjhkq"
+              application_version_ids: ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
+            - application_id: "cm9xyz12340567pqrs8tuvwxy"
+              application_version_ids: ["cm9abc34560789defg0hijklm", "cm0nop78901234qrst5uvwxyz"]
     TestFolder:
       type: object
       properties:
