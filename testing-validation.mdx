@@ -1,0 +1,109 @@
+---
+title: "Testing & Validation"
+description: "Verify application behavior, extract data, and validate test conditions using assertions and variables"
+---
+
+Verify application behavior and extract data for comprehensive test validation and dynamic test flows.
+
+## Assert
+
+**Description**: Verify expected conditions
+
+Validates that specific conditions are met on the page. Can check element visibility, text content, element states, and other page conditions.
+
+**Examples:**
+- Assert that 'Welcome' text is visible
+- Verify login button is enabled
+- Check that error message appears
+
+---
+
+## Extract Information
+
+**Description**: Get data from elements and store it into a variable
+
+Extracts text, attributes, or other data from page elements and stores them in runtime variables for later use in the test flow.
+
+**Examples:**
+- Extract user name from profile page
+- Extract savings value
+
+---
+
+## Use Variable
+
+**Description**: Use a previously extracted variable
+
+Inserts the value of a previously extracted information or a global variable into the current test flow. Use `{{variable:<name_of_variable>}}` to use a global variable or `{{key:<name_of_variable>}}` to use a runtime variable (a value extracted during the test execution).
+
+**Examples:**
+- Input {{variable:<name_of_variable>}} on text field
+- Insert {{key:<name_of_variable>}} in input
+
+---
+
+## Wait/Wait Until
+
+**Description**: Wait for a specific time or condition
+
+Pauses test execution for a specified time or until a condition is met. Useful for handling dynamic content or animations.
+
+**Examples:**
+- Wait 2 seconds for page to load
+- Wait until loading spinner disappears
+- Wait for element to become clickable
+
+---
+
+## Use Component
+
+**Description**: Insert a test component
+
+Inserts reusable test components that encapsulate complex interaction sequences. Use the 'Import component' button in the interactions bar to select within your available components.
+
+---
+
+## Variable Types
+
+### Global Variables
+- **Format**: `{{variable:<name_of_variable>}}`
+- **Use case**: Predefined values like test credentials, URLs, or configuration data
+- **Scope**: Available across all tests
+
+### Runtime Variables  
+- **Format**: `{{key:<name_of_variable>}}`
+- **Use case**: Data extracted during test execution
+- **Scope**: Available within the current test run
+
+## Usage Tips
+
+- **Assertions**: Add assertions after every critical action to catch issues early
+- **Data extraction**: Extract dynamic content like user IDs, session tokens, or generated values
+- **Variable naming**: Use descriptive names for variables to improve test readability
+- **Wait conditions**: Use conditional waits instead of fixed delays when possible
+- **Component reuse**: Create components for common workflows like login or checkout
+
+## Common Patterns
+
+### Login Validation
+1. Input credentials
+2. Click login button
+3. Assert welcome message appears
+4. Extract user name for later use
+
+### Dynamic Content Testing
+1. Extract current value from element
+2. Perform action that should change the value
+3. Assert new value is different/correct
+
+### Form Validation
+1. Input invalid data
+2. Submit form
+3. Assert error message appears
+4. Assert form is not submitted
+
+### Component-Based Testing
+1. Use login component
+2. Navigate to feature being tested
+3. Use feature-specific component
+4. Assert expected outcomes

@@ -1,0 +1,75 @@
+---
+title: "Input & Forms"
+description: "Handle all types of user input including text entry, form submission, file uploads, and keyboard actions"
+---
+
+## Input
+
+**Description**: Enter text into fields
+
+Types text into input fields, textareas, or any text-accepting element. Supports both static text and dynamic content from variables.
+
+**Examples:**
+- Type 'john@example.com' into email field
+- Enter password from variable
+- Fill form with user data
+
+---
+
+## Send Enter on Input
+
+**Description**: Submit form with Enter key
+
+Simulates pressing the Enter key while focused on an input field, commonly used to submit forms or trigger search functionality.
+
+**Examples:**
+- Input on focus Enter
+- Press Enter key
+
+---
+
+## Keypad
+
+**Description**: Use numeric keypad input
+
+When there is a numeric keypad on screen, this interaction allows you to input numbers using the keypad interface without the need for individual key presses.
+
+**Examples:**
+- Enter 123456 with keypad
+- Input 1234
+
+---
+
+## Set File to Upload
+
+**Description**: Select files for upload
+
+Uploads files to file input elements. Can handle single or multiple file uploads with various file types. Use the 'Upload file' button in the creation bar to select the file.
+
+**Examples:**
+- set-file-to-upload https://example.com/file.pdf
+
+## Usage Tips
+
+- **Text input**: Use variables for dynamic content like usernames, emails, or generated data
+- **Form submission**: Combine text input with Enter key presses for quick form submission
+- **File uploads**: Test various file types and sizes to ensure proper handling
+- **Keypad input**: Particularly useful for mobile testing and PIN entry scenarios
+- **Validation testing**: Try invalid inputs to test form validation and error handling
+
+## Common Patterns
+
+### Login Form
+1. Input username/email
+2. Input password  
+3. Send Enter on input (or click login button)
+
+### File Upload Flow
+1. Set file to upload
+2. Click upload button
+3. Assert upload success message
+
+### Search Functionality
+1. Input search term
+2. Send Enter on input
+3. Assert search results appear

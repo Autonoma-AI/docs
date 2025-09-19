@@ -1,0 +1,105 @@
+---
+title: "Advanced Actions"
+description: "Powerful interactions for complex testing scenarios including API requests, conditional logic, and email testing"
+---
+
+## Fetch
+
+**Description**: Make API requests
+
+Makes HTTP requests to APIs or backend services. Supports GET, POST, PUT, DELETE methods with custom headers and request bodies. You have to first create the fetch script over on the scripts settings page and then you can use it.
+
+**Examples:**
+- Fetch NAME_OF_FETCH_SCRIPT
+
+---
+
+## Scroll with Condition
+
+**Description**: Conditional scrolling
+
+Scrolls based on specific conditions, such as scrolling until an element becomes visible or a certain condition is met.
+
+**Examples:**
+- Scroll until 'Load More' button appears
+- Scroll down until specific text is visible
+
+---
+
+## Generate Retriever Email
+
+**Description**: Generate a temporary email to retrieve information like OTP codes
+
+Generates a temporary email address to receive emails for testing purposes. Useful for retrieving OTP codes or verification links during tests. The generated email will be stored in a runtime variable called 'generated_email' for later use.
+
+**Examples:**
+- Generate a random email to receive an otp
+
+---
+
+## Retrieve Email Information
+
+**Description**: Get information from received emails
+
+Retrieves specific information from emails received at a previously generated temporary email address. Can extract OTP codes, verification links, or other data from the email content. Make sure to generate the email first with the 'email-information-retriever-generator' interaction. The retrieved information will be stored in a runtime variable called 'email_retrieved_information' for later use.
+
+**Examples:**
+- Extract six digit code from latest email
+- Get verification link from received email
+
+## Advanced Testing Patterns
+
+### API Integration Testing
+1. Create fetch script in settings
+2. Use Fetch interaction with script name
+3. Assert API response data
+4. Extract values for subsequent tests
+
+### Email Verification Flow
+1. Generate retriever email
+2. Use generated email in registration form
+3. Submit registration
+4. Retrieve email information (OTP/verification link)
+5. Use extracted information to complete verification
+
+### Infinite Scroll Testing
+1. Scroll with condition until specific content appears
+2. Assert content is loaded
+3. Extract pagination information
+4. Continue scrolling if more content expected
+
+### Complex Form Workflows
+1. Fill initial form data
+2. Use fetch to validate data against API
+3. Conditionally scroll to reveal additional fields
+4. Complete form based on API response
+
+## Usage Tips
+
+- **Fetch scripts**: Set up API endpoints and authentication in the scripts settings first
+- **Email testing**: Allow sufficient time between email generation and retrieval
+- **Conditional scrolling**: Use specific, unique text or elements as scroll targets
+- **Variable management**: Track generated emails and extracted data with descriptive variable names
+- **Error handling**: Add assertions to verify API responses and email retrieval success
+
+## Prerequisites
+
+### For Fetch Interactions
+- Configure fetch scripts in application settings
+- Set up authentication headers if required
+- Define request/response handling logic
+
+### For Email Testing
+- Ensure email generation completes before attempting retrieval
+- Account for email delivery delays in test timing
+- Use descriptive extraction patterns for reliable information retrieval
+
+## Runtime Variables
+
+These interactions create specific runtime variables:
+
+- **generated_email**: Created by Generate Retriever Email
+- **email_retrieved_information**: Created by Retrieve Email Information
+- **Custom variables**: Created by fetch scripts based on API responses
+
+Use these variables in subsequent interactions with the `{{key:variable_name}}` syntax.

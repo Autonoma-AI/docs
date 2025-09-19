@@ -73,6 +73,17 @@
           {
             "group": "Running Tests",
             "pages": ["running_tests", "cicd_integration", "slack-integration"]
+          },
+          {
+            "group": "Interactions",
+            "pages": [
+              "interactions",
+              "navigation-movement",
+              "input-forms",
+              "testing-validation",
+              "device-environment",
+              "advanced-actions"
+            ]
           }
         ]
       },

@@ -1,0 +1,106 @@
+---
+title: "Device & Environment"
+description: "Simulate device states and environmental conditions including network connectivity, camera input, and zoom controls"
+---
+
+## Set Camera Image
+
+**Description**: Mock camera input
+
+Provides mock camera input by setting a predefined image. Useful for testing camera-based features. For the time being, it is only supported in Android devices.
+
+**Examples:**
+- set-camera-image https://example.com/image.jpg
+
+---
+
+## Go Offline
+
+**Description**: Simulate offline mode
+
+Simulates loss of network connectivity, allowing testing of offline functionality and error handling.
+
+**Examples:**
+- Test offline error messages
+- Verify cached content display
+- Check offline form submission
+
+---
+
+## Go Online
+
+**Description**: Restore online connection
+
+Restores network connectivity after simulating offline mode, allowing testing of reconnection behavior.
+
+**Examples:**
+- Restore network connection
+- Test data synchronization on reconnect
+- Verify online functionality resume
+
+---
+
+## Zoom In
+
+**Description**: Adjust viewport zoom
+
+Adjusts the browser or app viewport zoom level. Useful for testing responsive design and accessibility features.
+
+**Examples:**
+- Zoom in to 125% for better focus
+
+---
+
+## Zoom Out
+
+**Description**: Adjust viewport zoom
+
+Adjusts the browser or app viewport zoom level. Useful for testing responsive design and accessibility features.
+
+**Examples:**
+- Zoom out to 75% for better overview
+
+## Testing Scenarios
+
+### Network Connectivity Testing
+1. Start with online state
+2. Perform actions that require network
+3. Go offline
+4. Assert appropriate offline behavior
+5. Go online
+6. Assert reconnection and data sync
+
+### Camera Functionality Testing
+1. Navigate to camera feature
+2. Set camera image with test image
+3. Trigger camera capture
+4. Assert image is processed correctly
+
+### Responsive Design Testing
+1. Start at normal zoom level
+2. Zoom in to test high zoom accessibility
+3. Assert content remains readable and functional
+4. Zoom out to test overview layouts
+5. Assert responsive breakpoints work correctly
+
+## Usage Tips
+
+- **Offline testing**: Essential for mobile apps and PWAs
+- **Camera simulation**: Test image processing without physical camera
+- **Zoom testing**: Verify accessibility compliance and responsive design
+- **Network state changes**: Test how your app handles connection drops and restores
+- **Device-specific features**: Some interactions may be platform-specific
+
+## Platform Considerations
+
+### Android-Specific
+- Camera image simulation currently only supported on Android
+- Test device-specific UI patterns and behaviors
+
+### Web Browsers
+- Network state simulation works across all browser platforms
+- Zoom controls test responsive design breakpoints
+
+### iOS
+- Camera simulation coming soon
+- Test iOS-specific interaction patterns
