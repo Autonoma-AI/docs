@@ -72,7 +72,7 @@
           },
           {
             "group": "Running Tests",
-            "pages": ["running_tests", "cicd_integration", "slack-integration"]
+            "pages": ["running_tests", "slack-integration"]
           },
           {
             "group": "Interactions",
@@ -84,6 +84,10 @@
               "device-environment",
               "advanced-actions"
             ]
+          },
+          {
+            "group": "Integrations",
+            "pages": ["cicd_integration", "vercel"]
           }
         ]
       },

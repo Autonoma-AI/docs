@@ -1,0 +1,107 @@
+---
+title: "Vercel Integration"
+description: "Connect your Vercel projects with Autonoma for automated testing on every deployment"
+---
+
+## Overview
+
+The Vercel integration enables seamless testing of your Vercel deployments. When you connect your Vercel projects to Autonoma, we automatically create the necessary infrastructure to run tests on every deployment.
+
+## How It Works
+
+### Application and Version Creation
+
+When you connect a Vercel project to Autonoma:
+
+1. **Application Creation**: We create an application in Autonoma corresponding to your Vercel project
+2. **Version Management**: For each Vercel target (production, preview, development), we create a separate application version
+
+This structure allows you to manage and test different deployment environments independently.
+
+<Frame>
+  <img src="/images/vercel-version-targets.png" alt="Vercel application structure in Autonoma" />
+</Frame>
+
+### Deployment Checks
+
+Each time you deploy to Vercel, Autonoma automatically:
+
+- Creates a **deployment tag** for your project
+- Runs all tests associated with that tag
+- Reports results back to Vercel as deployment checks
+
+<Warning>
+**Test Run Consumption**: Each deployment check consumes test runs. If you have 5 tests configured for your project, each deployment will consume 5 test runs (1 per test).
+</Warning>
+<Frame>
+  <img src="/images/vercel-runs-deployment.png" alt="Runs and deployments on Vercel" />
+</Frame>
+<Frame>
+  <img src="/images/vercel-deployment-checks.png" alt="Deployment checks on Vercel" />
+</Frame>
+
+## Authentication Setup
+
+### Vercel Protection Bypass
+
+If your Vercel project uses [Vercel Authentication](https://vercel.com/docs/security/deployment-protection), you'll need to configure the bypass header so Autonoma can access your deployments for testing.
+
+<Steps>
+  <Step title="Locate Your Bypass Header">
+    Navigate to your Vercel project settings and find your Protection Bypass for Automation secret.
+  </Step>
+  
+  <Step title="Configure in Autonoma">
+    Add the bypass header to your test configuration in Autonoma.
+  </Step>
+</Steps>
+
+<Frame>
+  <img src="/images/vercel-bypass.gif" alt="Setting up Vercel bypass header" />
+</Frame>
+
+<Tip>
+The bypass header should be added in the format: `x-vercel-protection-bypass: your-secret-value`
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create Your First Test" icon="flask-vial" href="/getting_started">
+    Learn how to create tests for your Vercel project
+  </Card>
+  
+  <Card title="Test Interactions" icon="hand-pointer" href="/interactions">
+    Check the list of interactions supported by our engine
+  </Card>
+  
+  <Card title="Check Our API" icon="code" href="/overview">
+    Check out our API reference
+  </Card>
+  
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tests aren't running on deployment">
+    Ensure that:
+    - Your Vercel project is properly connected
+    - Tests are tagged correctly for the deployment environment
+    - You have sufficient test runs available in your plan
+  </Accordion>
+  
+  <Accordion title="Authentication errors">
+    Verify that:
+    - The bypass header is correctly configured
+    - The bypass secret hasn't been rotated in Vercel
+    - The header format matches Vercel's requirements
+  </Accordion>
+  
+  <Accordion title="Missing deployment checks">
+    Check that:
+    - The Autonoma integration has proper permissions in Vercel
+    - Webhook configurations are active
+    - Your application versions are correctly mapped to Vercel targets
+  </Accordion>
+</AccordionGroup>
