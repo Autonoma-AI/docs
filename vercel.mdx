@@ -44,20 +44,26 @@ Each time you deploy to Vercel, Autonoma automatically:
 
 ### Vercel Protection Bypass
 
-If your Vercel project uses [Vercel Authentication](https://vercel.com/docs/security/deployment-protection), you'll need to configure the bypass header so Autonoma can access your deployments for testing.
+If your Vercel project uses [Vercel Authentication](https://vercel.com/docs/security/deployment-protection), Autonoma automatically configures the bypass header when you connect your project, allowing access to your deployments for testing.
+
+If you need to update or change the bypass header:
 
 <Steps>
-  <Step title="Locate Your Bypass Header">
-    Navigate to your Vercel project settings and find your Protection Bypass for Automation secret.
+  <Step title="Open Application Settings">
+    Navigate to the Application Settings page.
   </Step>
   
-  <Step title="Configure in Autonoma">
-    Add the bypass header to your test configuration in Autonoma.
+  <Step title="Select Application Version">
+    Choose the application version you want to configure.
+  </Step>
+  
+  <Step title="Update Bypass Header">
+    Modify the Protection Bypass header value as needed.
   </Step>
 </Steps>
 
 <Frame>
-  <img src="/images/vercel-bypass.gif" alt="Setting up Vercel bypass header" />
+  <img src="/images/bypass-header-zoom.gif" alt="Updating Vercel bypass header in Application Settings" />
 </Frame>
 
 <Tip>
