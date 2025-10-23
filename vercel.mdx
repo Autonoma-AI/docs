@@ -14,7 +14,11 @@ The Vercel integration enables seamless testing of your Vercel deployments. When
 When you connect a Vercel project to Autonoma:
 
 1. **Application Creation**: We create an application in Autonoma corresponding to your Vercel project
-2. **Version Management**: For each Vercel target (production, preview, development), we create a separate application version
+2. **Version Management**: For each Vercel target (production, preview, development) selected during setup, we create a separate application version
+3. **URL Configuration**: Each application version is populated with information from previous deployments:
+   - If a target has previous deployments, we use the URL from those deployments
+   - If a target has no previous deployments, we set a default URL pointing to `https://vercel.com`
+   - To test targets without previous deployments, you'll need to manually update the URL in the application version settings
 
 This structure allows you to manage and test different deployment environments independently.
 
@@ -22,17 +26,27 @@ This structure allows you to manage and test different deployment environments i
   <img src="/images/vercel-version-targets.png" alt="Vercel application structure in Autonoma" />
 </Frame>
 
+### Test Execution
+
+Autonoma handles test execution differently depending on the context:
+
+- **During Deployments**: When a new deployment occurs, tests run against the **preview URL** of that specific deployment. This ensures you're testing the exact code being deployed without modifying the base URL configured in your application version.
+- **Manual Test Runs**: Tests use the URL configured in the application version settings.
+
+This approach allows you to test each deployment in isolation while maintaining stable URLs for your regular test runs.
+
 ### Deployment Checks
 
 Each time you deploy to Vercel, Autonoma automatically:
 
 - Creates a **deployment tag** for your project
-- Runs all tests associated with that tag
+- Runs all tests associated with that tag against the deployment's preview URL
 - Reports results back to Vercel as deployment checks
 
 <Warning>
 **Test Run Consumption**: Each deployment check consumes test runs. If you have 5 tests configured for your project, each deployment will consume 5 test runs (1 per test).
 </Warning>
+
 <Frame>
   <img src="/images/vercel-runs-deployment.png" alt="Runs and deployments on Vercel" />
 </Frame>
@@ -109,5 +123,13 @@ The bypass header should be added in the format: `x-vercel-protection-bypass: yo
     - The Autonoma integration has proper permissions in Vercel
     - Webhook configurations are active
     - Your application versions are correctly mapped to Vercel targets
+  </Accordion>
+  
+  <Accordion title="Need to test a target without previous deployments">
+    If you selected a Vercel target during setup that had no previous deployments:
+    - Navigate to Application Settings
+    - Select the application version for that target
+    - Update the URL from the default `https://vercel.com` to your actual deployment URL
+    - Save the changes to enable testing for that target
   </Accordion>
 </AccordionGroup>
