@@ -3,10 +3,13 @@
   "theme": "mint",
   "name": "Autonoma",
   "logo": {
-    "dark": "/logo-hd-white.svg",
-    "light": "/logo-hd-dark.svg"
+    "dark": "/images/autonoma-light.png",
+    "light": "/images/autonoma-dark.png"
   },
-  "favicon": "/logo-hd-dark.svg",
+  "favicon": {
+    "dark": "/images/autonoma-light.png",
+    "light": "/images/autonoma-dark.png"
+  },
   "colors": {
     "primary": "#4f46e5",
     "light": "#4f46e5",
@@ -143,7 +146,8 @@
   },
   "footer": {
     "socials": {
-      "linkedin": "https://www.linkedin.com/company/autonoma-ai/"
+      "linkedin": "https://www.linkedin.com/company/autonoma-ai/",
+      "twitter": "https://x.com/autonomaai"
     },
     "links": [
       {
