@@ -63,12 +63,12 @@ components:
           example: "api"
     RunTagRequest:
       type: object
+      required:
+        - tag_ids
       properties:
-        required:
-          - tag_ids
         tag_ids:
           type: array
-          description: ids of the tags to run
+          description: IDs of the tags to run
           items:
             type: string
           example: ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
@@ -201,11 +201,11 @@ components:
       properties:
         message:
           type: string
-          example: "Tag with id cm9r0nog10012v301qtollv01 was scheduled to run. Since no applicationVersionID was provided, the latest version ('STG') for the application associated with the tag's tests was used."
+          example: "Runs with tags cm7dbowr80042waka7thyjhkq & cm8xf3wp90123abcd4efgh5ij were scheduled to run."
         url:
           type: string
           example: "https://autonoma.app/run/tag/pby4qnbppbvimimuls4v5ajq"
-        tag_run_id:
+        folderRunID:
           type: string
           example: pby4qnbppbvimimuls4v5ajq
     TestRun:
@@ -618,8 +618,8 @@ paths:
                 $ref: "#/components/schemas/NotFoundError"
   /tag/run:
     post:
-      summary: Run all tests that have all the specified tags
-      description: "Executes all tests that have the specified set of tags."
+      summary: Run all tests that have a set of tags
+      description: "Executes all tests that have all the specified tags."
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
