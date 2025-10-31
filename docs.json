@@ -132,7 +132,7 @@
               {
                 "group": "Tag",
                 "pages": [
-                  "api-reference/run-all-tests-that-have-the-specified-tag"
+                  "api-reference/run-all-tests-that-have-the-specified-tags"
                 ]
               }
             ]
