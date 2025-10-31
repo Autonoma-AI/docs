@@ -64,6 +64,14 @@ components:
     RunTagRequest:
       type: object
       properties:
+        required:
+          - tag_ids
+        tag_ids:
+          type: array
+          description: ids of the tags to run
+          items:
+            type: string
+          example: ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
         application_versions:
           type: array
           description: Applications used by running tests
@@ -72,19 +80,22 @@ components:
             properties:
               application_id:
                 type: string
-                description: Optional application ID 
+                description: Optional application ID
                 example: "cm7dbowr80042waka7thyjhkq"
               application_version_ids:
                 type: array
                 description: Optional application version IDs
                 items:
                   type: string
-                example: ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
+                example:
+                  ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
           example:
             - application_id: "cm7dbowr80042waka7thyjhkq"
-              application_version_ids: ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
+              application_version_ids:
+                ["cm7dbowr80042waka7thyjhkq", "cm8xf3wp90123abcd4efgh5ij"]
             - application_id: "cm9xyz12340567pqrs8tuvwxy"
-              application_version_ids: ["cm9abc34560789defg0hijklm", "cm0nop78901234qrst5uvwxyz"]
+              application_version_ids:
+                ["cm9abc34560789defg0hijklm", "cm0nop78901234qrst5uvwxyz"]
     TestFolder:
       type: object
       properties:
@@ -605,24 +616,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NotFoundError"
-  /tag/{tag_id}/run:
+  /tag/run:
     post:
-      summary: Run all tests that have the specified tag
-      description: "Executes all tests that have the specified tag."
+      summary: Run all tests that have all the specified tags
+      description: "Executes all tests that have the specified set of tags."
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
-      parameters:
-        - name: tag_id
-          in: path
-          required: true
-          description: id of the tag to run
-          schema:
-            type: string
-            example: "g41k688vndxzt7kh4kq5m12s"
       requestBody:
-        required: false
-        description: "Request body (optional)"
+        required: true
+        description: "Request body"
         content:
           application/json:
             schema:
