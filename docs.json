@@ -3,10 +3,13 @@
   "theme": "mint",
   "name": "Autonoma",
   "logo": {
-    "dark": "/logo-hd-white.svg",
-    "light": "/logo-hd-dark.svg"
+    "dark": "/images/autonoma-light.png",
+    "light": "/images/autonoma-dark.png"
   },
-  "favicon": "/logo-hd-dark.svg",
+  "favicon": {
+    "dark": "/images/autonoma-light.png",
+    "light": "/images/autonoma-dark.png"
+  },
   "colors": {
     "primary": "#4f46e5",
     "light": "#4f46e5",
@@ -16,6 +19,12 @@
     "decoration": "gradient",
     "color": {
       "dark": "#1a1a1a"
+    }
+  },
+  "integrations": {
+    "posthog": {
+        "apiKey": "phc_f6rfVwQkiIIF1075FAf17N8uBski5p16Mf4diwQpdVf",
+        "apiHost": "https://reports.autonoma.app"
     }
   },
   "topbarLinks": [
@@ -72,7 +81,7 @@
           },
           {
             "group": "Running Tests",
-            "pages": ["running_tests", "cicd_integration", "slack-integration"]
+            "pages": ["running_tests", "slack-integration"]
           },
           {
             "group": "Interactions",
@@ -84,6 +93,10 @@
               "device-environment",
               "advanced-actions"
             ]
+          },
+          {
+            "group": "Integrations",
+            "pages": ["cicd_integration", "vercel"]
           }
         ]
       },
@@ -143,7 +156,8 @@
   },
   "footer": {
     "socials": {
-      "linkedin": "https://www.linkedin.com/company/autonoma-ai/"
+      "linkedin": "https://www.linkedin.com/company/autonoma-ai/",
+      "twitter": "https://x.com/autonomaai"
     },
     "links": [
       {

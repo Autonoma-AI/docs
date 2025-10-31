@@ -1,0 +1,135 @@
+---
+title: "Vercel Integration"
+description: "Connect your Vercel projects with Autonoma for automated testing on every deployment"
+---
+
+## Overview
+
+The Vercel integration enables seamless testing of your Vercel deployments. When you connect your Vercel projects to Autonoma, we automatically create the necessary infrastructure to run tests on every deployment.
+
+## How It Works
+
+### Application and Version Creation
+
+When you connect a Vercel project to Autonoma:
+
+1. **Application Creation**: We create an application in Autonoma corresponding to your Vercel project
+2. **Version Management**: For each Vercel target (production, preview, development) selected during setup, we create a separate application version
+3. **URL Configuration**: Each application version is populated with information from previous deployments:
+   - If a target has previous deployments, we use the URL from those deployments
+   - If a target has no previous deployments, we set a default URL pointing to `https://vercel.com`
+   - To test targets without previous deployments, you'll need to manually update the URL in the application version settings
+
+This structure allows you to manage and test different deployment environments independently.
+
+<Frame>
+  <img src="/images/vercel-version-targets.png" alt="Vercel application structure in Autonoma" />
+</Frame>
+
+### Test Execution
+
+Autonoma handles test execution differently depending on the context:
+
+- **During Deployments**: When a new deployment occurs, tests run against the **preview URL** of that specific deployment. This ensures you're testing the exact code being deployed without modifying the base URL configured in your application version.
+- **Manual Test Runs**: Tests use the URL configured in the application version settings.
+
+This approach allows you to test each deployment in isolation while maintaining stable URLs for your regular test runs.
+
+### Deployment Checks
+
+Each time you deploy to Vercel, Autonoma automatically:
+
+- Creates a **deployment tag** for your project
+- Runs all tests associated with that tag against the deployment's preview URL
+- Reports results back to Vercel as deployment checks
+
+<Warning>
+**Test Run Consumption**: Each deployment check consumes test runs. If you have 5 tests configured for your project, each deployment will consume 5 test runs (1 per test).
+</Warning>
+
+<Frame>
+  <img src="/images/vercel-runs-deployment.png" alt="Runs and deployments on Vercel" />
+</Frame>
+<Frame>
+  <img src="/images/vercel-deployment-checks.png" alt="Deployment checks on Vercel" />
+</Frame>
+
+## Authentication Setup
+
+### Vercel Protection Bypass
+
+If your Vercel project uses [Vercel Authentication](https://vercel.com/docs/security/deployment-protection), Autonoma automatically configures the bypass header when you connect your project, allowing access to your deployments for testing.
+
+If you need to update or change the bypass header:
+
+<Steps>
+  <Step title="Open Application Settings">
+    Navigate to the Application Settings page.
+  </Step>
+  
+  <Step title="Select Application Version">
+    Choose the application version you want to configure.
+  </Step>
+  
+  <Step title="Update Bypass Header">
+    Modify the Protection Bypass header value as needed.
+  </Step>
+</Steps>
+
+<Frame>
+  <img src="/images/bypass-header-zoom.gif" alt="Updating Vercel bypass header in Application Settings" />
+</Frame>
+
+<Tip>
+The bypass header should be added in the format: `x-vercel-protection-bypass: your-secret-value`
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create Your First Test" icon="flask-vial" href="/getting_started">
+    Learn how to create tests for your Vercel project
+  </Card>
+  
+  <Card title="Test Interactions" icon="hand-pointer" href="/interactions">
+    Check the list of interactions supported by our engine
+  </Card>
+  
+  <Card title="Check Our API" icon="code" href="/overview">
+    Check out our API reference
+  </Card>
+  
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tests aren't running on deployment">
+    Ensure that:
+    - Your Vercel project is properly connected
+    - Tests are tagged correctly for the deployment environment
+    - You have sufficient test runs available in your plan
+  </Accordion>
+  
+  <Accordion title="Authentication errors">
+    Verify that:
+    - The bypass header is correctly configured
+    - The bypass secret hasn't been rotated in Vercel
+    - The header format matches Vercel's requirements
+  </Accordion>
+  
+  <Accordion title="Missing deployment checks">
+    Check that:
+    - The Autonoma integration has proper permissions in Vercel
+    - Webhook configurations are active
+    - Your application versions are correctly mapped to Vercel targets
+  </Accordion>
+  
+  <Accordion title="Need to test a target without previous deployments">
+    If you selected a Vercel target during setup that had no previous deployments:
+    - Navigate to Application Settings
+    - Select the application version for that target
+    - Update the URL from the default `https://vercel.com` to your actual deployment URL
+    - Save the changes to enable testing for that target
+  </Accordion>
+</AccordionGroup>

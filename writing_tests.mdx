@@ -11,7 +11,7 @@ You can interact with Autonoma Creation Engine by either providing steps in natu
 
 You can simply navigate over your web or mobile apps and the steps will be recorded and labeled as clicks and input text, among others.
 
-![Click And Record Final Gi](/images/clickAndRecord-final.gif)
+![Click And Record Final Gi](https://cdn.autonoma.app/images/create-a-new-test.gif)
 
 For more specific actions, you can execute them using natural language by just sending something like `"do XYZ".`
 
@@ -71,7 +71,6 @@ In the table below, you'll find an overview of all available complex variables, 
 | :------------------ | :------------------------------------------------------------------- |
 | **Variable**        | Inserts the value of a predefined variable                           |
 | **Random**          | Inserts a random value based on a given description of what you want |
-| **Date**            | Inserts current date with a given format                             |
 | **File for upload** | Upload a file to the test                                            |
 | **Clipboard**       | Copy to clipboard some value for later use                           |
 
@@ -87,14 +86,7 @@ Click on Insert and select from the options in the menu.
 2. **Consistency**: If a value is likely to change, use a variable to update it in one place instead of across multiple steps.
 3. **Login Credentials**: Storing login credentials in variables allows you to reuse them in various test steps without hardcoding.
 
-<Steps>
-  <Step title="Create a variable" stepNumber="1">
-    ![Create New Variable Gi](/images/createNewVariable.gif)
-  </Step>
-  <Step title="Use it on a test" stepNumber="2">
-    ![Import Variable Gi](/images/importVariable.gif)
-  </Step>
-</Steps>
+### ![Using variables GIF](https://cdn.autonoma.app/interaction-gifs/interaction-variable-min.gif)
 
 **Summary**
 
@@ -107,16 +99,7 @@ Random variables are placeholders that generate unpredictable values each time a
 **When to use Random**\
 Random variables are ideal for testing scenarios where variability is needed, such as validating form inputs, simulating user behavior, or testing edge cases. By using random values, you ensure your tests cover a wider range of possibilities, helping identify issues that may not be immediately obvious in static tests.
 
-### ![Random Generate Gi](/images/randomGenerate.gif)
-
-### Date
-
-Date variables automatically insert the current date into your UI tests. You can specify the exact format for the date by using placeholders like `{{date}}` followed by your desired format (e.g., `{{date}} with format YYYY-MM-DD`).
-
-**When to use Date**\
-Date variables are useful when you need to test scenarios that depend on the current date, such as validating date fields, checking date-based logic, or simulating time-sensitive user actions. By dynamically inserting the current date in the chosen format, you ensure your tests stay relevant and accurate over time.
-
-### ![Insert Date Gi](/images/insertDate.gif)
+### ![Random Generate Gif](https://cdn.autonoma.app/interaction-gifs/interaction-random-min.gif)
 
 ### File for Upload
 
@@ -130,7 +113,7 @@ File upload variables are useful when you need to test how your application hand
 1. Select the file you want to upload.
 2. Simulate the click or interaction with the file upload component on the UI.
 
-### ![Upload File Gi](/images/uploadFile.gif)
+### ![Upload File Gif](https://cdn.autonoma.app/interaction-gifs/interaction-uploadimage-min.gif)
 
 ### Clipboard
 
