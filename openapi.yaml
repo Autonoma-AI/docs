@@ -891,7 +891,7 @@ paths:
                   example: "https://myapp.com"
                 version:
                   type: string
-                  description: Version string for web applications
+                  description: Version name
                   example: "1.0.0"
                 geolocation:
                   type: string
@@ -1074,17 +1074,13 @@ paths:
                   description: Version tag
                   enum: [main, staging, other]
                   example: "staging"
-                appName:
-                  type: string
-                  description: Updated application name
-                  example: "My Mobile App v2"
                 cookies:
                   type: string
                   description: Optional cookies for web applications
                   example: "session=xyz789"
                 version:
                   type: string
-                  description: Version string (required for web applications)
+                  description: Version name (required for web applications)
                   example: "2.0.0"
                 path:
                   type: string
