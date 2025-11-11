@@ -1,135 +1,375 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://docs.autonoma.app/</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/introduction</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/getting_started</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/applications</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/build-for-ios-apps</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/new_test</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/writing_tests</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/running_tests</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/slack-integration</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/interactions</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/navigation-movement</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/input-forms</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/testing-validation</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/device-environment</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/advanced-actions</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/cicd_integration</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/vercel</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/overview</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/create-application</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/update-application-version</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/list-tests</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/get-a-specific-test</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/run-a-test-by-test-id</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/list-folders</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/get-a-specific-folder</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/run-tests-by-folder-id</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/list-test-runs</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/get-a-specific-test-run</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/get-a-specific-run-status</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/get-a-specific-run-folder-status</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/run-all-tests-that-have-the-specified-tags</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/run-test</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
-  <url>
-    <loc>https://docs.autonoma.app/api-reference/run-all-tests-within-a-folder</loc>
-    <lastmod>2025-11-10</lastmod>
-  </url>
+<url>
+<loc>https://docs.autonoma.app/</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/what-is-e2e-testing</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/understanding-test-structure</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/random-data</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/components</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/why-tests-fail</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/extract-and-reuse-data</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/email-testing</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/testing-forms</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/two-types-of-waits</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/mobile-testing-features</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/device-environment</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/vercel</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/running_tests</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/what-is-autonoma</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/introduction</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/configure-your-application</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/test-organization-and-naming-conventions</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/your-first-test</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/get-a-specific-test</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/list-folders</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/run-all-tests-within-a-folder</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/get-a-specific-test-run</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/run-tests-by-folder-id</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/run-all-tests-that-have-the-specified-tags</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/update-application-version</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/run-a-test-by-test-id</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/list-tests</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/run-test</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/get-a-specific-run-folder-status</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/create-application</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/get-a-specific-folder</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/get-a-specific-run-status</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/api-reference/list-test-runs</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/testing-checkout-flows</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/slack-integration</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/cicd_integration</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/clicking-vs-prompting</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/overview</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/the-brittle-test-problem</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/testing-file-uploads</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/variables</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/double-tap</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/assert</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/login-google-account</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/backspace</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/restart-app</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/freestyle-gesture</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/right-click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/set-file-to-upload</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/fetch</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/unset-camera-image</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/scroll-web</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/extract-information</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/scroll-with-condition</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/go-offline</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/scroll-mobile</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/wait-until</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/swipe-with-condition</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/long-press</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/conditional-click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/visual-click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/assert-url-location</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/text-to-speech</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/exit-last-tab</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/zoom-out</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/wait</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/introduction</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/zoom-in</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/go-home</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/open-url-on-new-page</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/keypad</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/ocr-click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/click-until</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/set-camera-image</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/move-carousel</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/go-back-on-page</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/input-on-focus</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/email-information-retriever-generator</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/ocr-hover</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/ocr-scroll</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/go-online</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/biometric-auth</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/freestyle-click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/email-information-retriever</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/send-enter-on-input</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/input-text</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/math-assert</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/smart-click</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/curl</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/interactions-reference/end</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
+<url>
+<loc>https://docs.autonoma.app/build-for-ios-apps</loc>
+<lastmod>2025-11-11</lastmod>
+</url>
 </urlset>
