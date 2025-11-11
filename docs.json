@@ -3,12 +3,12 @@
   "theme": "mint",
   "name": "Autonoma",
   "logo": {
-    "dark": "/images/autonoma-light.png",
-    "light": "/images/autonoma-dark.png"
+    "dark": "/documentation/images/autonoma-light.png",
+    "light": "/documentation/images/autonoma-dark.png"
   },
   "favicon": {
-    "dark": "/images/autonoma-light.png",
-    "light": "/images/autonoma-dark.png"
+    "dark": "/documentation/images/autonoma-light.png",
+    "light": "/documentation/images/autonoma-dark.png"
   },
   "colors": {
     "primary": "#4f46e5",
@@ -68,46 +68,46 @@
          "groups": [
            {
              "group": "Introduction",
-             "pages": [
-               "introduction",
-               "what-is-e2e-testing",
-               "what-is-autonoma",
-               "your-first-test"
-             ]
+              "pages": [
+                "documentation/introduction",
+                "documentation/what-is-e2e-testing",
+                "documentation/what-is-autonoma",
+                "documentation/your-first-test"
+              ]
            },
            {
              "group": "Onboarding",
-             "pages": [
-               "configure-your-application",
-               "cicd_integration"
-             ]
+              "pages": [
+                "documentation/configure-your-application",
+                "documentation/cicd_integration"
+              ]
            },
            {
              "group": "Understanding Tests",
-             "pages": [
-               "understanding-test-structure",
-               "test-organization-and-naming-conventions"
-             ]
+              "pages": [
+                "documentation/understanding-test-structure",
+                "documentation/test-organization-and-naming-conventions"
+              ]
            },
            {
              "group": "Advanced Testing",
-             "pages": [
-               "clicking-vs-prompting",
-               "variables",
-               "random-data",
-               "components",
-               "extract-and-reuse-data",
-               "why-tests-fail"
-             ]
+              "pages": [
+                "documentation/clicking-vs-prompting",
+                "documentation/variables",
+                "documentation/random-data",
+                "documentation/components",
+                "documentation/extract-and-reuse-data",
+                "documentation/why-tests-fail"
+              ]
            },
            {
              "group": "Configuration & Integrations",
-             "pages": [
-               "device-environment",
-               "vercel",
-               "build-for-ios-apps",
-               "slack-integration"
-             ]
+              "pages": [
+                "documentation/device-environment",
+                "documentation/vercel",
+                "documentation/build-for-ios-apps",
+                "documentation/slack-integration"
+              ]
            }
          ]
        },
@@ -116,9 +116,9 @@
          "groups": [
            {
              "group": "Using the API",
-             "pages": [
-               "overview"
-             ]
+              "pages": [
+                "documentation/overview"
+              ]
            },
            {
              "group": "API Reference",
@@ -126,39 +126,39 @@
                {
                  "group": "Application",
                  "pages": [
-                   "api-reference/create-application",
-                   "api-reference/update-application-version"
+                   "documentation/api-reference/create-application",
+                   "documentation/api-reference/update-application-version"
                  ]
                },
                {
                  "group": "Test",
                  "pages": [
-                   "api-reference/list-tests",
-                   "api-reference/get-a-specific-test",
-                   "api-reference/run-a-test-by-test-id"
+                   "documentation/api-reference/list-tests",
+                   "documentation/api-reference/get-a-specific-test",
+                   "documentation/api-reference/run-a-test-by-test-id"
                  ]
                },
                {
                  "group": "Folder",
                  "pages": [
-                   "api-reference/list-folders",
-                   "api-reference/get-a-specific-folder",
-                   "api-reference/run-tests-by-folder-id"
+                   "documentation/api-reference/list-folders",
+                   "documentation/api-reference/get-a-specific-folder",
+                   "documentation/api-reference/run-tests-by-folder-id"
                  ]
                },
                {
                  "group": "Run",
                  "pages": [
-                   "api-reference/list-test-runs",
-                   "api-reference/get-a-specific-test-run",
-                   "api-reference/get-a-specific-run-status",
-                   "api-reference/get-a-specific-run-folder-status"
+                   "documentation/api-reference/list-test-runs",
+                   "documentation/api-reference/get-a-specific-test-run",
+                   "documentation/api-reference/get-a-specific-run-status",
+                   "documentation/api-reference/get-a-specific-run-folder-status"
                  ]
                },
                {
                  "group": "Tag",
                  "pages": [
-                   "api-reference/run-all-tests-that-have-the-specified-tags"
+                   "documentation/api-reference/run-all-tests-that-have-the-specified-tags"
                  ]
                }
              ]
@@ -171,106 +171,106 @@
           {
             "group": "Getting Started",
             "pages": [
-              "interactions-reference/introduction"
+              "documentation/interactions-reference/introduction"
             ]
           },
           {
             "group": "Navigation & Interaction",
             "pages": [
-              "interactions-reference/click",
-              "interactions-reference/smart-click",
-              "interactions-reference/visual-click",
-              "interactions-reference/freestyle-click",
-              "interactions-reference/ocr-click",
-              "interactions-reference/conditional-click",
-              "interactions-reference/click-until",
-              "interactions-reference/double-tap",
-              "interactions-reference/long-press",
-              "interactions-reference/right-click",
-              "interactions-reference/freestyle-gesture"
+              "documentation/interactions-reference/click",
+              "documentation/interactions-reference/smart-click",
+              "documentation/interactions-reference/visual-click",
+              "documentation/interactions-reference/freestyle-click",
+              "documentation/interactions-reference/ocr-click",
+              "documentation/interactions-reference/conditional-click",
+              "documentation/interactions-reference/click-until",
+              "documentation/interactions-reference/double-tap",
+              "documentation/interactions-reference/long-press",
+              "documentation/interactions-reference/right-click",
+              "documentation/interactions-reference/freestyle-gesture"
             ]
           },
           {
             "group": "Input & Text Entry",
             "pages": [
-              "interactions-reference/input-text",
-              "interactions-reference/input-on-focus",
-              "interactions-reference/send-enter-on-input",
-              "interactions-reference/keypad",
-              "interactions-reference/backspace"
+              "documentation/interactions-reference/input-text",
+              "documentation/interactions-reference/input-on-focus",
+              "documentation/interactions-reference/send-enter-on-input",
+              "documentation/interactions-reference/keypad",
+              "documentation/interactions-reference/backspace"
             ]
           },
           {
             "group": "Scrolling",
             "pages": [
-              "interactions-reference/scroll-web",
-              "interactions-reference/scroll-mobile",
-              "interactions-reference/scroll-with-condition",
-              "interactions-reference/ocr-scroll",
-              "interactions-reference/move-carousel"
+              "documentation/interactions-reference/scroll-web",
+              "documentation/interactions-reference/scroll-mobile",
+              "documentation/interactions-reference/scroll-with-condition",
+              "documentation/interactions-reference/ocr-scroll",
+              "documentation/interactions-reference/move-carousel"
             ]
           },
           {
             "group": "Assertions & Verification",
             "pages": [
-              "interactions-reference/assert",
-              "interactions-reference/assert-url-location",
-              "interactions-reference/math-assert",
-              "interactions-reference/extract-information"
+              "documentation/interactions-reference/assert",
+              "documentation/interactions-reference/assert-url-location",
+              "documentation/interactions-reference/math-assert",
+              "documentation/interactions-reference/extract-information"
             ]
           },
           {
             "group": "Waiting & Timing",
             "pages": [
-              "interactions-reference/wait",
-              "interactions-reference/wait-until"
+              "documentation/interactions-reference/wait",
+              "documentation/interactions-reference/wait-until"
             ]
           },
           {
             "group": "Browser & Navigation",
             "pages": [
-              "interactions-reference/open-url-on-new-page",
-              "interactions-reference/go-back-on-page",
-              "interactions-reference/go-home",
-              "interactions-reference/exit-last-tab"
+              "documentation/interactions-reference/open-url-on-new-page",
+              "documentation/interactions-reference/go-back-on-page",
+              "documentation/interactions-reference/go-home",
+              "documentation/interactions-reference/exit-last-tab"
             ]
           },
           {
             "group": "File & Media Operations",
             "pages": [
-              "interactions-reference/set-file-to-upload",
-              "interactions-reference/set-camera-image",
-              "interactions-reference/unset-camera-image"
+              "documentation/interactions-reference/set-file-to-upload",
+              "documentation/interactions-reference/set-camera-image",
+              "documentation/interactions-reference/unset-camera-image"
             ]
           },
           {
             "group": "Authentication & Security",
             "pages": [
-              "interactions-reference/login-google-account",
-              "interactions-reference/biometric-auth"
+              "documentation/interactions-reference/login-google-account",
+              "documentation/interactions-reference/biometric-auth"
             ]
           },
           {
             "group": "Network & State",
             "pages": [
-              "interactions-reference/go-online",
-              "interactions-reference/go-offline",
-              "interactions-reference/restart-app"
+              "documentation/interactions-reference/go-online",
+              "documentation/interactions-reference/go-offline",
+              "documentation/interactions-reference/restart-app"
             ]
           },
           {
             "group": "Advanced Features",
             "pages": [
-              "interactions-reference/fetch",
-              "interactions-reference/curl",
-              "interactions-reference/email-information-retriever",
-              "interactions-reference/email-information-retriever-generator",
-              "interactions-reference/text-to-speech",
-              "interactions-reference/zoom-in",
-              "interactions-reference/zoom-out",
-              "interactions-reference/ocr-hover",
-              "interactions-reference/swipe-with-condition",
-              "interactions-reference/end"
+              "documentation/interactions-reference/fetch",
+              "documentation/interactions-reference/curl",
+              "documentation/interactions-reference/email-information-retriever",
+              "documentation/interactions-reference/email-information-retriever-generator",
+              "documentation/interactions-reference/text-to-speech",
+              "documentation/interactions-reference/zoom-in",
+              "documentation/interactions-reference/zoom-out",
+              "documentation/interactions-reference/ocr-hover",
+              "documentation/interactions-reference/swipe-with-condition",
+              "documentation/interactions-reference/end"
             ]
           }
         ]
@@ -282,7 +282,7 @@
           "keywords": "test automation, UI testing, Autonoma, documentation, API, CI/CD, mobile testing, web testing",
           "author": "Autonoma",
           "robots": "index, follow",
-          "og:image": "/images/autonoma-light.png",
+          "og:image": "/documentation/images/autonoma-light.png",
           "og:type": "website",
           "og:site_name": "Autonoma Documentation",
           "twitter:card": "summary_large_image",
