@@ -1,0 +1,784 @@
+---
+title: "Backspace"
+description: "Delete characters from input fields by simulating backspace key presses—essential for editing text and correcting mistakes in your Autonoma tests."
+---
+
+## What is Backspace?
+
+Backspace is an interaction that simulates pressing the backspace key on your keyboard to delete characters from an input field. It works just like the real backspace key—removing one character at a time from the right side of the text (or from the cursor position if the cursor isn't at the end).
+
+Think of it as the "undo" for text input—when you need to remove characters, correct typos, or clear a field partially, Backspace is your tool.
+
+## When to Use Backspace
+
+Backspace is useful in scenarios where you need to delete or edit existing text:
+
+### Scenario 1: Correcting Typos
+
+You've typed something wrong and need to fix it:
+
+```
+Step 1: input tom@autanoma.app on the email field  // Typo: "autanoma"
+Step 2: Backspace 12 times  // Delete the wrong domain
+Step 3: input autonoma.app on the email field
+```
+
+### Scenario 2: Editing Pre-Filled Fields
+
+Fields that come with default values you need to change:
+
+```
+Step 1: Click the phone number field  // Pre-filled with (555) 000-0000
+Step 2: Backspace 20 times  // Clear the entire field
+Step 3: input 4155551234 on the phone number field
+```
+
+### Scenario 3: Partial Deletions
+
+Removing just part of the text:
+
+```
+Step 1: input John Smith on the name field
+Step 2: Backspace 5 times  // Removes "Smith"
+Step 3: input Doe on the name field  // Now it's "John Doe"
+```
+
+### Scenario 4: Testing Character Limits
+
+Verifying that fields enforce maximum lengths:
+
+```
+Step 1: input ABCDEFGHIJKLMNOP on the field  // 16 characters
+Step 2: Verify the field contains only ABCDEFGHIJ  // Field limited to 10
+Step 3: Backspace 2 times
+Step 4: input YZ on the field
+```
+
+### Scenario 5: Clear and Re-Enter
+
+Completely clearing a field before entering new data:
+
+```
+Step 1: Click the search field  // Has previous search query
+Step 2: Backspace 50 times  // Clear everything (even if less than 50 chars)
+Step 3: input new search query on the search field
+```
+
+### Scenario 6: Testing Validation on Deletion
+
+Verifying that validation updates when content is removed:
+
+```
+Step 1: input test@example.com on the email field
+Step 2: Verify the checkmark appears
+Step 3: Backspace 15 times  // Remove "@example.com"
+Step 4: Verify the error message appears
+```
+
+### When NOT to Use Backspace
+
+Don't use Backspace when:
+
+- **Input Text will clear the field**: By default, Input Text clears existing content
+- **You want to clear everything**: Use a clear button or select-all + delete instead
+- **The field is empty**: Nothing to delete
+- **You can just re-input**: Input Text overwrites in most cases
+
+## How It Works
+
+Backspace has simple execution logic:
+
+1. **Requires focus**: An input field must be focused
+2. **Deletes characters**: Removes characters one at a time from the cursor position
+3. **Repeats**: Can be executed multiple times in one action
+4. **Direction**: Deletes from right to left (backward)
+
+### Default Behavior
+
+If you don't specify a count, Backspace deletes **1 character**:
+
+```
+Backspace  // Deletes 1 character
+```
+
+### Specifying Count
+
+You can delete multiple characters at once:
+
+```
+Backspace 5 times  // Deletes 5 characters
+Backspace 10  // Deletes 10 characters
+```
+
+### What Happens Behind the Scenes
+
+```
+Field content: "Hello World"
+Cursor position: End of text
+
+Action: Backspace 5 times
+
+Result:
+Step 1: "Hello Worl"  (deleted "d")
+Step 2: "Hello Wor"   (deleted "l")
+Step 3: "Hello Wo"    (deleted "r")
+Step 4: "Hello W"     (deleted "o")
+Step 5: "Hello "      (deleted "W")
+```
+
+## Platform Support
+
+- **Web**: Fully supported
+- **Mobile**: Fully supported
+
+Backspace works consistently across both platforms, though mobile might show on-screen backspace buttons on keyboards.
+
+## Understanding Metadata
+
+The metadata for Backspace is the **number of times** to press backspace:
+
+**Prompt**: `backspace`
+**Metadata**: `1` (default)
+
+**Prompt**: `backspace 5 times`
+**Metadata**: `5`
+
+**Prompt**: `backspace 10`
+**Metadata**: `10`
+
+The metadata is always a number—how many characters to delete.
+
+## Example Scenarios
+
+### Scenario 1: Fixing Email Typo
+
+You typed the wrong email domain:
+
+```
+Step 1: Navigate to registration page
+Step 2: input tom@gmali.com on the email field  // Typo: "gmali"
+Step 3: Backspace 9 times  // Delete ".com" and "gmali"
+Step 4: input gmail.com on the email field
+Step 5: Click the submit button
+Step 6: Verify registration successful
+```
+
+**Why 9 times**: `.com` (4 chars) + `gmali` (5 chars) = 9 characters
+
+### Scenario 2: Editing Search Query
+
+Modifying an existing search:
+
+```
+Step 1: input running shoes for men on the search field
+Step 2: Click the search button
+Step 3: Verify I see results
+Step 4: Click the search field again
+Step 5: Backspace 8 times  // Delete "for men"
+Step 6: input for women on the search field
+Step 7: Click the search button
+Step 8: Verify I see updated results
+```
+
+### Scenario 3: Clearing Pre-Filled Default
+
+Replacing default values in a form:
+
+```
+Step 1: Navigate to profile edit page
+Step 2: Click the bio field  // Pre-filled with "Tell us about yourself"
+Step 3: Backspace 50 times  // Clear all default text
+Step 4: input I am a software engineer on the bio field
+Step 5: Click save
+Step 6: Verify I see the updated bio
+```
+
+**Pro tip**: Use a high number (like 50) to ensure all text is deleted, even if you're not sure of the exact length.
+
+### Scenario 4: Testing Undo Functionality
+
+Verifying that backspace works as expected:
+
+```
+Step 1: input ABCDEFGHIJ on the test field
+Step 2: Verify the field contains ABCDEFGHIJ
+Step 3: Backspace 3 times
+Step 4: Verify the field contains ABCDEFG
+Step 5: Backspace 7 times
+Step 6: Verify the field is empty
+```
+
+### Scenario 5: Partial Name Edit
+
+Changing part of a name:
+
+```
+Step 1: input Jonathan Smith on the name field
+Step 2: Backspace 5 times  // Delete "Smith"
+Step 3: input Johnson on the name field  // Now "Jonathan Johnson"
+Step 4: Backspace 12 times  // Delete "than Johnson"
+Step 5: input on Smith on the name field  // Now "Jon Smith"
+```
+
+### Scenario 6: Testing Character Counter
+
+Verifying character counter updates on deletion:
+
+```
+Step 1: input This is a test message with exactly fifty characters! on the text area
+Step 2: Verify the counter shows 55/100
+Step 3: Backspace 10 times
+Step 4: Verify the counter shows 45/100
+```
+
+### Scenario 7: Credit Card Number Correction
+
+Fixing a digit in card number entry:
+
+```
+Step 1: input 4111111111111112 on the card number field  // Wrong last digit
+Step 2: Backspace 1 times  // Delete the "2"
+Step 3: input 1 on the card number field  // Now correct: 4111111111111111
+Step 4: Click the submit button
+```
+
+### Scenario 8: Mobile Keypad Correction
+
+Correcting keypad entry on mobile:
+
+```
+Step 1: Keypad 1234
+Step 2: Verify I see ••••
+Step 3: Backspace 1 times  // Delete last digit
+Step 4: Keypad 5
+Step 5: Verify I now have the correct PIN ••••
+Step 6: Click submit
+```
+
+## Example Prompts
+
+Backspace accepts simple prompt variations:
+
+### Single Character Deletion
+
+```
+backspace
+backspace once
+delete one character
+```
+
+### Multiple Character Deletion
+
+```
+backspace 2 times
+backspace 5
+backspace 10 times
+delete 3 characters
+backspace 20
+```
+
+**Most common formats**:
+- `backspace` (deletes 1)
+- `backspace 5 times` (deletes 5)
+- `backspace 10` (deletes 10)
+
+## Best Practices
+
+### 1. Ensure Field is Focused
+
+Backspace only works on focused fields:
+
+**Good**:
+```
+Step 1: Click the email field
+Step 2: Backspace 5 times
+```
+
+Or:
+```
+Step 1: input text on the field  // This focuses the field
+Step 2: Backspace 5 times
+```
+
+**Bad**:
+```
+Step 1: Verify the form is visible
+Step 2: Backspace 5 times  // Nothing is focused!
+```
+
+### 2. Use Generously When Clearing
+
+When you're not sure of the exact length, use a high count:
+
+```
+Backspace 100 times  // Will delete everything, even if field has 20 chars
+```
+
+The backspace stops when the field is empty—it won't cause errors if you backspace more than available characters.
+
+### 3. Verify After Deletion
+
+Confirm that the right content was deleted:
+
+```
+Step 1: input Hello World on the field
+Step 2: Backspace 6 times  // Should delete " World"
+Step 3: Verify the field contains Hello
+```
+
+### 4. Calculate Character Count Correctly
+
+Count carefully when deleting specific portions:
+
+```
+Text: "john.smith@example.com"
+To delete "@example.com": 12 characters
+Command: Backspace 12 times
+```
+
+**Tip**: Use a text editor to count characters if you're unsure.
+
+### 5. Consider Input Text Instead
+
+Often, Input Text is simpler because it clears the field automatically:
+
+**With Backspace**:
+```
+Step 1: Click the field
+Step 2: Backspace 50 times
+Step 3: input new value on the field
+```
+
+**With Input Text only**:
+```
+Step 1: input new value on the field  // Input Text clears automatically
+```
+
+The second approach is simpler and more reliable.
+
+### 6. Test Edge Cases
+
+Verify backspace behavior at boundaries:
+
+```
+// Test: Backspace on empty field (should do nothing)
+Step 1: Click the empty field
+Step 2: Backspace 5 times
+Step 3: Verify the field is still empty
+
+// Test: Backspace more than available characters
+Step 1: input Hi on the field
+Step 2: Backspace 10 times  // Only 2 chars available
+Step 3: Verify the field is empty
+```
+
+### 7. Use with Verification for Validation Testing
+
+Test that validation responds to deletion:
+
+```
+Step 1: input valid@email.com on the email field
+Step 2: Verify I see the success icon
+Step 3: Backspace 4 times  // Delete ".com"
+Step 4: Verify I see the error message
+```
+
+## Common Pitfalls
+
+### Pitfall 1: No Field is Focused
+
+**Problem**: Backspace does nothing because no field has focus.
+
+**Example**:
+```
+Step 1: Verify the form exists
+Step 2: Backspace 5 times  // Fails - nothing focused
+```
+
+**Solution**: Focus the field first:
+```
+Step 1: Click the field
+Step 2: Backspace 5 times
+```
+
+### Pitfall 2: Wrong Character Count
+
+**Problem**: You calculate the wrong number of characters to delete.
+
+**Example**: Trying to delete "example.com" (11 chars) but using `Backspace 10 times`
+
+**Solution**: Count carefully or use a generous count:
+```
+Backspace 15 times  // Ensures everything is deleted
+```
+
+### Pitfall 3: Using When Input Text Would Work
+
+**Problem**: Overcomplicating with Backspace when Input Text clears automatically.
+
+**Overcomplicated**:
+```
+Step 1: Click the field with pre-filled text
+Step 2: Backspace 50 times
+Step 3: input new text on the field
+```
+
+**Simpler**:
+```
+Step 1: input new text on the field  // Automatically clears old text
+```
+
+**When to use Backspace**: Only when you need to partially delete or test deletion functionality.
+
+### Pitfall 4: Backspacing on Non-Editable Fields
+
+**Problem**: Trying to backspace on read-only or disabled fields.
+
+**Example**:
+```
+Step 1: Click the read-only field
+Step 2: Backspace 5 times  // Won't work - field is read-only
+```
+
+**Solution**: Verify the field is editable first, or don't use Backspace.
+
+### Pitfall 5: Cursor Position Confusion
+
+**Problem**: Cursor is in the middle of text, not at the end.
+
+**Example**:
+```
+Text: "Hello World"
+Cursor: Between "Hello" and "World"
+Action: Backspace 5 times
+Result: "World" (deleted "Hello ")
+```
+
+**Solution**: Be aware of cursor position, or click at the end of the field first.
+
+### Pitfall 6: Not Verifying Deletion
+
+**Problem**: Assuming deletion worked without checking.
+
+**Example**:
+```
+Step 1: Backspace 10 times
+Step 2: input new text  // What if deletion failed?
+```
+
+**Solution**: Verify deletion:
+```
+Step 1: Backspace 10 times
+Step 2: Verify the field is empty
+Step 3: input new text
+```
+
+### Pitfall 7: Mobile Keyboard Behavior
+
+**Problem**: On mobile, keyboard might close between steps.
+
+**Example**:
+```
+Step 1: input text on mobile field
+Step 2: Click outside the field  // Keyboard closes
+Step 3: Backspace 5 times  // Keyboard is gone, field not focused
+```
+
+**Solution**: Keep field focused:
+```
+Step 1: input text on mobile field
+Step 2: Backspace 5 times  // Immediately, while field is focused
+Step 3: input more text
+```
+
+## Advanced Patterns
+
+### Pattern 1: Progressive Deletion with Verification
+
+Testing that UI updates as you delete:
+
+```
+Step 1: input 1234567890 on the field
+Step 2: Verify character count shows 10
+Step 3: Backspace 3 times
+Step 4: Verify character count shows 7
+Step 5: Backspace 7 times
+Step 6: Verify character count shows 0
+```
+
+### Pattern 2: Edit-in-Place Workflow
+
+Modifying existing text without clearing everything:
+
+```
+Step 1: Verify the field contains John Doe
+Step 2: Click the field  // Cursor at end
+Step 3: Backspace 3 times  // Delete "Doe"
+Step 4: input Smith  // Now "John Smith"
+Step 5: Click save
+```
+
+### Pattern 3: Testing Autosave on Deletion
+
+Verifying autosave triggers when content is deleted:
+
+```
+Step 1: input Draft content on the text area
+Step 2: Verify I see "Saved" indicator
+Step 3: Backspace 5 times
+Step 4: Wait 2 seconds
+Step 5: Verify I see "Saved" indicator again
+```
+
+### Pattern 4: Masked Field Testing
+
+Testing password or PIN fields where content is masked:
+
+```
+Step 1: input SecurePassword123 on the password field
+Step 2: Verify I see ••••••••••••••••
+Step 3: Backspace 3 times
+Step 4: Verify I see •••••••••••••
+Step 5: input 456
+Step 6: Verify I see ••••••••••••••••
+```
+
+### Pattern 5: Multi-Field Editing
+
+Editing across multiple fields:
+
+```
+Step 1: input john@old.com on the email field
+Step 2: Backspace 7 times  // Delete "old.com"
+Step 3: input new.com
+Step 4: Click the password field
+Step 5: input OldPassword123
+Step 6: Backspace 3 times  // Delete "123"
+Step 7: input 456
+```
+
+## Combining with Other Interactions
+
+### Backspace + Input Text
+
+The most common combination—delete then type:
+
+```
+Step 1: Click the field
+Step 2: Backspace 10 times
+Step 3: input new value on the field
+```
+
+### Backspace + Verify
+
+Confirming deletion:
+
+```
+Step 1: Backspace 5 times
+Step 2: Verify the field contains expected text
+```
+
+### Backspace + Click
+
+Switching between fields while editing:
+
+```
+Step 1: Click the first field
+Step 2: Backspace 3 times
+Step 3: Click the second field
+Step 4: Backspace 5 times
+```
+
+### Backspace + Keypad (Mobile)
+
+Correcting keypad entry:
+
+```
+Step 1: Keypad 1234
+Step 2: Backspace 1 times
+Step 3: Keypad 5
+```
+
+### Backspace + Send Enter
+
+Edit then submit:
+
+```
+Step 1: input search query on the search field
+Step 2: Backspace 5 times
+Step 3: input modified query
+Step 4: Send enter on input
+```
+
+## Testing Different Input Types
+
+### Text Inputs
+
+```
+Step 1: input Hello World on the field
+Step 2: Backspace 6 times  // Delete " World"
+Step 3: Verify the field contains Hello
+```
+
+### Number Inputs
+
+```
+Step 1: input 12345 on the number field
+Step 2: Backspace 2 times  // Delete "45"
+Step 3: Verify the field contains 123
+```
+
+### Email Inputs
+
+```
+Step 1: input user@wrong-domain.com on the email field
+Step 2: Backspace 17 times  // Delete "@wrong-domain.com"
+Step 3: input @correct-domain.com
+```
+
+### Password Inputs
+
+```
+Step 1: input TempPassword123 on the password field
+Step 2: Backspace 3 times  // Delete "123"
+Step 3: input 456
+```
+
+### Text Areas
+
+```
+Step 1: input Multi-line content here on the text area
+Step 2: Backspace 5 times  // Delete "here"
+Step 3: input today
+```
+
+### Search Inputs
+
+```
+Step 1: input previous search on the search field
+Step 2: Backspace 20 times  // Clear
+Step 3: input new search
+```
+
+## Debugging Backspace Issues
+
+### Issue: Backspace Does Nothing
+
+**Debugging steps**:
+1. Verify a field is focused
+2. Check if the field is editable (not read-only/disabled)
+3. Verify there's content to delete
+4. Try clicking the field before backspace
+
+### Issue: Wrong Amount Deleted
+
+**Debugging steps**:
+1. Count the characters manually
+2. Verify cursor position (might be in middle of text)
+3. Check if field has hidden characters (spaces, line breaks)
+4. Use a higher count to ensure complete deletion
+
+### Issue: Backspace Works Manually but Not in Test
+
+**Debugging steps**:
+1. Add wait time before backspace
+2. Verify field has focus in test playback
+3. Check for JavaScript interference
+4. Try clicking the field immediately before backspace
+
+### Issue: Field Doesn't Update After Backspace
+
+**Debugging steps**:
+1. Verify the field isn't read-only
+2. Check for JavaScript preventing changes
+3. Try typing after backspace to ensure focus
+4. Check browser console for errors
+
+## Key Takeaways
+
+1. **Backspace deletes characters** from the cursor position (usually end of text)
+2. **Works on both Web and Mobile** platforms
+3. **Requires focused field** to work
+4. **Default is 1 character**, but you can specify more: `Backspace 10 times`
+5. **Use generously when clearing**—high counts won't cause errors
+6. **Often Input Text is simpler**—it clears automatically when re-inputting
+7. **Verify deletion** to ensure the right content was removed
+8. **Count characters carefully** when deleting specific portions
+9. **Stops at empty**—won't error if you backspace more than available characters
+10. **Useful for testing validation, character limits, and editing workflows**
+
+## Related Interactions
+
+- **Input Text**: Type text into fields (automatically clears existing content)
+- **Input on Focus**: Type into focused field without locating it
+- **Click**: Focus a field before using Backspace
+- **Keypad**: Enter numbers on mobile (combine with Backspace for corrections)
+- **Send Enter**: Submit after editing with Backspace
+
+## Decision Framework
+
+When deciding whether to use Backspace:
+
+```
+Need to modify field content?
+│
+├─ Replace entire content?
+│  └─ Use Input Text (it clears automatically)
+│
+├─ Delete specific portion?
+│  └─ Use Backspace (calculate character count)
+│
+├─ Clear pre-filled default?
+│  ├─ Input Text won't clear it? → Use Backspace
+│  └─ Input Text will clear it? → Use Input Text
+│
+├─ Test deletion functionality?
+│  └─ Use Backspace (with verification)
+│
+└─ Edit in the middle of text?
+   └─ Use Backspace (be aware of cursor position)
+```
+
+## Real-World Examples
+
+### Example 1: E-commerce Search Refinement
+
+```
+Step 1: Navigate to store homepage
+Step 2: input laptop on the search field
+Step 3: Send enter on input
+Step 4: Verify I see laptop results
+Step 5: Click the search field
+Step 6: Backspace 6 times  // Clear "laptop"
+Step 7: input gaming mouse on the search field
+Step 8: Send enter on input
+Step 9: Verify I see gaming mouse results
+```
+
+### Example 2: Profile Update
+
+```
+Step 1: Navigate to profile settings
+Step 2: Click the bio field  // Contains old bio
+Step 3: Backspace 100 times  // Clear everything
+Step 4: input I am a product manager at Autonoma on the bio field
+Step 5: Click save
+Step 6: Verify I see Bio updated successfully
+```
+
+### Example 3: Form Error Correction
+
+```
+Step 1: input john.smith@gmial.com on the email field  // Typo: "gmial"
+Step 2: Click submit
+Step 3: Verify I see Please enter a valid email
+Step 4: Click the email field
+Step 5: Backspace 9 times  // Delete "@gmial.com"
+Step 6: input @gmail.com
+Step 7: Click submit
+Step 8: Verify form submitted successfully
+```
+
+---
+
+**Next Steps**: Now that you understand Backspace, explore **Input Text** for the primary way to enter data, or learn about **Keypad** for mobile numeric entry.

@@ -1,0 +1,659 @@
+---
+title: "Long Press"
+description: "Press and hold elements to trigger context menus, special actions, or alternative functions. Essential for testing interfaces that use press-and-hold gestures."
+---
+
+## What is Long Press?
+
+Long Press is an interaction that presses and holds an element for an extended duration (typically 1-2 seconds) before releasing. Unlike a quick tap or click, Long Press maintains contact with the element, triggering special behaviors that only activate after holding for a certain time.
+
+Think of it like pressing and holding a button on your phone's keyboard to see accent character options, or long-pressing an app icon to see quick actions. The duration matters—it's not just a slow tap, but a deliberate press-and-hold gesture that signals "I want the special function, not the default action."
+
+Long Press is common in mobile interfaces for context menus and alternative actions, and increasingly appears in web applications that want to provide mobile-like interactions or right-click alternatives for touch devices.
+
+## When to Use Long Press
+
+Long Press is for interfaces specifically designed to respond to press-and-hold gestures.
+
+**Use Long Press when:**
+- Opening context menus via press-and-hold
+- Triggering alternative actions on mobile (e.g., preview, edit mode)
+- Long-pressing to reveal hidden options
+- Activating drag-and-drop after long-press
+- Showing quick actions or shortcuts
+- Selecting items in multi-select mode via long-press
+- Accessing app shortcuts on mobile home screens
+- Any gesture that specifically requires press-and-hold
+
+**Don't use Long Press when:**
+- Standard tap/click works (use Click)
+- Double-tap is needed (use Double Tap)
+- Right-click menu is needed on web (use Right Click)
+- Element doesn't respond to long-press
+- Immediate action is expected (use Click)
+
+## How It Works
+
+Long Press maintains contact with the element for an extended period:
+
+1. **Target Detection**: Identifies the element using visual object detection
+2. **Position Calculation**: Determines exact press location
+3. **Press Down**: Initiates contact at the element
+4. **Hold Duration**: Maintains press for 1-2 seconds
+5. **Gesture Recognition**: UI recognizes this as long-press
+6. **Action Triggers**: Interface responds (menu appears, mode activates, etc.)
+7. **Release**: Completes the gesture
+
+The hold duration is calibrated to match typical long-press thresholds in mobile and web interfaces.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support
+
+Long Press works universally, though it's more common in mobile interfaces. On web, it often serves as a touch-friendly alternative to right-click.
+
+## Example Scenarios
+
+### Scenario 1: Mobile Context Menu
+
+You're testing a mobile app where long-pressing items reveals context actions.
+
+```
+Test: "Access item context menu"
+
+1. Navigate to list screen
+2. Wait until: List items load
+3. Add prompt: "long press on the first item"
+4. Wait until: Context menu appears
+5. Verify: Menu options include Edit, Delete, Share
+6. Click "Delete" option
+7. Wait until: Confirmation dialog appears
+```
+
+**Why Long Press works here**: Mobile apps often use long-press to reveal context menus instead of right-click.
+
+### Scenario 2: Multi-Select Mode Activation
+
+You're testing a file manager where long-pressing activates multi-select mode.
+
+```
+Test: "Select multiple files"
+
+1. Navigate to file list
+2. Wait until: Files load
+3. Add prompt: "long press on the first file"
+4. Wait until: Multi-select mode activates
+5. Verify: Checkboxes appear on all files
+6. Click second file checkbox
+7. Click third file checkbox
+8. Click "Delete Selected" button
+```
+
+**Why Long Press works here**: Long-press is the mobile pattern for entering selection mode.
+
+### Scenario 3: App Shortcuts on Home Screen
+
+You're testing a mobile OS where long-pressing apps shows quick actions.
+
+```
+Test: "Access app shortcuts"
+
+1. Navigate to home screen
+2. Wait until: Apps are visible
+3. Add prompt: "long press on the email app icon"
+4. Wait until: Quick actions menu appears
+5. Verify: Options include "Compose", "Inbox", "Search"
+6. Click "Compose"
+7. Wait until: New email draft opens
+```
+
+**Why Long Press works here**: iOS and Android use long-press for app quick actions.
+
+### Scenario 4: Image Preview
+
+You're testing a gallery where long-pressing images shows a preview without opening.
+
+```
+Test: "Preview image"
+
+1. Navigate to gallery
+2. Wait until: Thumbnails load
+3. Add prompt: "long press on the first image"
+4. Wait until: Preview overlay appears
+5. Verify: Large preview is visible
+6. Release (or tap away)
+7. Verify: Preview disappears
+8. Verify: Image didn't open fully
+```
+
+**Why Long Press works here**: Long-press provides a "peek" without committing to full open.
+
+### Scenario 5: Drag Initiation
+
+You're testing an interface where long-press initiates drag-and-drop.
+
+```
+Test: "Reorder list items"
+
+1. Navigate to reorderable list
+2. Wait until: List loads
+3. Add prompt: "long press on the third item"
+4. Wait until: Item becomes draggable (visual feedback)
+5. Drag item to first position
+6. Release
+7. Wait until: List reorders
+8. Verify: Item is now first in list
+```
+
+**Why Long Press works here**: Many mobile interfaces require long-press to activate drag handles.
+
+## Example Prompts
+
+Long Press uses "long press" or "press and hold" language:
+
+**Basic long press:**
+```
+long press on the first item
+long press sign up
+long press the red heart icon
+long press on the profile picture
+```
+
+**Specific targets:**
+```
+long press the play button
+long press the eye button to see the password
+long press on delete
+long press element in the third row
+```
+
+**With context:**
+```
+long press on the first message
+long press the app icon
+long press 'BUY NOW' button
+long press the image thumbnail
+```
+
+**Important**: Include "long press" in your prompt. Without this, standard single Click will be used instead.
+
+## Best Practices
+
+### 1. Use Only When Required
+
+Verify that long-press is actually needed, not just standard tap.
+
+**Good:**
+```
+Test interface manually first
+Confirm single tap produces different result than long-press
+Confirm long-press triggers expected behavior
+Then use Long Press in test
+```
+
+**Avoid:**
+```
+Using Long Press when standard Click works fine
+Guessing that long-press might do something
+```
+
+### 2. Wait for Press Duration to Complete
+
+Don't interrupt the long-press gesture prematurely.
+
+**Good:**
+```
+1. long press on item
+2. Wait until: Context menu appears  ← Menu appears after hold duration
+3. Select menu option
+```
+
+**Understanding:**
+```
+Long Press automatically holds for appropriate duration
+You don't need to specify timing
+Just wait for resulting action to appear
+```
+
+### 3. Verify Expected Result
+
+Confirm long-press produced the intended effect.
+
+**Good:**
+```
+1. long press on file
+2. Wait until: Context menu appears
+3. Verify: Menu contains expected options
+4. Select option
+5. Verify: Action completes
+```
+
+### 4. Be Specific About Target
+
+Clear descriptions help accurate placement.
+
+**Good:**
+```
+long press on the first item in the list
+long press the profile icon in the top right
+long press the message from John Smith
+```
+
+**Less effective:**
+```
+long press something
+long press there
+```
+
+### 5. Handle Different Response Types
+
+Long-press can trigger various responses—menus, mode changes, previews:
+
+**Menu response:**
+```
+1. long press on item
+2. Wait until: Menu appears
+3. Click menu option
+```
+
+**Mode change:**
+```
+1. long press on item
+2. Wait until: Selection mode activates
+3. Select additional items
+```
+
+**Preview response:**
+```
+1. long press on item
+2. Wait until: Preview appears
+3. View preview
+4. Release or tap away
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using When Standard Tap Works
+
+**Problem:**
+```
+long press the login button
+# But login button responds to normal tap
+```
+
+**Solution:**
+```
+Use standard Click for buttons that respond to single tap
+Reserve Long Press for gestures that require press-and-hold
+```
+
+### Pitfall 2: Confusing with Right Click
+
+**Problem:**
+```
+On web, trying to access context menu
+Wrong: long press on element
+Right: right click on element
+```
+
+**Solution:**
+```
+Web context menus: Usually Right Click (unless touch interface)
+Mobile context actions: Usually Long Press
+Choose based on platform and interface design
+```
+
+### Pitfall 3: Not Waiting for Response
+
+**Problem:**
+```
+1. long press on item
+2. Immediately click option  ← Menu might not have appeared yet
+```
+
+**Solution:**
+```
+1. long press on item
+2. Wait until: Menu/response appears
+3. Then interact with result
+```
+
+### Pitfall 4: Using on Non-Interactive Elements
+
+**Problem:**
+```
+long press on static text
+# Text might not respond to long-press
+```
+
+**Solution:**
+```
+Verify element is interactive and responds to long-press
+Test manually before automating
+Use appropriate interaction for element type
+```
+
+### Pitfall 5: Expecting Immediate Response
+
+**Problem:**
+```
+Expecting instant response from long-press
+# Long-press requires hold duration—not immediate
+```
+
+**Solution:**
+```
+Understand long-press takes 1-2 seconds
+Wait for hold duration to complete
+Then wait for UI response
+Be patient with timing
+```
+
+## Comparison with Similar Interactions
+
+### Long Press vs Click
+
+**Standard Click:**
+- Duration: Brief tap
+- Best for: Standard actions
+- Response: Immediate
+- Use case: 95% of interactions
+
+**Long Press:**
+- Duration: Press and hold (1-2 seconds)
+- Best for: Context menus, special actions
+- Response: After hold duration
+- Use case: Special gestures only
+
+**Decision rule**: Use Click by default. Only use Long Press when interface specifically requires press-and-hold.
+
+### Long Press vs Double Tap
+
+**Long Press:**
+- Gesture: Press and hold
+- Duration: Extended (1-2 seconds)
+- Best for: Context menus, mode changes
+- Common on: Mobile primarily
+
+**Double Tap:**
+- Gesture: Two rapid taps
+- Duration: Quick succession
+- Best for: Like, zoom, select
+- Common on: Web and Mobile
+
+**Different gestures**: Long Press is hold. Double Tap is two quick taps. Not interchangeable.
+
+### Long Press vs Right Click
+
+**Long Press:**
+- Platform: Primarily mobile
+- Gesture: Press and hold
+- Best for: Touch interfaces
+- Purpose: Context menus on mobile
+
+**Right Click:**
+- Platform: Primarily web/desktop
+- Gesture: Secondary click/right button
+- Best for: Mouse/trackpad interfaces
+- Purpose: Context menus on desktop
+
+**Platform-appropriate choices**:
+```
+Mobile: Use Long Press for context menus
+Web desktop: Use Right Click for context menus
+Web touch: Might use Long Press as touch-friendly alternative
+```
+
+## Interaction Patterns
+
+### Pattern 1: Context Menu Access and Selection
+
+Long-press to open menu, then select option:
+
+```
+Test: "Delete item via context menu"
+
+1. Navigate to list
+2. Wait until: Items load
+3. Add prompt: "long press on the first item"
+4. Wait until: Context menu appears
+5. Click "Delete" option
+6. Wait until: Confirmation dialog appears
+7. Click "Confirm"
+8. Wait until: Item is removed
+9. Verify: Item no longer in list
+```
+
+### Pattern 2: Multi-Select Mode
+
+Long-press to activate, then select multiple:
+
+```
+Test: "Batch delete files"
+
+1. Navigate to file manager
+2. Wait until: Files load
+3. Add prompt: "long press on the first file"
+4. Wait until: Selection mode activates
+5. Verify: Checkboxes appear
+6. Click checkbox on second file
+7. Click checkbox on third file
+8. Click "Delete" button
+9. Confirm deletion
+10. Verify: All three files removed
+```
+
+### Pattern 3: Preview Without Opening
+
+Long-press to peek, release to close:
+
+```
+Test: "Preview content"
+
+1. Navigate to content list
+2. Wait until: List loads
+3. Add prompt: "long press on the first item"
+4. Wait until: Preview overlay appears
+5. Verify: Preview shows item details
+6. Tap outside preview or release
+7. Wait until: Preview closes
+8. Verify: Didn't navigate to full item
+```
+
+### Pattern 4: Drag Activation
+
+Long-press to make draggable, then drag:
+
+```
+Test: "Reorder items"
+
+1. Navigate to list
+2. Wait until: List loads
+3. Add prompt: "long press on the third item"
+4. Wait until: Drag mode activates (item lifts/highlights)
+5. Drag item upward
+6. Drop at first position
+7. Wait until: List reorders
+8. Verify: Item is now first
+```
+
+## Advanced Usage
+
+### Combining with Other Interactions
+
+Long Press as part of complex workflows:
+
+```
+Test: "Edit item properties"
+
+1. Navigate to items view
+2. Wait until: Items display
+3. Add prompt: "long press on the item"
+4. Wait until: Context menu appears
+5. Click "Edit" option
+6. Wait until: Edit form opens
+7. Type new values
+8. Click "Save"
+9. Verify: Changes applied
+```
+
+### Platform-Specific Behavior
+
+Handle differences between platforms:
+
+```
+Test: "Cross-platform context menu"
+
+Mobile:
+1. long press on element
+2. Wait until: Menu appears
+
+Web Desktop:
+1. right click on element
+2. Wait until: Menu appears
+
+Result: Same menu, platform-appropriate gesture
+```
+
+### Handling Long-Press Variations
+
+Different hold durations or behaviors:
+
+```
+Some interfaces:
+- Short long-press (1 second): Preview
+- Extended long-press (2+ seconds): Edit mode
+
+Testing both:
+1. long press briefly  ← Standard Long Press
+2. Verify: Preview appears
+
+For extended holds, may need:
+1. long press on element
+2. Wait: Additional time if needed
+3. Verify: Extended action triggered
+```
+
+## Mobile-Specific Considerations
+
+Long Press is particularly common in mobile contexts:
+
+### iOS Patterns
+
+```
+Test: "iOS long-press interactions"
+
+App icons:
+- long press on app icon
+- Wait until: Quick actions menu appears
+
+Messages:
+- long press on message
+- Wait until: Reactions picker appears
+
+Photos:
+- long press on photo
+- Wait until: Preview with actions appears
+```
+
+### Android Patterns
+
+```
+Test: "Android long-press interactions"
+
+Home screen:
+- long press on app icon
+- Wait until: App info / shortcuts appear
+
+Lists:
+- long press on list item
+- Wait until: Selection mode activates
+
+Text:
+- long press on text
+- Wait until: Selection handles appear
+```
+
+### Mobile Web
+
+```
+Test: "Mobile web long-press"
+
+Touch-optimized web apps:
+- long press on element
+- Wait until: Touch context menu appears
+- Or: Custom long-press action triggers
+
+May serve as alternative to right-click for touch users
+```
+
+## Real-World Example: Mobile Gallery App
+
+Here's a complete test using Long Press appropriately:
+
+```
+Test: "Organize photos in mobile gallery"
+
+Context: Testing photo gallery app
+Users can long-press photos to select and organize them
+
+Step 1: Navigate to gallery
+1. Open gallery app
+2. Wait until: Photo grid loads
+
+Step 2: Enter selection mode via long-press
+3. Add prompt: "long press on the first photo"
+4. Wait until: Selection mode activates
+5. Verify: Checkboxes appear on all photos
+6. Verify: First photo is selected (checkbox checked)
+7. Verify: Action bar appears at bottom
+
+Step 3: Select additional photos
+8. Click on third photo
+9. Verify: Third photo is now selected
+10. Click on fifth photo
+11. Verify: Fifth photo is now selected
+12. Verify: Selection count shows "3 selected"
+
+Step 4: Perform batch action
+13. Click "Add to Album" button in action bar
+14. Wait until: Album picker appears
+15. Click "Vacation 2024" album
+16. Wait until: Photos are added
+17. Verify: Success message appears
+
+Step 5: Verify result
+18. Navigate to "Vacation 2024" album
+19. Wait until: Album opens
+20. Verify: All three photos appear in album
+
+Why this works:
+- Used Long Press to enter selection mode (step 3)
+- Used standard Click for additional selections (steps 8, 10)
+- Used standard Click for actions after mode activated (step 13)
+- Long Press distinguished from regular tap (opens photo vs selects photo)
+- Properly verified each state transition
+```
+
+## Key Takeaways
+
+1. **Long Press is press and hold** - Extended duration, not quick tap
+2. **Use when specifically required** - Reserve for press-and-hold interfaces
+3. **Both platforms** - Common on mobile, less common on web
+4. **Hold duration automatic** - No need to specify timing
+5. **Various responses** - Menus, mode changes, previews, drag activation
+6. **Wait for response** - Actions appear after hold duration completes
+7. **Not same as right-click** - Different gesture, though similar purpose
+8. **Not same as double-tap** - Hold vs two quick taps
+9. **Common on mobile** - Standard pattern for context actions
+10. **Verify results** - Confirm long-press produced expected effect
+
+## What's Next
+
+Now that you understand Long Press for press-and-hold gestures, explore these related interactions:
+
+- **Click**: Master the standard single-tap interaction
+- **Double Tap**: Learn about rapid double-tap gestures
+- **Right Click**: Discover context menu interactions for web/desktop
+- **Freestyle Gesture**: Understand custom drag and swipe gestures

@@ -1,0 +1,15 @@
+# Visual Click
+
+## Description
+
+Last resort way of clicking elements. Only choose this if explicitly stated by the user.
+
+## Supported Engines
+
+- Web
+- Mobile
+
+## Example Prompts
+
+- visual click on the element
+- visual-click on the element at the top right

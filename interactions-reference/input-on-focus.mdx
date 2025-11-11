@@ -1,0 +1,622 @@
+---
+title: "Input on Focus"
+description: "Type text directly into the currently focused field without searching for it—a specialized interaction for edge cases where standard input doesn't work."
+---
+
+## What is Input on Focus?
+
+Input on Focus is a specialized interaction that types text directly into whichever input field currently has focus, without searching for or locating the field first. Think of it as blind typing—you're assuming something is already focused and you just start typing.
+
+This interaction skips the usual step of finding and clicking into a field, making it faster but also more fragile. It's designed for specific edge cases where the standard Input Text interaction doesn't work as expected.
+
+## When to Use Input on Focus
+
+Input on Focus is a **niche interaction**—you'll rarely need it. Use it only in these specific scenarios:
+
+### Scenario 1: Explicitly Instructed
+
+When someone specifically tells you to use it:
+- "Use input on focus for this field"
+- "Type using input on focus"
+
+### Scenario 2: Custom Input Components
+
+When dealing with unusual input implementations:
+- Fields that don't respond to standard Input Text
+- Custom React/Vue components with non-standard input handling
+- Canvas-based or WebGL inputs
+- Contenteditable divs that behave oddly
+
+### Scenario 3: Already Focused Fields
+
+When a previous step has already focused the field:
+```
+Step 1: Click the email field
+Step 2: Input on focus the email from memory
+```
+
+### Scenario 4: Debugging Standard Input Issues
+
+When Input Text isn't working and you're troubleshooting:
+- Try Input on Focus as an alternative approach
+- Useful for understanding if the issue is field location or input mechanism
+
+### When NOT to Use Input on Focus
+
+**Default to Input Text** in 99% of scenarios. Don't use Input on Focus for:
+
+- Regular form fields (email, password, name, etc.)
+- Search boxes
+- Standard text areas
+- Any scenario where Input Text works fine
+
+**Key principle**: Input Text is more reliable because it explicitly finds and focuses the field before typing. Use Input on Focus only when you have a specific reason.
+
+## How It Works
+
+Input on Focus has a simple execution flow:
+
+1. **Checks focus**: Assumes an input field is already focused
+2. **Types immediately**: Starts typing the specified text character by character
+3. **No field location**: Doesn't search for or click any field
+4. **No focus change**: Doesn't change focus to a different field
+
+### What Makes It Different
+
+| Action | Input Text | Input on Focus |
+|--------|-----------|----------------|
+| Finds field | Yes | No |
+| Clicks field | Yes | No |
+| Requires field description | Yes | No |
+| Speed | Slightly slower (must locate) | Faster (types directly) |
+| Reliability | High | Lower (depends on focus) |
+| Use cases | 99% of scenarios | 1% edge cases |
+
+## Platform Support
+
+- **Web**: Fully supported
+- **Mobile**: Fully supported
+
+Works consistently across platforms, though mobile behavior respects on-screen keyboard states.
+
+## Understanding Metadata
+
+The metadata for Input on Focus is identical to Input Text—it's simply the text to be typed:
+
+**Prompt**: `input on focus the password 123456`
+**Metadata**: `123456`
+
+**Prompt**: `input on focus tom@autonoma.app`
+**Metadata**: `tom@autonoma.app`
+
+The metadata contains only the text, no instructions or formatting.
+
+## Example Scenarios
+
+### Scenario 1: Pre-Focused Field from Click
+
+You've clicked a field in a previous step, and now you want to type:
+
+```
+Step 1: Click the email input field
+Step 2: Input on focus tom@autonoma.app
+Step 3: Click the password field
+Step 4: Input on focus SecurePass123
+```
+
+**Why this works**: Each click sets focus, then Input on Focus types into the focused field.
+
+**Better alternative**: Just use Input Text for both—it will click and type in one step:
+```
+Step 1: input tom@autonoma.app on the email field
+Step 2: input SecurePass123 on the password field
+```
+
+### Scenario 2: Custom Text Editor
+
+A contenteditable div or custom editor that doesn't respond well to standard input:
+
+```
+Step 1: Click in the editor area
+Step 2: Input on focus This is my message content
+Step 3: Verify the editor contains the text
+```
+
+**When you'd need this**: Rich text editors, WYSIWYG editors, or custom input implementations.
+
+### Scenario 3: Modal with Auto-Focused Input
+
+A modal opens with an input field that's automatically focused:
+
+```
+Step 1: Click the Open Modal button
+Step 2: Wait until the modal appears
+Step 3: Input on focus my search query
+```
+
+**Why this might work**: The modal's input is auto-focused on open, so you can type immediately.
+
+**More reliable alternative**:
+```
+Step 1: Click the Open Modal button
+Step 2: Wait until the modal appears
+Step 3: input my search query on the search field in the modal
+```
+
+### Scenario 4: Using Memory/Variables
+
+Recalling stored values and typing them into the focused field:
+
+```
+Step 1: Click the email field
+Step 2: Input on focus the email from memory
+```
+
+**How this works**: Autonoma retrieves the stored email value and types it into whatever field currently has focus.
+
+### Scenario 5: Sequential Tab Navigation
+
+When tabbing through fields and typing in each:
+
+```
+Step 1: Click the first field
+Step 2: Input on focus first value
+Step 3: Press tab (using Send Enter on Input or custom key press)
+Step 4: Input on focus second value
+```
+
+**Note**: This is fragile because tab order can change. Better to explicitly target each field with Input Text.
+
+## Example Prompts
+
+### Basic Input on Focus Prompts
+
+```
+input on focus test@example.com
+input on focus the password 123456
+input on focus tom@autonoma.app
+input on focus John Doe
+input on focus 1234567890
+```
+
+### With Memory/Variables
+
+```
+input on focus the email on memory
+input on focus the stored password
+input on focus the test username from memory
+input on focus the email from memory
+```
+
+### Contextual Usage
+
+```
+input on focus SecurePassword123!
+input on focus my search query text
+input on focus the value from the previous step
+```
+
+## Comparing Input Text vs Input on Focus
+
+Let's see them side by side:
+
+### Input Text (Standard Approach)
+
+```
+input test@example.com on the email field
+```
+
+**What happens**:
+1. Autonoma searches the page for "email field"
+2. Clicks into the field to focus it
+3. Clears existing content (if any)
+4. Types "test@example.com"
+
+**Pros**:
+- Explicit and clear
+- More reliable
+- Self-contained (doesn't depend on previous steps)
+- Better for debugging (clear which field failed)
+
+**Cons**:
+- Slightly slower (must locate field)
+- Requires accurate field description
+
+### Input on Focus (Specialized Approach)
+
+```
+input on focus test@example.com
+```
+
+**What happens**:
+1. Types "test@example.com" into whatever field is currently focused
+2. Assumes something is already focused
+
+**Pros**:
+- Faster (no field location)
+- Works for unusual custom components
+- Simpler prompt
+
+**Cons**:
+- Less reliable (what if nothing is focused?)
+- Harder to debug (which field was focused?)
+- Depends on previous steps maintaining focus
+- Can type into wrong field if focus shifted unexpectedly
+
+## Best Practices
+
+### 1. Default to Input Text
+
+Unless you have a specific reason to use Input on Focus, always use Input Text:
+
+**Preferred**:
+```
+Step 1: input tom@autonoma.app on the email field
+```
+
+**Not preferred**:
+```
+Step 1: Click the email field
+Step 2: Input on focus tom@autonoma.app
+```
+
+The first approach is more maintainable and less likely to break.
+
+### 2. Ensure Focus is Set
+
+If you must use Input on Focus, make sure the previous step definitely sets focus:
+
+**Good**:
+```
+Step 1: Click the input field
+Step 2: Input on focus the value
+```
+
+**Bad**:
+```
+Step 1: Verify the form is visible
+Step 2: Input on focus the value  // Nothing was focused!
+```
+
+### 3. Verify After Input
+
+Since Input on Focus is less reliable, verify the input was successful:
+
+```
+Step 1: Click the email field
+Step 2: Input on focus test@example.com
+Step 3: Verify the email field contains test@example.com
+```
+
+### 4. Use Only When Necessary
+
+Ask yourself: "Does Input Text work for this scenario?" If yes, use that instead.
+
+### 5. Document Why You're Using It
+
+If you use Input on Focus, make it clear why:
+
+```
+// Using Input on Focus because the custom editor doesn't respond to standard input
+Step 1: Click in the editor
+Step 2: Input on focus my message
+```
+
+### 6. Be Careful with Focus Changes
+
+Actions that might change focus between steps:
+- Clicking elements
+- Pressing tab
+- JavaScript focus() calls
+- Modal opening/closing
+- Page navigation
+
+Make sure focus stays where you expect it.
+
+## Common Pitfalls
+
+### Pitfall 1: Nothing is Focused
+
+**Problem**: You try to use Input on Focus but no field has focus.
+
+**Error**: Text doesn't appear anywhere, or test fails.
+
+**Solution**: Click the field first, or use Input Text instead.
+
+### Pitfall 2: Wrong Field Has Focus
+
+**Problem**: A different field than expected has focus.
+
+**Example**: You expect email field to be focused, but password field is focused instead.
+
+**Result**: Text goes into the wrong field.
+
+**Solution**: Explicitly click the correct field immediately before Input on Focus, or use Input Text.
+
+### Pitfall 3: Focus Lost Between Steps
+
+**Problem**: Something between steps changes focus.
+
+**Example**:
+```
+Step 1: Click the email field  // Focus set
+Step 2: Verify the form is visible  // Verification might change focus
+Step 3: Input on focus test@example.com  // Focus is gone!
+```
+
+**Solution**: Click the field again just before Input on Focus, or use Input Text.
+
+### Pitfall 4: Overusing for Convenience
+
+**Problem**: Using Input on Focus everywhere because prompts are shorter.
+
+**Bad pattern**:
+```
+Step 1: Click email field
+Step 2: Input on focus email
+Step 3: Click password field
+Step 4: Input on focus password
+Step 5: Click name field
+Step 6: Input on focus name
+```
+
+**Better pattern**:
+```
+Step 1: input email on the email field
+Step 2: input password on the password field
+Step 3: input name on the name field
+```
+
+The second approach is more maintainable and reliable.
+
+### Pitfall 5: Mobile Keyboard States
+
+**Problem**: On mobile, tapping outside a field closes the keyboard, losing focus.
+
+**Example**: Verification steps might close the keyboard.
+
+**Solution**: Be extra careful with mobile tests—consider using Input Text for reliability.
+
+### Pitfall 6: Custom Components Behaving Unexpectedly
+
+**Problem**: Even with focus, custom components don't accept input via Input on Focus.
+
+**Example**: A React component with custom event handlers.
+
+**Solution**: Try clicking and typing directly on the canvas, or work with your development team to make the component more testable.
+
+## Advanced Patterns
+
+### Pattern 1: Rapid Sequential Input
+
+When you need to type into multiple fields very quickly:
+
+```
+Step 1: Click the first field
+Step 2: Input on focus first value
+Step 3: Press tab
+Step 4: Input on focus second value
+Step 5: Press tab
+Step 6: Input on focus third value
+```
+
+**Caution**: This is fragile. Tab order can change with UI updates.
+
+### Pattern 2: Custom Editor Interaction
+
+For complex custom editors:
+
+```
+Step 1: Click the editor toolbar bold button
+Step 2: Click in the editor content area
+Step 3: Input on focus Bold text here
+Step 4: Click the editor toolbar italic button
+Step 5: Input on focus Italic text here
+```
+
+### Pattern 3: Modal Auto-Focus Handling
+
+When modals auto-focus their primary input:
+
+```
+Step 1: Click the Search button
+Step 2: Wait until the search modal appears
+Step 3: Input on focus search query
+Step 4: Send enter on input
+```
+
+**Alternative** (more reliable):
+```
+Step 1: Click the Search button
+Step 2: Wait until the search modal appears
+Step 3: input search query on the search field
+Step 4: Send enter on input
+```
+
+## Debugging Input on Focus Issues
+
+### Issue: Text Doesn't Appear Anywhere
+
+**Debugging steps**:
+1. Check if any field has focus before the Input on Focus step
+2. Add a click step before: `Click the [field]`
+3. Try using Input Text instead
+4. Check browser console for JavaScript errors
+
+### Issue: Text Appears in Wrong Field
+
+**Debugging steps**:
+1. Identify which field actually has focus
+2. Add explicit field focusing: `Click the correct field`
+3. Remove steps between focusing and typing
+4. Switch to Input Text for clarity
+
+### Issue: Only Partial Text Appears
+
+**Debugging steps**:
+1. Check field character limits
+2. Verify the field accepts the type of input
+3. Check for JavaScript validation interfering
+4. Try typing slower (though Autonoma handles this automatically)
+
+### Issue: Works in Recording but Fails in Playback
+
+**Debugging steps**:
+1. Add wait steps to ensure elements are loaded
+2. Verify focus is set consistently in playback
+3. Check if page behavior differs between recording and playback
+4. Consider switching to Input Text for more reliability
+
+## When Input on Focus is Actually Better
+
+While rare, there are legitimate cases where Input on Focus is the right choice:
+
+### Case 1: Contenteditable Divs
+
+Some contenteditable elements don't respond well to Input Text:
+
+```html
+<div contenteditable="true" class="editor">Type here</div>
+```
+
+**Better with Input on Focus**:
+```
+Step 1: Click in the editor area
+Step 2: Input on focus my content
+```
+
+### Case 2: Canvas-Based Inputs
+
+Text inputs rendered on HTML5 canvas:
+
+```
+Step 1: Click at coordinates X, Y (where the canvas input is)
+Step 2: Input on focus the value
+```
+
+### Case 3: Shadow DOM Components
+
+Custom web components with shadow DOM that hide input elements:
+
+```
+Step 1: Click the custom input component
+Step 2: Input on focus the value
+```
+
+### Case 4: Explicitly Required by Test Spec
+
+When test requirements specifically call for it:
+
+```
+Test spec: "Use input on focus to test focus state handling"
+```
+
+## Combining with Other Interactions
+
+### Input on Focus + Click
+
+The most common combination:
+
+```
+Step 1: Click the field
+Step 2: Input on focus the value
+```
+
+### Input on Focus + Send Enter
+
+Submitting after typing:
+
+```
+Step 1: Click the search field
+Step 2: Input on focus search query
+Step 3: Send enter on input
+```
+
+### Input on Focus + Verify
+
+Ensuring input was successful:
+
+```
+Step 1: Click the email field
+Step 2: Input on focus test@example.com
+Step 3: Verify the email field contains test@example.com
+```
+
+### Input on Focus + Backspace
+
+Editing existing content:
+
+```
+Step 1: Click the field with pre-filled text
+Step 2: Backspace 10 times
+Step 3: Input on focus new value
+```
+
+## Testing Edge Cases
+
+### Auto-Focused Modals
+
+```
+Step 1: Click the button to open modal
+Step 2: Wait until modal appears
+Step 3: Input on focus immediate typing (modal auto-focuses input)
+```
+
+### Dynamic Form Fields
+
+```
+Step 1: Select option that reveals new field
+Step 2: Wait until new field appears
+Step 3: Click the new field (ensure focus)
+Step 4: Input on focus the value
+```
+
+### Multi-Step Wizards
+
+```
+Step 1: Click Next to go to step 2
+Step 2: Wait until step 2 loads
+Step 3: Input on focus value for auto-focused field
+```
+
+## Key Takeaways
+
+1. **Input on Focus is a specialized tool**—use it rarely, only when needed
+2. **Default to Input Text** for 99% of scenarios—it's more reliable
+3. **Ensure focus is set** before using Input on Focus
+4. **Verify successful input** since this interaction is less reliable
+5. **Best for edge cases** like custom editors, contenteditable divs, or unusual components
+6. **Simpler prompts** but more fragile execution
+7. **Works across Web and Mobile** but be cautious with mobile keyboard states
+8. **Use only when explicitly instructed** or when Input Text doesn't work
+
+## Related Interactions
+
+- **Input Text**: The standard, more reliable way to input text (use this by default)
+- **Send Enter on Input**: Press enter after typing to submit forms
+- **Backspace**: Delete characters from the focused field
+- **Click**: Focus a field before using Input on Focus
+- **Keypad**: For mobile numeric input using on-screen keypads
+
+## Decision Framework
+
+Use this decision tree to choose the right interaction:
+
+```
+Do you need to type text into a field?
+│
+├─ Yes → Is the field already focused from a previous step?
+│        │
+│        ├─ Yes → Does Input Text work fine?
+│        │        │
+│        │        ├─ Yes → Use Input Text (more reliable)
+│        │        └─ No → Consider Input on Focus
+│        │
+│        └─ No → Use Input Text (it will focus and type)
+│
+└─ No → Use a different interaction (Click, etc.)
+```
+
+---
+
+**Next Steps**: Learn about **Send Enter on Input** to submit forms after typing, or explore **Input Text** for the standard input approach you'll use most often.

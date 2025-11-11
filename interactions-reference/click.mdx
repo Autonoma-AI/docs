@@ -1,0 +1,507 @@
+---
+title: "Click"
+description: "The fundamental interaction for clicking elements in web and mobile applications. Click is your go-to action for standard button presses, link navigation, and UI element activation."
+---
+
+## What is Click?
+
+Click is the most commonly used interaction in Autonoma. It's the digital equivalent of pressing a button, tapping a link, or activating any clickable element on a web page or mobile app. Think of it as your primary tool for navigation and interaction—the same way you'd click with a mouse or tap with your finger in normal usage.
+
+What makes Click powerful in Autonoma is its intelligence. It doesn't just blindly click coordinates. Instead, it analyzes the visual context of the page and understands whether your requested click makes sense. If you ask it to "click sign up" and there's a sign-up button visible, it knows that's the target. If there's no sign-up button visible, it recognizes something is wrong and alerts you.
+
+This intelligent approach prevents silent failures and makes your tests more reliable.
+
+## When to Use Click
+
+Click should be your default choice for most interactions. Here's when it's the right tool:
+
+**Perfect for:**
+- Clicking buttons with text labels ("Submit", "Cancel", "Add to Cart")
+- Navigating via links and menu items
+- Activating form controls (checkboxes, radio buttons)
+- Opening dropdowns and select menus
+- Triggering standard UI actions
+- Both static and dynamic elements where standard click behavior is expected
+
+**Choose an alternative when:**
+- Elements aren't properly detected in the DOM (use OCR Click)
+- You need to click conditionally based on element presence (use Conditional Click)
+- You need to repeatedly click until a condition is met (use Click Until)
+- You're on web and standard click fails (try Smart Click or Visual Click)
+- You need a right-click context menu (use Right Click)
+- You need a double-click action (use Double Tap)
+
+## How It Works
+
+When you use Click in Autonoma, here's what happens behind the scenes:
+
+1. **Visual Analysis**: Autonoma captures a screenshot of the current page state
+2. **Element Detection**: It identifies clickable elements using both DOM structure and visual recognition
+3. **Context Matching**: It matches your instruction ("click login") with visible elements
+4. **Validation**: It verifies the click makes sense given the current UI state
+5. **Execution**: It performs the click on the matched element
+6. **Verification**: It confirms the action completed successfully
+
+This multi-step process ensures clicks are both accurate and contextually appropriate.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+Click works universally across platforms, making it ideal for cross-platform test suites.
+
+## Example Scenarios
+
+### Scenario 1: E-commerce Product Purchase
+
+You're testing a shopping flow where users browse products and add items to their cart.
+
+```
+Test: "Add product to cart"
+
+1. Click "Products" in main navigation
+2. Wait until: Product grid loads
+3. Add prompt: "Click the first product in the grid"
+4. Wait until: Product detail page loads
+5. Click "Add to Cart" button
+6. Wait until: Cart count updates
+7. Click cart icon
+8. Verify: Product appears in cart
+```
+
+**Why Click works here**: Every interaction is clicking a standard UI element. The navigation link, buttons, and icons all respond to normal click behavior.
+
+### Scenario 2: Form Submission
+
+You're testing a contact form with multiple fields and a submit button.
+
+```
+Test: "Submit contact form"
+
+1. Click "Contact Us" in footer
+2. Wait until: Form loads
+3. Click "Name" field
+4. Type "John Smith"
+5. Click "Email" field
+6. Type "john@example.com"
+7. Click "Message" textarea
+8. Type "I need help with my order"
+9. Click "Send Message" button
+10. Wait until: Success message appears
+```
+
+**Why Click works here**: Forms are designed for standard click interactions. Each field and button expects a regular click to activate.
+
+### Scenario 3: Dashboard Navigation
+
+You're testing a complex dashboard with multiple tabs, cards, and action buttons.
+
+```
+Test: "Navigate dashboard and export data"
+
+1. Click "Dashboard" in sidebar
+2. Wait until: Dashboard loads
+3. Click "Analytics" tab
+4. Wait until: Analytics data loads
+5. Click "Date Range" dropdown
+6. Click "Last 30 Days" option
+7. Wait until: Data updates
+8. Click "Export" button
+9. Click "Export as CSV" in dropdown menu
+10. Wait until: Download begins
+```
+
+**Why Click works here**: Dashboard UI components (tabs, dropdowns, buttons) all use standard click behavior.
+
+### Scenario 4: Mobile App Navigation
+
+You're testing a mobile app where users navigate through screens and interact with buttons.
+
+```
+Test: "Complete mobile onboarding"
+
+1. Wait until: Welcome screen loads
+2. Click "Get Started" button
+3. Wait until: Permission screen loads
+4. Click "Allow Notifications" button
+5. Wait until: Next screen loads
+6. Click "Enable Location" button
+7. Wait until: Final screen loads
+8. Click "Finish Setup" button
+9. Wait until: Home screen loads
+```
+
+**Why Click works here**: Mobile app buttons are designed for tap interactions, which Click handles naturally.
+
+## Example Prompts
+
+Here are effective ways to phrase Click instructions:
+
+**Button clicks:**
+```
+click on the login button
+click sign up
+click the submit button
+tap on delete
+click continue
+```
+
+**Link clicks:**
+```
+click on the home link
+click the "Learn More" link
+tap on see details
+```
+
+**Icon clicks:**
+```
+click the eye button to see the password
+click the hamburger menu icon
+tap on the settings gear
+click the close button
+```
+
+**Form element clicks:**
+```
+click the email field
+click on the checkbox to accept terms
+tap on the country dropdown
+click the radio button for payment type
+```
+
+**Dynamic element clicks:**
+```
+click the first product in the list
+click on the most recent notification
+tap on the top search result
+click the active tab
+```
+
+## Best Practices
+
+### 1. Be Specific But Natural
+
+Good prompts are specific enough to identify the element but natural enough to be understood.
+
+**Good:**
+```
+click the "Add to Cart" button
+click on login
+tap the submit button
+```
+
+**Too vague:**
+```
+click it
+click there
+tap
+```
+
+**Overly specific:**
+```
+click the blue button with rounded corners in the top right that says "Submit" and has a white background
+```
+
+### 2. Use Visual Identifiers
+
+Reference what you see on screen: text labels, icons, positions.
+
+**Good:**
+```
+click the search icon in the header
+click the red delete button
+tap on the first item
+```
+
+**Less effective:**
+```
+click button_id_123
+click the element
+```
+
+### 3. Wait for Elements to Load
+
+Always add a wait condition before clicking elements that appear after page transitions or data loading.
+
+**Good:**
+```
+1. Navigate to products page
+2. Wait until: Products load
+3. Click the first product
+```
+
+**Risky:**
+```
+1. Navigate to products page
+2. Click the first product  ← May fail if products haven't loaded yet
+```
+
+### 4. Combine with Canvas Clicks for Static Elements
+
+For elements that never change (navigation menus, static buttons), use canvas clicks for speed and precision. Use prompt-based clicks for dynamic content.
+
+**Strategic mix:**
+```
+1. Click "Products" menu ← Canvas click (static)
+2. Wait until: Products load
+3. Add prompt: "Click the first in-stock product" ← Prompt click (dynamic)
+4. Click "Add to Cart" button ← Canvas click (static)
+```
+
+### 5. Verify Actions Completed
+
+After important clicks, verify the expected result occurred.
+
+**Good:**
+```
+1. Click "Add to Cart" button
+2. Wait until: Cart count increases
+3. Verify: Product appears in cart
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Clicking Before Elements Load
+
+**Problem:**
+```
+1. Navigate to page
+2. Click submit button  ← Fails if page still loading
+```
+
+**Solution:**
+```
+1. Navigate to page
+2. Wait until: Form loads
+3. Click submit button
+```
+
+### Pitfall 2: Ambiguous Target References
+
+**Problem:**
+```
+click the button  ← Which button? There might be many
+```
+
+**Solution:**
+```
+click the "Submit" button in the checkout form
+```
+
+### Pitfall 3: Clicking Dynamic Elements Without Flexibility
+
+**Problem:**
+```
+click "Nike Air Max 2024"  ← Product might not exist tomorrow
+```
+
+**Solution:**
+```
+click the first product in the search results
+```
+
+### Pitfall 4: Not Handling Element States
+
+**Problem:**
+```
+click the "Save" button  ← Might be disabled
+```
+
+**Solution:**
+```
+1. Wait until: "Save" button is enabled
+2. Click "Save" button
+```
+
+### Pitfall 5: Expecting Immediate Results
+
+**Problem:**
+```
+1. Click "Load More" button
+2. Click the new item  ← Item might not be loaded yet
+```
+
+**Solution:**
+```
+1. Click "Load More" button
+2. Wait until: New items appear
+3. Click the new item
+```
+
+## Comparison with Similar Interactions
+
+### Click vs Smart Click
+
+**Click (Standard):**
+- Best for: 95% of clicking needs
+- Works with: Properly structured DOM elements
+- Speed: Fast
+- Reliability: High for standard elements
+
+**Smart Click (Experimental):**
+- Best for: Edge cases where standard click fails on web
+- Works with: Alternative detection methods
+- Speed: Slightly slower
+- Use when: Explicitly needed, standard click fails
+
+**When to switch**: Only use Smart Click when you've confirmed standard Click isn't working for a specific element on web.
+
+### Click vs Visual Click
+
+**Click (Standard):**
+- Method: DOM-based with visual confirmation
+- Best for: Standard clickable elements
+- Precision: High
+- Speed: Fast
+
+**Visual Click (Last Resort):**
+- Method: Pure visual/coordinate-based
+- Best for: Elements that resist other methods
+- Precision: Lower (coordinate-dependent)
+- Speed: Slower
+
+**When to switch**: Only use Visual Click when Click, Smart Click, and OCR Click all fail.
+
+### Click vs OCR Click
+
+**Click (Standard):**
+- Detection: DOM structure + visual analysis
+- Works with: Elements in the DOM
+- Best for: Properly rendered UI elements
+- Platform: Web and Mobile
+
+**OCR Click:**
+- Detection: Optical character recognition
+- Works with: Visible text only
+- Best for: Canvas elements, images with text, non-DOM content
+- Platform: Web and Mobile
+
+**When to switch**: Use OCR Click when elements aren't accessible via DOM (e.g., text in images, canvas elements, or when clickable="true" is missing on mobile).
+
+### Click vs Conditional Click
+
+**Click (Standard):**
+- Behavior: Always attempts the click
+- Fails if: Element not found
+- Best for: Elements you know exist
+
+**Conditional Click:**
+- Behavior: Only clicks if element is present
+- Skips if: Element not found
+- Best for: Optional elements (modals, popups, banners)
+
+**When to switch**: Use Conditional Click for elements that might not appear every time (cookie banners, promotional modals, etc.).
+
+### Click vs Double Tap
+
+**Click (Standard):**
+- Action: Single click/tap
+- Best for: Standard button and link activation
+
+**Double Tap:**
+- Action: Two rapid clicks/taps
+- Best for: Special actions requiring double-click (zoom, selection, etc.)
+
+**When to switch**: Only use Double Tap when the UI specifically requires a double-click action.
+
+## Interaction Patterns
+
+### Pattern 1: Click and Verify
+
+Always verify that clicks produced the expected result.
+
+```
+1. Click "Add to Cart" button
+2. Wait until: Cart badge updates
+3. Verify: Count increased by 1
+```
+
+### Pattern 2: Navigate and Act
+
+Combine navigation clicks with action clicks.
+
+```
+1. Click "Products" menu
+2. Wait until: Product page loads
+3. Click "Filters" button
+4. Click "On Sale" filter
+5. Wait until: Filtered results load
+```
+
+### Pattern 3: Sequential Form Filling
+
+Click fields, enter data, move to next field.
+
+```
+1. Click "First Name" field
+2. Type "John"
+3. Click "Last Name" field
+4. Type "Smith"
+5. Click "Submit" button
+```
+
+### Pattern 4: Dropdown Selection
+
+Open dropdown, wait, select option.
+
+```
+1. Click "Country" dropdown
+2. Wait until: Options appear
+3. Click "United States" option
+4. Wait until: Dropdown closes
+```
+
+## Advanced Usage
+
+### Working with Shadow DOM
+
+Click works with Shadow DOM elements when they're properly exposed.
+
+```
+click the button in the web component
+click the custom-element's submit button
+```
+
+### Handling Overlays
+
+Click intelligently handles elements that might be behind overlays.
+
+```
+1. Click "Open Modal" button
+2. Wait until: Modal appears
+3. Click "Confirm" button in modal
+4. Wait until: Modal closes
+```
+
+### Mobile-Specific Considerations
+
+On mobile, Click automatically adapts to touch events.
+
+```
+tap on the floating action button
+click the bottom tab icon
+tap the hamburger menu
+```
+
+## Key Takeaways
+
+1. **Click is your primary tool** - Use it for 95% of your clicking needs
+2. **It's intelligent** - Validates that clicks make sense given the UI context
+3. **Works everywhere** - Full support for web and mobile platforms
+4. **Combine approaches** - Mix canvas clicks (static) with prompt clicks (dynamic)
+5. **Always verify** - Add wait conditions to confirm clicks succeeded
+6. **Be specific** - Reference clear visual identifiers in your prompts
+7. **Know the alternatives** - Understand when to switch to specialized click variants
+8. **Handle timing** - Wait for elements to load before clicking
+9. **Use natural language** - Write prompts as you'd speak them
+10. **Test edge cases** - Consider disabled states, loading states, and element visibility
+
+## What's Next
+
+Now that you understand the fundamental Click interaction, explore these related interactions:
+
+- **Conditional Click**: Learn how to click elements that might not always be present
+- **Click Until**: Discover how to repeatedly click until a condition is met
+- **OCR Click**: Understand when and how to use OCR-based clicking
+- **Smart Click**: Explore experimental clicking methods for edge cases

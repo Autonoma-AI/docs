@@ -1,0 +1,1053 @@
+---
+title: "Go Offline"
+description: "Simulate network disconnection in mobile app tests to validate offline functionality, test data persistence, and ensure your app handles connectivity loss gracefully."
+---
+
+## What is Go Offline?
+
+Go Offline is a mobile testing interaction that simulates complete network disconnection by disabling both WiFi and cellular data connections. It's the equivalent of enabling airplane mode or losing all network connectivity—completely cutting off your app's ability to communicate with the internet.
+
+This interaction lets you test one of the most critical aspects of mobile app quality: **how your app behaves when the network disappears**.
+
+In the real world, network connectivity isn't guaranteed. Users experience connection loss constantly—in elevators, subways, parking garages, rural areas, or when they intentionally enable airplane mode. Your app needs to handle these situations gracefully, and Go Offline lets you test exactly that.
+
+## Why Offline Testing is Critical
+
+Consider what happens when a user loses connectivity while using your app:
+
+**Without proper offline handling:**
+- Actions silently fail with no feedback
+- Data is lost when operations can't complete
+- The app freezes or crashes
+- Error messages are confusing or absent
+- Users abandon the app in frustration
+
+**With proper offline handling:**
+- The app detects connectivity loss immediately
+- Users see clear "You're offline" messaging
+- Actions are queued for later execution
+- Local data remains accessible
+- Offline functionality continues to work
+- When connectivity returns, changes sync automatically
+
+The difference between these experiences is the difference between a professional app and one that feels broken.
+
+## When to Use Go Offline
+
+Go Offline should be a standard part of your mobile testing strategy. Here's when to use it:
+
+**Essential for testing:**
+- Offline-first functionality (reading saved content, viewing cached data)
+- Data persistence (ensuring local storage works correctly)
+- Queue mechanisms (actions that should execute when back online)
+- Error handling (appropriate messages when network operations fail)
+- Graceful degradation (features that continue working offline)
+- Network state indicators (badges, banners, icons showing offline status)
+
+**Critical test patterns:**
+- **Create data offline** → Go back online → Verify sync
+- **Load content online** → Go offline → Verify cached content accessible
+- **Attempt online action offline** → Verify appropriate error handling
+- **Queue actions offline** → Go online → Verify actions execute
+
+**Apps that especially need offline testing:**
+- Note-taking and productivity apps
+- E-commerce and shopping apps
+- Social media and content apps
+- Messaging and communication apps
+- Travel and navigation apps
+- Media and entertainment apps
+- Finance and banking apps
+
+Essentially, **any mobile app that handles user data** needs offline testing.
+
+## How It Works
+
+When you trigger Go Offline in a test, here's the sequence of events:
+
+1. **Network Disabling**: Autonoma disables both WiFi and cellular data at the system level
+2. **Connection Termination**: Active network connections are immediately severed
+3. **State Change Notification**: Your app receives network state change events
+4. **Offline Mode Activation**: Your app's offline handling logic engages
+5. **Local Operation**: The app now operates in offline mode
+6. **Test Continuation**: Your test continues with the app disconnected
+
+This simulates exactly what users experience when they lose connectivity or enable airplane mode.
+
+## Platform Support
+
+**Web**: Not supported (web testing happens in consistent network environments; use browser dev tools for throttling)
+**Mobile**: Full support (Android and iOS)
+
+Go Offline is mobile-specific because:
+- Mobile devices frequently lose connectivity
+- Mobile apps need robust offline capabilities
+- Mobile users expect offline functionality
+- Testing offline scenarios is essential for mobile quality
+
+## Real-World Testing Scenarios
+
+### Scenario 1: Reading Saved Articles Offline
+
+You're testing a news app where users should be able to read saved articles even without connectivity.
+
+```
+Test: "Users can read saved articles offline"
+
+Save articles while online:
+1. Navigate to articles feed
+2. Wait until: Articles load
+3. Click: First article
+4. Wait until: Article loads
+5. Click: "Save for later" button
+6. Wait until: "Saved" confirmation appears
+7. Assert: Bookmark icon filled
+8. Navigate back to feed
+9. Click: Second article
+10. Wait until: Article loads
+11. Click: "Save for later" button
+12. Assert: "Saved" confirmation appears
+
+Verify offline access:
+13. Go offline ← Simulate connection loss
+14. Wait until: "You're offline" banner appears
+15. Assert: Offline indicator shows in status area
+
+Navigate to saved articles:
+16. Click: "Saved" tab in navigation
+17. Wait until: Saved articles list loads
+18. Assert: Both saved articles appear in list
+19. Assert: Article thumbnails visible
+20. Assert: Article titles and previews display
+
+Read offline content:
+21. Click: First saved article
+22. Wait until: Article opens
+23. Assert: Full article text visible
+24. Assert: Images loaded (from cache)
+25. Assert: No "loading" or "error" states
+26. Scroll: To bottom of article
+27. Assert: Complete article accessible
+
+Verify limitations:
+28. Navigate back
+29. Click: "Browse" tab
+30. Assert: "You're offline" message displays
+31. Assert: Cannot load new articles
+32. Assert: Clear explanation provided
+
+Return online and verify:
+33. Go online
+34. Wait until: "You're back online" notification appears
+35. Click: "Browse" tab
+36. Wait until: New articles load
+37. Assert: Feed refreshed with latest content
+```
+
+**Why this matters**: Offline reading is a core expectation for content apps. Users save articles specifically to read them later when they might not have connectivity (flights, commutes, etc.).
+
+### Scenario 2: Form Data Persistence During Connection Loss
+
+You're testing an app where users fill out long forms. If they lose connectivity mid-form, their data should be preserved.
+
+```
+Test: "Form data persists through connectivity loss"
+
+Start filling form online:
+1. Navigate to registration form
+2. Wait until: Form loads
+3. Assert: All fields visible
+4. Type {{random:first_name}} in first name field
+5. Type {{random:last_name}} in last name field
+6. Type {{random:email}} in email field
+7. Type {{random:phone}} in phone field
+8. Assert: Data entered in all fields
+
+Simulate connection loss mid-form:
+9. Go offline ← User loses signal
+10. Wait until: Offline indicator appears
+11. Assert: "You're currently offline" message shows
+12. Assert: Form remains visible and editable
+
+Continue filling form offline:
+13. Type {{random:address}} in address field
+14. Type {{random:city}} in city field
+15. Select: State from dropdown
+16. Type {{random:zip}} in zip code field
+17. Assert: All offline-entered data visible
+
+Attempt to submit offline:
+18. Click: "Submit" button
+19. Assert: Cannot submit while offline
+20. Assert: Error message "No internet connection. Please try again when online."
+21. Assert: "Save Draft" option available
+22. Assert: Form data still present
+
+Save draft and verify persistence:
+23. Click: "Save Draft" button
+24. Wait until: "Draft saved locally" confirmation appears
+25. Navigate away from form
+26. Navigate back to form
+27. Assert: All form data restored from draft
+28. Assert: Every field still populated
+
+Restore connectivity and submit:
+29. Go online ← Connection restored
+30. Wait until: "You're back online" banner appears
+31. Assert: Submit button becomes enabled
+32. Click: "Submit" button
+33. Wait until: Form submits
+34. Assert: "Registration successful" confirmation
+35. Assert: No data loss occurred
+```
+
+**Why this matters**: Users often spend significant time filling forms (job applications, surveys, registrations). Losing that data due to connectivity issues creates a terrible experience and high abandonment rates.
+
+### Scenario 3: Offline Action Queuing and Sync
+
+You're testing a task management app where users can create tasks offline, which should sync when they regain connectivity.
+
+```
+Test: "Tasks created offline queue and sync when connection restored"
+
+Establish baseline online:
+1. Navigate to tasks list
+2. Wait until: Tasks load
+3. Assert: Connected status indicator visible
+4. Create online task for comparison:
+5. Click: "New Task" button
+6. Type "Online Task" in task field
+7. Click: "Save" button
+8. Wait until: Task syncs
+9. Assert: "Online Task" appears with synced indicator
+
+Disconnect and create offline tasks:
+10. Go offline ← Simulate subway, elevator, etc.
+11. Wait until: "Working offline" banner appears
+12. Assert: Offline mode indicator active
+
+Create first offline task:
+13. Click: "New Task" button
+14. Type "Offline Task 1" in task field
+15. Click: "Save" button
+16. Wait until: Task saves locally
+17. Assert: "Offline Task 1" appears in list
+18. Assert: Queue indicator shows "Will sync when online"
+19. Assert: Sync icon shows pending state
+
+Create second offline task:
+20. Click: "New Task" button
+21. Type "Offline Task 2" in task field
+22. Click: "Save" button
+23. Assert: "Offline Task 2" appears in list
+24. Assert: Both offline tasks show queued status
+
+Update existing task offline:
+25. Click: "Online Task" (created earlier)
+26. Check: Mark as complete
+27. Assert: Completion queued for sync
+28. Navigate back to list
+29. Assert: Three tasks total (1 online, 2 offline)
+30. Assert: Task completion update queued
+
+Verify offline persistence:
+31. Restart app
+32. Wait until: App reopens
+33. Assert: Still in offline mode
+34. Assert: All three tasks present
+35. Assert: Offline tasks still show queued status
+36. Assert: No data lost during restart
+
+Restore connectivity and verify sync:
+37. Go online ← Connection restored
+38. Wait until: "Syncing..." indicator appears
+39. Wait until: First offline task syncs
+40. Assert: "Offline Task 1" sync icon changes to synced
+41. Wait until: Second offline task syncs
+42. Assert: "Offline Task 2" sync icon changes to synced
+43. Wait until: Task completion update syncs
+44. Assert: "Online Task" shows completed with synced indicator
+45. Assert: All tasks successfully synced
+
+Verify cross-device sync:
+46. Open app on second device
+47. Wait until: Tasks load
+48. Assert: All three tasks present on second device
+49. Assert: "Online Task" shows completed
+50. Assert: Both offline-created tasks visible
+51. Assert: All changes propagated correctly
+```
+
+**Why this matters**: Modern apps need offline-first architecture. Users expect to continue working regardless of connectivity, with changes automatically syncing when possible.
+
+### Scenario 4: Messaging with Offline Queue
+
+You're testing a messaging app where messages sent offline should be queued and delivered when connectivity returns.
+
+```
+Test: "Messages sent offline queue for delivery"
+
+Setup conversation online:
+1. Navigate to messages
+2. Wait until: Conversation list loads
+3. Click: Test conversation
+4. Wait until: Messages load
+5. Assert: "Connected" status indicator
+
+Send message while online:
+6. Type "Message before disconnect" in message field
+7. Click: Send button
+8. Wait until: Message shows "Delivered"
+9. Assert: Double checkmark appears
+
+Disconnect and send offline messages:
+10. Go offline ← Connection lost
+11. Wait until: "No connection" indicator appears
+12. Assert: Status shows "Not connected"
+
+Attempt to send first offline message:
+13. Type "Offline message 1" in message field
+14. Click: Send button
+15. Assert: Message appears in thread
+16. Assert: Single checkmark (sent locally, not delivered)
+17. Assert: Clock icon indicates "Queued for delivery"
+18. Assert: Message grayed out or otherwise indicates pending state
+
+Send second offline message:
+19. Type "Offline message 2" in message field
+20. Click: Send button
+21. Assert: Second message appears below first
+22. Assert: Also shows queued state
+23. Assert: Both messages waiting for connection
+
+Attempt to send with media:
+24. Click: Attach image button
+25. Select: Test image
+26. Type "Message with image" in message field
+27. Click: Send button
+28. Assert: Message with image appears
+29. Assert: Image shows as queued for upload
+30. Assert: Three messages total queued
+
+Verify queue persistence:
+31. Navigate away from conversation
+32. Navigate back to conversation
+33. Assert: All three queued messages still present
+34. Assert: Queue state preserved
+
+Close and reopen app:
+35. Close app
+36. Wait: 2 seconds
+37. Reopen app
+38. Navigate to conversation
+39. Assert: Queued messages still there
+40. Assert: No messages lost
+
+Restore connectivity and verify delivery:
+41. Go online ← Connection restored
+42. Wait until: "Reconnecting..." appears
+43. Wait until: First message starts sending
+44. Assert: Clock icon changes to "Sending..."
+45. Wait until: First message delivers
+46. Assert: Single checkmark → Double checkmark
+47. Wait until: Second message delivers
+48. Assert: Second message also shows delivered
+49. Wait until: Image uploads
+50. Wait until: Image message delivers
+51. Assert: All three messages successfully delivered
+52. Assert: Correct delivery order maintained
+53. Assert: Timestamps reflect actual send time
+
+Verify on recipient device:
+54. Switch to recipient device
+55. Wait until: Messages sync
+56. Assert: All three messages received
+57. Assert: Message with image displays correctly
+58. Assert: No duplicate messages
+59. Assert: Conversation state consistent
+```
+
+**Why this matters**: Communication apps must reliably deliver messages. Users expect messages to be queued when offline and automatically sent when connectivity returns, without manual intervention.
+
+### Scenario 5: E-commerce Offline Browse and Add to Cart
+
+You're testing a shopping app where users can browse previously loaded products offline and add them to cart for checkout later.
+
+```
+Test: "Offline product browsing and cart management"
+
+Load products while online:
+1. Navigate to products page
+2. Wait until: Product grid loads
+3. Assert: Products display with images
+4. Scroll: Through several pages to cache products
+5. Wait until: 20+ products loaded and cached
+6. Assert: Product images loaded
+7. Assert: Prices and details visible
+
+Go offline and browse cached content:
+8. Go offline ← Simulate connection loss
+9. Wait until: "You're offline" banner appears
+10. Assert: Offline mode indicator active
+
+Browse cached products:
+11. Navigate to products page
+12. Assert: Previously loaded products still visible
+13. Assert: Product images still display (from cache)
+14. Assert: Product details accessible
+15. Scroll: Through cached products
+16. Assert: Smooth scrolling without loading states
+
+View product details offline:
+17. Click: First cached product
+18. Wait until: Product detail page opens
+19. Assert: Product title displays
+20. Assert: Product images show
+21. Assert: Price visible
+22. Assert: Description text accessible
+23. Assert: Reviews visible (if cached)
+
+Add to cart while offline:
+24. Click: "Add to Cart" button
+25. Wait until: Action processes
+26. Assert: "Added to cart (will sync when online)" message
+27. Assert: Cart badge updates to "1"
+28. Assert: Local cart indicator shows
+
+Navigate and add more:
+29. Navigate back to products
+30. Click: Second cached product
+31. Click: "Add to Cart" button
+32. Assert: Cart badge updates to "2"
+33. Assert: Both items in local cart
+
+View cart offline:
+34. Click: Cart icon
+35. Wait until: Cart page loads
+36. Assert: Both products appear in cart
+37. Assert: Product images display
+38. Assert: Quantities editable
+39. Assert: Subtotal calculated
+
+Update cart offline:
+40. Change quantity of first item to 2
+41. Assert: Subtotal updates
+42. Assert: Cart badge shows "3" (2 + 1)
+
+Attempt checkout offline:
+43. Click: "Checkout" button
+44. Assert: "Cannot checkout while offline" message
+45. Assert: "Your cart is saved and will sync when you're back online"
+46. Assert: Cart data preserved
+
+Verify cart persistence:
+47. Close app
+48. Reopen app
+49. Assert: Still in offline mode
+50. Click: Cart icon
+51. Assert: Cart still contains 3 items
+52. Assert: Quantities preserved
+53. Assert: No data loss
+
+Restore connectivity and sync:
+54. Go online ← Connection restored
+55. Wait until: "Syncing cart..." indicator appears
+56. Wait until: Sync completes
+57. Assert: "Cart synced" confirmation
+58. Assert: Cart still shows 3 items
+59. Assert: All changes preserved
+
+Complete checkout online:
+60. Click: "Checkout" button
+61. Wait until: Checkout page loads
+62. Assert: Cart items carry through to checkout
+63. Assert: Quantities correct
+64. Assert: Prices accurate
+65. Fill checkout form
+66. Click: "Place Order" button
+67. Wait until: Order processes
+68. Assert: Order confirmation appears
+69. Assert: Order includes all items from offline cart
+```
+
+**Why this matters**: E-commerce apps must allow offline browsing of cached products and local cart management. Users often browse while commuting or in areas with poor connectivity, and cart data must never be lost.
+
+## Example Prompts
+
+Here are effective ways to phrase the Go Offline action in your tests:
+
+**Standard usage:**
+```
+go offline
+disable network connection
+turn off wifi and data
+simulate airplane mode
+disconnect from internet
+go into offline mode
+```
+
+**With context:**
+```
+Simulate connection loss by going offline
+Go offline to test offline functionality
+Disable connectivity to verify error handling
+Go offline before attempting sync operation
+```
+
+**In test flow patterns:**
+```
+1. Perform actions online
+2. Go offline ← Start of offline testing
+3. Verify offline behavior
+4. Go online
+5. Verify sync
+```
+
+## Best Practices for Offline Testing
+
+### 1. Test the Complete Offline Lifecycle
+
+Don't just go offline and immediately back online—test realistic offline usage:
+
+**Good:**
+```
+1. Go offline
+2. Perform multiple offline actions
+3. Navigate through app
+4. Create, update, delete data
+5. Close and reopen app
+6. Verify persistence
+7. Go online
+8. Verify sync
+```
+
+**Incomplete:**
+```
+1. Go offline
+2. Do one thing
+3. Go online
+```
+
+### 2. Verify Offline Indicators
+
+Users need to know when they're offline:
+
+**Good:**
+```
+1. Go offline
+2. Wait until: Offline banner appears
+3. Assert: Network indicator shows "Offline"
+4. Assert: Status bar reflects offline state
+5. Assert: Users clearly informed
+```
+
+**Insufficient:**
+```
+1. Go offline
+2. Continue test without verifying user feedback
+```
+
+### 3. Test Appropriate Error Messages
+
+When online actions fail offline, errors should be clear:
+
+**Good:**
+```
+1. Go offline
+2. Attempt to load new content
+3. Assert: "You're offline. Content unavailable." message
+4. Assert: Helpful suggestions provided
+5. Assert: Retry option available
+```
+
+**Poor:**
+```
+1. Go offline
+2. Attempt action
+3. Assert: Generic "Error" message ← Unhelpful
+```
+
+### 4. Verify Data Persistence Across Restarts
+
+Offline data should survive app restarts:
+
+**Good:**
+```
+1. Go offline
+2. Create data
+3. Close app
+4. Reopen app
+5. Assert: Data still present
+6. Assert: Offline state remembered
+7. Go online
+8. Verify sync
+```
+
+**Risky:**
+```
+1. Go offline
+2. Create data
+3. Go online
+4. Never test restart scenario ← Might lose data
+```
+
+### 5. Test Both Graceful Degradation and Hard Failures
+
+Some features should work offline, others should fail gracefully:
+
+**Complete testing:**
+```
+Features that should work offline:
+- View cached content ✓
+- Read saved items ✓
+- Edit local data ✓
+- Use offline features ✓
+
+Features that should fail gracefully:
+- Load new content ✗ (clear message)
+- Sync changes ✗ (queued for later)
+- Real-time features ✗ (explains why unavailable)
+```
+
+### 6. Test Queue Mechanisms Thoroughly
+
+If actions queue offline, test edge cases:
+
+**Comprehensive queue testing:**
+```
+1. Queue multiple actions
+2. Verify queue order preserved
+3. Test queue size limits
+4. Verify queue persistence across restarts
+5. Test partial queue failures when online
+6. Verify queue retry logic
+7. Test queue conflicts
+```
+
+### 7. Combine with Other Testing Patterns
+
+Offline testing should integrate with other test types:
+
+**With form testing:**
+```
+1. Start filling form
+2. Go offline
+3. Continue filling form
+4. Verify draft saves
+5. Go online
+6. Complete submission
+```
+
+**With navigation:**
+```
+1. Go offline
+2. Navigate through app
+3. Verify routing works
+4. Verify cached pages load
+5. Verify new pages show offline message
+```
+
+**With data extraction:**
+```
+1. Go offline
+2. Create item
+3. Extract item ID
+4. Go online
+5. Verify item with extracted ID synced
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Verifying Offline State
+
+**Problem:**
+```
+1. Go offline
+2. Immediately perform actions ← Did offline actually engage?
+```
+
+**Solution:**
+```
+1. Go offline
+2. Wait until: Offline indicator appears
+3. Assert: App knows it's offline
+4. Then perform actions
+```
+
+### Pitfall 2: Testing Only Happy Paths
+
+**Problem:**
+```
+Only test:
+- Create one item offline
+- Go online
+- It syncs successfully
+```
+
+**Solution:**
+```
+Test edge cases:
+- Create many items offline
+- Update and delete offline
+- Conflicts during sync
+- Partial sync failures
+- Network flapping
+- Long offline periods
+```
+
+### Pitfall 3: Not Testing Offline Persistence
+
+**Problem:**
+```
+1. Go offline
+2. Create data
+3. Go online immediately
+4. Never test if data survives app restart
+```
+
+**Solution:**
+```
+1. Go offline
+2. Create data
+3. Close app
+4. Reopen app
+5. Assert: Data still there
+6. Go online
+7. Verify sync
+```
+
+### Pitfall 4: Ignoring User Feedback
+
+**Problem:**
+```
+1. Go offline
+2. Test functionality
+3. Don't verify users are informed they're offline
+```
+
+**Solution:**
+```
+1. Go offline
+2. Assert: Clear offline indicator
+3. Assert: Appropriate error messages
+4. Assert: Helpful guidance provided
+5. Test functionality
+```
+
+### Pitfall 5: Not Testing Cross-Device Sync
+
+**Problem:**
+```
+1. Go offline on Device A
+2. Create data
+3. Go online
+4. Only verify on Device A
+```
+
+**Solution:**
+```
+1. Go offline on Device A
+2. Create data
+3. Go online
+4. Verify sync completes
+5. Check Device B
+6. Assert: Data appears on Device B
+7. Verify consistency across devices
+```
+
+### Pitfall 6: Assuming Instant Sync
+
+**Problem:**
+```
+1. Go offline
+2. Create 100 items
+3. Go online
+4. Immediately assert all items synced ← Fails, sync takes time
+```
+
+**Solution:**
+```
+1. Go offline
+2. Create 100 items
+3. Go online
+4. Wait until: Sync starts
+5. Wait until: Progress indicator shows syncing
+6. Wait until: All items synced
+7. Assert: Sync completed successfully
+```
+
+### Pitfall 7: Not Testing Offline Feature Limitations
+
+**Problem:**
+```
+Test everything as if offline should work identically to online
+```
+
+**Solution:**
+```
+Document and test what SHOULD be limited:
+- Real-time features disabled ✓
+- New content loading fails gracefully ✓
+- Social features show appropriate messages ✓
+- Search limited to cached content ✓
+```
+
+## Advanced Offline Testing Strategies
+
+### Strategy 1: Progressive Offline Degradation
+
+Test how features progressively become unavailable:
+
+```
+Test: "Feature availability degrades gracefully offline"
+
+Online (all features available):
+1. Assert: Browse products ✓
+2. Assert: Search ✓
+3. Assert: Real-time inventory ✓
+4. Assert: Recommendations ✓
+5. Assert: Checkout ✓
+
+Go offline (cached features work):
+6. Go offline
+7. Assert: Browse cached products ✓
+8. Assert: Search cached only ✓
+9. Assert: Real-time inventory ✗ (shows last known)
+10. Assert: Recommendations ✗ (shows cached)
+11. Assert: Checkout ✗ (queued for online)
+
+Clear cache and go offline (minimal functionality):
+12. Clear app cache
+13. Go offline
+14. Assert: Browse products ✗ (no cached data)
+15. Assert: Search ✗ (no data to search)
+16. Assert: Shows "Download content while online" message
+```
+
+### Strategy 2: Intermittent Connectivity Testing
+
+Test rapid offline/online toggling:
+
+```
+Test: "App handles flapping network connection"
+
+1. Start online
+2. Go offline
+3. Wait: 2 seconds
+4. Go online
+5. Wait: 1 second
+6. Go offline ← Rapid changes
+7. Wait: 1 second
+8. Go online
+9. Wait: 3 seconds
+10. Assert: App stabilizes
+11. Assert: No crashes
+12. Assert: Data integrity maintained
+13. Assert: Queued actions eventually process
+```
+
+### Strategy 3: Sync Conflict Resolution
+
+Test what happens when same data modified offline in multiple places:
+
+```
+Test: "Offline edits conflict resolution"
+
+Device A:
+1. Go offline
+2. Edit item title to "Version A"
+3. Stay offline
+
+Device B:
+4. Edit same item title to "Version B"
+5. Wait until: Syncs to server
+
+Device A:
+6. Go online ← Conflict occurs
+7. Wait until: Sync attempts
+8. Assert: Conflict detected
+9. Assert: Conflict resolution UI appears
+10. Select: Keep local version
+11. Assert: Conflict resolved
+12. Assert: Chosen version synced
+
+Device B:
+13. Refresh
+14. Assert: Final version matches resolution
+```
+
+### Strategy 4: Large Data Set Offline Sync
+
+Test syncing large amounts of offline data:
+
+```
+Test: "Large offline data set syncs successfully"
+
+1. Go offline
+2. Create 50 items using loop
+3. Update 25 items
+4. Delete 10 items
+5. Assert: 40 items total (50 - 10)
+6. Assert: All changes queued
+
+7. Go online ← Large sync operation
+8. Wait until: Sync progress indicator appears
+9. Wait until: Progress shows "15/50 synced"
+10. Wait until: Progress shows "30/50 synced"
+11. Wait until: Progress shows "50/50 synced"
+12. Wait until: "All changes synced" appears
+13. Assert: All 40 items present
+14. Assert: All updates propagated
+15. Assert: All deletions processed
+16. Assert: No sync errors
+```
+
+### Strategy 5: Background Sync Testing
+
+Test sync that happens in background after going online:
+
+```
+Test: "Background sync completes after returning online"
+
+1. Go offline
+2. Create items
+3. Go online
+4. Immediately navigate away (don't wait for sync)
+5. Navigate to different section
+6. Wait: 5 seconds (let background sync work)
+7. Navigate back to items
+8. Assert: Items show as synced
+9. Assert: Background sync completed successfully
+```
+
+## Integration with Other Interactions
+
+### Go Offline + Restart App
+
+Test offline persistence across app restarts:
+
+```
+1. Go offline
+2. Create data
+3. Restart app
+4. Assert: Still offline
+5. Assert: Data persists
+6. Go online
+7. Verify sync
+```
+
+### Go Offline + Assert
+
+Verify offline state and behavior:
+
+```
+1. Go offline
+2. Assert: Offline banner displays
+3. Assert: Network indicator shows offline
+4. Assert: Appropriate features disabled
+5. Assert: Offline features available
+```
+
+### Go Offline + Wait Until
+
+Handle async offline operations:
+
+```
+1. Go offline
+2. Create item
+3. Wait until: Saves locally
+4. Wait until: Queue indicator appears
+5. Go online
+6. Wait until: Syncs
+```
+
+### Go Offline + Extract Information
+
+Test offline data extraction and sync:
+
+```
+1. Go offline
+2. Create item
+3. Extract: Item ID
+4. Go online
+5. Wait until: Syncs
+6. Search for item by extracted ID
+7. Assert: Item synced successfully
+```
+
+## Understanding Offline Behavior Patterns
+
+### Pattern 1: Read-Only Offline (Content Apps)
+
+Cache content online, read offline:
+
+```
+- News articles
+- Podcast episodes
+- Video content
+- Documentation
+- Maps
+```
+
+**Test focus**: Cache integrity, playback capability, navigation.
+
+### Pattern 2: Full Offline Functionality (Productivity Apps)
+
+Create and edit offline, sync later:
+
+```
+- Note-taking
+- Task management
+- Document editing
+- Drawing/design apps
+```
+
+**Test focus**: Data persistence, conflict resolution, sync reliability.
+
+### Pattern 3: Queue-Based Offline (Social Apps)
+
+Actions queue offline, execute when online:
+
+```
+- Posting updates
+- Sending messages
+- Liking content
+- Following users
+```
+
+**Test focus**: Queue management, execution order, error handling.
+
+### Pattern 4: Graceful Degradation (Hybrid Apps)
+
+Some features work, others disabled:
+
+```
+- E-commerce (browse cached, can't checkout)
+- Banking (view balance, can't transfer)
+- Travel (view bookings, can't book new)
+```
+
+**Test focus**: Feature availability, clear communication, smooth degradation.
+
+## Key Takeaways
+
+1. **Go Offline simulates complete network loss** - Tests the worst-case scenario
+2. **It's essential for mobile apps** - All mobile apps experience offline conditions
+3. **Test complete offline cycles** - Create, persist, sync, verify
+4. **Verify user feedback** - Users must know they're offline
+5. **Test data persistence** - Offline data must survive app restarts
+6. **Queue mechanisms are critical** - Actions must queue and execute when online
+7. **Test error handling** - Offline errors should be clear and helpful
+8. **Verify cross-device sync** - Changes must propagate everywhere
+9. **Test edge cases** - Conflicts, large data sets, rapid toggling
+10. **Think offline-first** - Modern mobile apps should work offline by default
+
+## What's Next
+
+Now that you understand how to simulate network disconnection with Go Offline, explore these related interactions:
+
+- **Go Online**: Learn how to restore connectivity and test sync behavior
+- **Restart App**: Combine app restarts with offline testing for comprehensive persistence testing
+- **Wait Until**: Master timing for async offline operations and sync processes
+
+Together, these interactions enable comprehensive mobile app resilience testing that ensures your app handles real-world connectivity challenges gracefully.

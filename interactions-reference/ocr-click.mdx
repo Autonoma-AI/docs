@@ -1,0 +1,569 @@
+---
+title: "OCR Click"
+description: "Click elements by their visible text using optical character recognition. Perfect for when DOM access fails but text is clearly visible on screen."
+---
+
+## What is OCR Click?
+
+OCR Click is a specialized clicking method that uses Optical Character Recognition (OCR) to locate and click elements based on their visible text. Instead of relying on DOM structure or element attributes, OCR Click literally reads the text you see on screen and clicks where that text appears.
+
+Think of it like this: if you can see "Login" written on a button with your eyes, OCR Click can see it too and click it—even if that button isn't properly accessible through the DOM, exists in a canvas, or is rendered as an image.
+
+OCR Click bridges the gap between visual testing (what you see) and automated testing (what the code can access). It's your solution when elements are visible but technically inaccessible through standard means.
+
+## When to Use OCR Click
+
+OCR Click occupies a specific niche in the click method hierarchy: it's for elements with visible text that resist standard DOM-based clicking.
+
+**Use OCR Click when:**
+- Standard Click fails because element isn't in the DOM
+- The element is rendered on a canvas
+- Text appears as an image rather than HTML text
+- Mobile element doesn't have `clickable="true"` attribute
+- You see the text clearly but code can't access it
+- Element is part of a PDF or document viewer
+- Custom rendering bypasses standard DOM structure
+- Click attempts show no effect or repeated failures
+
+**Don't use OCR Click when:**
+- Standard Click works (use Click)
+- Element is in DOM (use Click or Smart Click)
+- Element has no visible text (use Visual Click or Freestyle Click)
+- Text is too small or blurry to read clearly
+- Multiple identical text labels exist (ambiguous target)
+
+## How It Works
+
+OCR Click operates through text recognition:
+
+1. **Screen Capture**: Takes a screenshot of the current viewport
+2. **Text Detection**: Runs OCR to identify all visible text
+3. **Pattern Matching**: Locates the specific text you requested
+4. **Position Calculation**: Determines the coordinates of the text
+5. **Click Execution**: Performs click at the text location
+6. **Verification**: Confirms the action completed
+
+The key difference from standard Click: OCR Click doesn't care about DOM structure. It only cares about what's visually present and readable as text.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (especially useful for mobile)
+
+OCR Click is particularly valuable on mobile platforms where element accessibility can be inconsistent.
+
+## Example Scenarios
+
+### Scenario 1: Canvas-Based Application
+
+You're testing a web application that renders its UI on an HTML5 canvas. Buttons and text aren't DOM elements—they're drawn pixels.
+
+```
+Test: "Navigate canvas-based app"
+
+1. Wait until: Canvas application loads
+2. Add prompt: "ocr-click on the login button"
+3. Wait until: Login form appears
+4. Add prompt: "ocr-click on the email field"
+5. Type "user@example.com"
+6. Add prompt: "ocr-click on the password field"
+7. Type "password123"
+8. Add prompt: "ocr-click on Submit"
+9. Wait until: Dashboard loads
+```
+
+**Why OCR Click works here**: Canvas elements aren't in the DOM. But the text "login", "email", "password", and "Submit" are visible. OCR Click can read and click them.
+
+### Scenario 2: Mobile App Without Clickable Attributes
+
+You're testing a mobile app where some buttons lack proper `clickable="true"` attributes, making them invisible to standard Click.
+
+```
+Test: "Navigate mobile app with accessibility issues"
+
+1. Wait until: Home screen loads
+2. Add prompt: "ocr-click on Get Started"
+3. Wait until: Next screen loads
+4. Add prompt: "ocr-click on Allow Notifications"
+5. Wait until: Permission granted
+6. Add prompt: "ocr-click on 241"
+7. Wait until: Item selected
+```
+
+**Why OCR Click works here**: Even without proper accessibility attributes, the text "Get Started", "Allow Notifications", and "241" are visible. OCR Click can target them.
+
+### Scenario 3: PDF or Document Viewer
+
+You're testing a document management system where you need to interact with content within PDF or document viewers.
+
+```
+Test: "Interact with PDF viewer"
+
+1. Navigate to document viewer
+2. Wait until: PDF loads
+3. Add prompt: "ocr-click on the sign here button"
+4. Wait until: Signature modal opens
+5. Draw signature
+6. Add prompt: "ocr-click on Accept"
+7. Wait until: Signature applied
+```
+
+**Why OCR Click works here**: Text within PDFs isn't typically accessible via DOM. OCR Click can read the rendered text.
+
+### Scenario 4: Repeated Click Failures
+
+You notice your test is clicking the same element repeatedly with no effect—a sign that standard Click isn't working.
+
+```
+Symptoms:
+- Click command appears multiple times in sequence
+- No visible change in UI after clicks
+- Test seems stuck in loop
+
+Diagnosis:
+- Element might not be properly accessible in DOM
+- Need to use OCR Click instead
+
+Solution:
+Replace:
+  click the login button
+
+With:
+  ocr-click on the login button
+
+Result: Action now completes successfully
+```
+
+**Why OCR Click works here**: The element's text was visible but DOM access was blocked. OCR Click bypassed the DOM issue.
+
+### Scenario 5: Image-Based Buttons
+
+You're testing a site that uses image sprites or SVG text for buttons instead of HTML text.
+
+```
+Test: "Interact with image-based navigation"
+
+1. Navigate to homepage
+2. Wait until: Page loads
+3. Add prompt: "ocr-click on Products"
+4. Wait until: Products page loads
+5. Add prompt: "ocr-click on Electronics"
+6. Wait until: Category filtered
+7. Add prompt: "ocr-click on Add to Cart"
+8. Wait until: Cart updates
+```
+
+**Why OCR Click works here**: Button labels exist as images or SVG text, not HTML text nodes. OCR Click can read them visually.
+
+## Example Prompts
+
+OCR Click requires explicit invocation and works best with visible text:
+
+**Basic OCR click syntax:**
+```
+ocr-click on the login button
+ocr click on the sign up button
+ocr-click on Submit
+ocr click on 241
+```
+
+**With longer text:**
+```
+ocr-click on Get Started
+ocr click on Allow Notifications
+ocr-click on the Continue to Checkout button
+```
+
+**With specific targets:**
+```
+ocr-click on the first item
+ocr click on Delete
+ocr-click on the username field
+```
+
+**Important**:
+- Include "ocr click" or "ocr-click" in your prompt
+- Reference the visible text you can see on screen
+- Be specific if multiple similar texts exist
+
+## Best Practices
+
+### 1. Use When DOM Access Fails
+
+Try standard Click first. Use OCR Click when you've confirmed DOM access is the problem.
+
+**Good workflow:**
+```
+Step 1: Try standard Click
+Step 2: If fails, diagnose why
+Step 3: If element not in DOM but text visible, use OCR Click
+```
+
+**Don't:**
+```
+Default to OCR Click without trying standard Click first
+```
+
+### 2. Reference Exact Visible Text
+
+OCR Click works by matching the text you specify to visible text. Be precise.
+
+**Good:**
+```
+ocr-click on Submit Order
+ocr-click on 241
+ocr-click on the first item
+```
+
+**Less effective:**
+```
+ocr-click on the button  ← Which button?
+ocr-click on something  ← Too vague
+```
+
+### 3. Ensure Text is Clearly Visible
+
+OCR works best with clear, readable text.
+
+**Ideal conditions:**
+- Text is high contrast (dark on light or vice versa)
+- Font is reasonably sized
+- Text isn't blurred or obscured
+- Screen resolution is adequate
+
+**Challenging conditions:**
+- Very small text
+- Low contrast text
+- Stylized fonts that are hard to read
+- Partially obscured text
+
+### 4. Handle Multiple Matches
+
+If the same text appears multiple times, be more specific.
+
+**Problem:**
+```
+ocr-click on Delete
+# Three "Delete" buttons on screen - which one?
+```
+
+**Solution:**
+```
+ocr-click on Delete in the first row
+ocr-click on the Delete button next to item 1
+```
+
+### 5. Verify Actions Completed
+
+Always confirm OCR Click achieved the desired result.
+
+**Good:**
+```
+1. Add prompt: "ocr-click on Submit"
+2. Wait until: Form submission confirmation appears
+3. Verify: Success message visible
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using for Elements in DOM
+
+**Problem:**
+```
+Element is perfectly accessible via standard Click
+Using OCR Click unnecessarily
+```
+
+**Solution:**
+```
+Use standard Click for DOM elements
+Reserve OCR Click for DOM-inaccessible cases
+```
+
+### Pitfall 2: Vague Text References
+
+**Problem:**
+```
+ocr-click on the button
+# Which button? Multiple exist
+```
+
+**Solution:**
+```
+ocr-click on the Submit Order button
+# Specific text reference
+```
+
+### Pitfall 3: Expecting It to Work Without Text
+
+**Problem:**
+```
+Element is an icon with no text
+ocr-click on the icon  ← Won't work, no text to recognize
+```
+
+**Solution:**
+```
+Use Visual Click or Freestyle Click for non-text elements
+```
+
+### Pitfall 4: Not Waiting for Text to Render
+
+**Problem:**
+```
+1. Trigger action that loads new content
+2. ocr-click on newly loaded text  ← Text might not be rendered yet
+```
+
+**Solution:**
+```
+1. Trigger action that loads new content
+2. Wait until: New content visible
+3. ocr-click on newly loaded text
+```
+
+### Pitfall 5: Assuming Perfect Recognition
+
+**Problem:**
+```
+Text is stylized, low contrast, or small
+OCR struggles to recognize it
+```
+
+**Solution:**
+```
+Check text visibility and clarity
+If OCR fails, consider if text is truly readable
+Try alternative click methods if OCR can't read text
+```
+
+## Comparison with Similar Interactions
+
+### OCR Click vs Click
+
+**Standard Click:**
+- Method: DOM + visual analysis
+- Requires: Element in DOM
+- Best for: Standard HTML elements
+- Speed: Fast
+- Priority: First choice
+
+**OCR Click:**
+- Method: Optical character recognition
+- Requires: Visible text only
+- Best for: Non-DOM elements with text
+- Speed: Moderate
+- Priority: When DOM access fails
+
+**Decision rule**: Try standard Click first. If element isn't in DOM but has visible text, use OCR Click.
+
+### OCR Click vs Visual Click
+
+**OCR Click:**
+- Detection: Text recognition
+- Requires: Visible text
+- Best for: Text-based targets
+- Precision: High for clear text
+- Works: Canvas, images, any rendered text
+
+**Visual Click:**
+- Detection: Visual/coordinate-based
+- Requires: Visual element
+- Best for: Non-text targets
+- Precision: Moderate
+- Works: Any visible element
+
+**Decision rule**: If target has text, use OCR Click. If target is purely visual (icon, graphic), use Visual Click.
+
+### OCR Click vs Smart Click
+
+**Smart Click:**
+- Platform: Web only
+- Method: Alternative DOM strategies
+- Requires: Element in DOM
+- Best for: Tricky DOM elements
+
+**OCR Click:**
+- Platform: Web and Mobile
+- Method: Text recognition
+- Requires: Visible text
+- Best for: Non-DOM elements
+
+**Decision rule**: If element is in DOM, try Smart Click (web). If element isn't in DOM but has text, use OCR Click.
+
+## The OCR Click Decision Tree
+
+Here's when OCR Click fits in your decision process:
+
+```
+Need to click an element?
+
+↓
+
+Is element in DOM?
+├─ YES → Use standard Click or Smart Click
+└─ NO → Continue to OCR decision
+
+    ↓
+
+    Does element have visible text?
+    ├─ YES → Use OCR Click ✓
+    └─ NO → Use Visual Click or Freestyle Click
+```
+
+## Mobile-Specific Usage
+
+OCR Click is especially valuable on mobile where element accessibility can be inconsistent:
+
+### Mobile Scenario 1: Missing Clickable Attributes
+
+```
+Test: "Mobile app with accessibility issues"
+
+1. Wait until: Screen loads
+2. Add prompt: "ocr-click on Continue"
+3. Wait until: Next screen loads
+```
+
+**Why**: Mobile elements sometimes lack `clickable="true"`. Standard Click fails, but OCR Click works.
+
+### Mobile Scenario 2: Dynamic Mobile Content
+
+```
+Test: "Mobile social media feed"
+
+1. Scroll to load content
+2. Wait until: Posts appear
+3. Add prompt: "ocr-click on the first Like button"
+4. Wait until: Like animation completes
+```
+
+**Why**: Text "Like" is visible even if the button's DOM representation is problematic.
+
+### Mobile Scenario 3: Custom Mobile Widgets
+
+```
+Test: "Mobile app with custom UI"
+
+1. Navigate to custom screen
+2. Wait until: Widget renders
+3. Add prompt: "ocr-click on 241"
+4. Wait until: Selection confirmed
+```
+
+**Why**: Custom mobile widgets might not expose proper click targets, but text is visible.
+
+## Advanced Usage
+
+### Combining OCR Click with Standard Clicks
+
+Mix click methods based on element accessibility:
+
+```
+Test: "Hybrid click strategy"
+
+1. Click "Settings" menu (standard - in DOM)
+2. Wait until: Settings screen loads
+3. Add prompt: "ocr-click on Advanced Options" (OCR - canvas element)
+4. Wait until: Advanced panel opens
+5. Click "Enable Feature" toggle (standard - in DOM)
+6. Add prompt: "ocr-click on Save" (OCR - canvas button)
+7. Wait until: Settings saved
+```
+
+### Handling OCR Failures
+
+If OCR Click doesn't work:
+
+```
+Troubleshooting checklist:
+□ Is text actually visible on screen?
+□ Is text large enough to read?
+□ Is contrast sufficient?
+□ Is text in viewport (not scrolled out)?
+□ Is text obscured by overlay?
+□ Does exact text match what you specified?
+
+If text is visible but OCR fails:
+- Try different text phrasing
+- Add more context ("Delete in first row")
+- Check for typos in prompt
+- Consider Visual Click as alternative
+```
+
+### Performance Considerations
+
+OCR Click involves image processing, which takes time:
+
+```
+Expectations:
+- Slower than standard Click (OCR processing required)
+- Faster than multiple failed Click attempts
+- Worth the trade-off when it's the right tool
+
+Optimization:
+- Use standard Click wherever possible
+- Reserve OCR Click for proven cases
+- Don't overuse if not necessary
+```
+
+## Real-World Example: Canvas Application
+
+Here's a complete test using OCR Click appropriately:
+
+```
+Test: "Complete workflow in canvas-based app"
+
+Context: Application renders entire UI on HTML5 canvas
+Standard Click doesn't work because nothing is in DOM
+All interactions must use OCR Click
+
+Step 1: Login
+- Add prompt: "ocr-click on Username field"
+- Type "testuser"
+- Add prompt: "ocr-click on Password field"
+- Type "password123"
+- Add prompt: "ocr-click on Login"
+- Wait until: Dashboard appears
+
+Step 2: Navigate
+- Add prompt: "ocr-click on Projects"
+- Wait until: Projects list appears
+
+Step 3: Interact
+- Add prompt: "ocr-click on Create New"
+- Wait until: Creation form appears
+- Add prompt: "ocr-click on Project Name"
+- Type "Test Project"
+- Add prompt: "ocr-click on Save"
+- Wait until: Project created confirmation
+
+Why this works:
+- All UI elements are canvas-rendered
+- No DOM access available
+- But all buttons and fields have visible text labels
+- OCR Click can read and interact with all of them
+- Would be impossible with standard Click alone
+```
+
+## Key Takeaways
+
+1. **OCR Click reads visible text** - Uses optical character recognition
+2. **Bypasses DOM** - Works when elements aren't accessible in DOM
+3. **Perfect for canvas** - Ideal for canvas-based applications
+4. **Great for mobile** - Handles mobile accessibility issues
+5. **Requires visible text** - Won't work for icons or graphics without text
+6. **Explicit invocation** - Must use "ocr click" in prompt
+7. **Both platforms** - Works on web and mobile
+8. **Reference exact text** - Match the visible text precisely
+9. **Try after standard Click** - Not the default, use when needed
+10. **Verify results** - Always confirm action succeeded
+
+## What's Next
+
+Now that you understand OCR Click for text-based targeting, explore these related interactions:
+
+- **Click**: Master the standard clicking method that should be your default
+- **Visual Click**: Learn about clicking purely visual elements without text
+- **Smart Click**: Understand experimental clicking for challenging DOM elements
+- **Conditional Click**: Discover how to handle elements that might not appear

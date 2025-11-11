@@ -1,0 +1,732 @@
+---
+title: "Scroll (Mobile)"
+description: "Scroll mobile app screens with swipe gestures to navigate content and reveal elements in iOS and Android applications."
+---
+
+## What It Does
+
+The Scroll (Mobile) interaction simulates touch-based scrolling on mobile devices—swiping up, down, left, or right to navigate through content. On mobile devices, scrolling is achieved through swipe gestures, which work opposite to their direction: swipe up to scroll down, swipe down to scroll up.
+
+Think of it like flipping through pages in a magazine on your phone. You swipe your finger across the screen to move content. That physical gesture is what this interaction simulates for testing mobile applications.
+
+## When to Use It
+
+Use the Scroll (Mobile) interaction when:
+
+- **Testing mobile apps** - iOS or Android native applications
+- **Content is off-screen** - Elements exist but aren't visible in the current viewport
+- **Fixed number of swipes** - You know exactly how many times to scroll
+- **Navigating mobile feeds** - Social media, news feeds, product catalogs
+- **Long mobile forms** - Multi-section forms requiring vertical scrolling
+- **Horizontal content** - Image galleries, stories, or horizontal lists
+
+**Don't use it when:**
+- Testing web applications - Use **Scroll (Web)** instead
+- You need to scroll until a specific element appears - Use **Scroll With Condition** instead
+- Working with dedicated carousel components - Use **Move Carousel** instead
+- Scrolling within nested scrollable containers - Use **OCR Scroll** instead
+
+## Platform Support
+
+- **Web**: No (use Scroll Web instead)
+- **Mobile**: Yes (iOS and Android)
+
+## How It Works
+
+Mobile scrolling works through swipe gestures, and it's crucial to understand the counterintuitive relationship between swipe direction and scroll direction:
+
+**Swipe Up = Scroll Down** (reveals content below)
+**Swipe Down = Scroll Up** (reveals content above)
+**Swipe Left = Scroll Right** (reveals content to the right)
+**Swipe Right = Scroll Left** (reveals content to the left)
+
+This mirrors real-world mobile behavior: when you swipe up on your phone, you're pushing content upward to reveal what's below.
+
+**Single scroll**:
+```
+Scroll: down (swipe up)
+```
+
+**Multiple scrolls**:
+```
+Scroll: down 3 times (swipe up 3 times)
+```
+
+The metadata is always a number representing how many times to scroll. If you don't specify, it defaults to 1.
+
+## Understanding Swipe vs Scroll Terminology
+
+This is the most confusing aspect of mobile scrolling, so let's clarify:
+
+**From a user's perspective:**
+- **"Scroll down"** means "see content that's below"
+- **"Scroll up"** means "see content that's above"
+
+**From a gesture perspective:**
+- **To scroll down**, you **swipe up** (push content upward)
+- **To scroll up**, you **swipe down** (pull content downward)
+
+**In your test prompts, you can use either terminology**:
+
+```
+These are equivalent:
+- "scroll down"
+- "swipe up"
+
+These are equivalent:
+- "scroll up"
+- "swipe down"
+
+These are equivalent:
+- "scroll right"
+- "swipe left"
+
+These are equivalent:
+- "scroll left"
+- "swipe right"
+```
+
+Autonoma understands both and translates them correctly for mobile devices.
+
+## Real-World Scenarios
+
+### Scenario 1: Social Media Feed Navigation
+
+Testing a social media app where posts are arranged vertically.
+
+```
+Test: "Browse social media feed"
+
+1. Open app
+2. Wait until: Feed loads
+3. Assert: First posts visible
+4. Scroll: down (swipe up) 5 times
+5. Wait: 2 seconds
+6. Assert: More posts loaded
+7. Add prompt: "Click on the third post"
+8. Wait until: Post details appear
+9. Scroll: down (swipe up) 3 times
+10. Assert: Comments section visible
+```
+
+**Why this works**: Multiple swipes navigate through the feed, mimicking real user behavior.
+
+### Scenario 2: Mobile E-Commerce Product Browsing
+
+Testing a shopping app's product catalog.
+
+```
+Test: "Browse and select product"
+
+1. Open app
+2. Navigate to: Products section
+3. Wait until: Product grid loads
+4. Scroll: down (swipe up) 4 times
+5. Wait: 1 second
+6. Add prompt: "Click on the first product in blue color"
+7. Wait until: Product details load
+8. Scroll: down (swipe up) 2 times
+9. Assert: "Add to Cart" button visible
+10. Click: "Add to Cart"
+```
+
+**Why this works**: Progressive scrolling reveals more products, allowing flexible selection.
+
+### Scenario 3: Long Mobile Form Submission
+
+Testing a multi-step registration form on mobile.
+
+```
+Test: "Complete mobile registration"
+
+1. Open registration screen
+2. Input text: "John Doe" in name field
+3. Input text: "john@example.com" in email field
+4. Scroll: down (swipe up) 2 times
+5. Input text: "555-123-4567" in phone field
+6. Scroll: down (swipe up) 2 times
+7. Input text: "123 Main St" in address field
+8. Input text: "New York" in city field
+9. Scroll: down (swipe up) 2 times
+10. Click: "I agree to terms" checkbox
+11. Click: "Submit" button
+12. Wait until: Success message appears
+```
+
+**Why this works**: Scrolling progressively reveals form sections, ensuring all fields are accessible.
+
+### Scenario 4: Horizontal Story or Image Gallery
+
+Testing horizontal scrolling in stories or image galleries.
+
+```
+Test: "View all stories"
+
+1. Open app home screen
+2. Wait until: Stories bar loads
+3. Assert: First story visible
+4. Scroll: right (swipe left) 5 times
+5. Wait: 1 second
+6. Assert: Different stories visible
+7. Add prompt: "Click on the story from @brand"
+8. Wait until: Story opens
+9. Scroll: right (swipe left) 3 times
+10. Assert: Story progresses
+```
+
+**Why this works**: Horizontal swipes navigate through story cards or image galleries.
+
+### Scenario 5: Infinite Scroll in News Feed
+
+Testing an app with infinite scroll for news articles.
+
+```
+Test: "Verify infinite scroll loads articles"
+
+1. Open news feed
+2. Wait until: Initial articles load
+3. Extract information: Count of visible articles
+4. Scroll: down (swipe up) 10 times
+5. Wait: 3 seconds ← Allow content loading
+6. Extract information: Updated count of articles
+7. Assert: More articles loaded (count increased)
+8. Scroll: down (swipe up) 10 times
+9. Wait: 3 seconds
+10. Assert: Even more articles visible
+```
+
+**Why this works**: Multiple swipes trigger the infinite scroll mechanism repeatedly.
+
+### Scenario 6: Settings Menu Navigation
+
+Testing navigation through a long settings menu.
+
+```
+Test: "Access privacy settings"
+
+1. Open app settings
+2. Wait until: Settings menu loads
+3. Scroll: down (swipe up) 8 times
+4. Wait: 1 second
+5. Click: "Privacy" option
+6. Wait until: Privacy screen loads
+7. Scroll: down (swipe up) 5 times
+8. Assert: "Data Usage" toggle visible
+9. Click: "Data Usage" toggle
+```
+
+**Why this works**: Settings menus often extend beyond the screen, requiring scrolling.
+
+## Four-Directional Scrolling
+
+Mobile apps can scroll in all four directions:
+
+### Vertical Scrolling (Most Common)
+
+**Down (Swipe Up)** - The primary scrolling direction:
+```
+Scroll: down (swipe up)
+```
+- Reveals content below
+- Used in feeds, articles, lists
+- Natural reading direction
+
+**Up (Swipe Down)** - Returning to top:
+```
+Scroll: up (swipe down)
+```
+- Reveals content above
+- Returns to previous content
+- Often triggers "pull to refresh"
+
+### Horizontal Scrolling
+
+**Right (Swipe Left)** - Moving to next content:
+```
+Scroll: right (swipe left)
+```
+- Progresses through stories, galleries
+- Next item in a carousel
+- Often used for categorized content
+
+**Left (Swipe Right)** - Moving to previous content:
+```
+Scroll: left (swipe right)
+```
+- Returns to previous items
+- Back navigation in galleries
+- Sometimes opens side menus
+
+### Example Using All Directions
+
+```
+Test: "Explore app in all directions"
+
+Vertical navigation:
+1. Scroll: down (swipe up) 5 times
+2. Assert: Lower content visible
+3. Scroll: up (swipe down) 5 times
+4. Assert: Back at top
+
+Horizontal navigation:
+5. Scroll: right (swipe left) 3 times
+6. Assert: Next section visible
+7. Scroll: left (swipe right) 3 times
+8. Assert: Back at start
+```
+
+## Understanding Metadata: The Scroll Count
+
+The metadata for mobile scroll is a number indicating how many times to perform the swipe gesture.
+
+**Important**: The metadata must be a NUMBER, not a string.
+
+```
+Correct: 3
+Incorrect: "3"
+Incorrect: "three"
+```
+
+**How to specify in your test**:
+
+```
+Scroll: down (swipe up)         ← Defaults to 1 swipe
+Scroll: down (swipe up) 2       ← Swipes 2 times
+Scroll: down (swipe up) 5       ← Swipes 5 times
+Scroll: right (swipe left) 3    ← Swipes left 3 times
+```
+
+**How far does one swipe move?**
+
+A single swipe typically moves the viewport by approximately:
+- 70-80% of screen height for vertical swipes
+- 70-80% of screen width for horizontal swipes
+
+This overlap ensures context is maintained between swipes.
+
+## Common Patterns
+
+### Pattern 1: Progressive Feed Browsing
+
+```
+1. Scroll: down (swipe up)
+2. Wait: 1 second
+3. Assert: New content appears
+4. Scroll: down (swipe up)
+5. Wait: 1 second
+6. Assert: Even more content appears
+```
+
+### Pattern 2: Rapid Deep Scrolling
+
+```
+1. Scroll: down (swipe up) 10 times
+2. Wait: 2 seconds ← Let content settle
+3. Assert: Footer or bottom content visible
+```
+
+### Pattern 3: Scroll and Interact
+
+```
+1. Scroll: down (swipe up) 3 times
+2. Add prompt: "Click on the product with '50% off' tag"
+3. Wait until: Product details load
+```
+
+### Pattern 4: Back and Forth Navigation
+
+```
+1. Scroll: right (swipe left) 5 times
+2. Assert: End of content reached
+3. Scroll: left (swipe right) 5 times
+4. Assert: Back at beginning
+```
+
+### Pattern 5: Pull to Refresh Simulation
+
+```
+1. Scroll: up (swipe down) at top of screen
+2. Wait until: Refresh indicator appears
+3. Wait: 2 seconds
+4. Assert: Content refreshed
+```
+
+## Mobile-Specific Considerations
+
+### Screen Size Variations
+
+Different devices have different screen sizes, affecting scroll behavior:
+
+**Small phones** (iPhone SE, small Android):
+- May need more swipes to cover the same content
+- Less content visible per screen
+
+**Large phones** (iPhone Pro Max, Android phablets):
+- Fewer swipes needed
+- More content fits per screen
+
+**Tablets** (iPad, Android tablets):
+- Significantly more content per screen
+- May need adjustment to swipe counts
+
+**Strategy**: Use Scroll With Condition when content position varies across devices.
+
+### Gesture Speed and Momentum
+
+Mobile devices have inertia scrolling:
+
+**Fast swipes** = More momentum = Scrolls further
+**Slow swipes** = Less momentum = Scrolls less
+
+Autonoma's scroll simulation accounts for this, but:
+- Add waits after scrolling for content to settle
+- Avoid rapid consecutive swipes without pauses
+
+### Nested Scrollable Areas
+
+Many mobile apps have nested scroll areas:
+
+```
+Main screen (scrollable)
+  └─> Card with reviews (also scrollable)
+      └─> Individual review (might scroll too)
+```
+
+**Regular scroll affects the main area**. For nested areas, use **OCR Scroll**.
+
+## Best Practices
+
+### 1. Always Specify Direction Clearly
+
+Mobile supports four directions, so be explicit:
+
+```
+Good:
+1. Scroll: down (swipe up) 3 times ← Clear direction
+
+Bad:
+1. Scroll 3 times ← Which direction?
+```
+
+### 2. Add Generous Waits
+
+Mobile content often loads asynchronously:
+
+```
+Good:
+1. Scroll: down (swipe up) 5 times
+2. Wait: 2 seconds ← Let content load
+3. Assert: Content appears
+
+Risky:
+1. Scroll: down (swipe up) 5 times
+2. Assert: Content appears ← Might not be loaded yet
+```
+
+### 3. Account for Device Variations
+
+Use Scroll With Condition when position varies:
+
+```
+Better:
+1. Scroll with condition: Until "Subscribe" button appears
+2. Click: "Subscribe" button
+
+Risky:
+1. Scroll: down (swipe up) 7 times ← Might vary by device
+2. Click: "Subscribe" button
+```
+
+### 4. Test Horizontal Scrolling Too
+
+Don't forget horizontal scrolling:
+
+```
+Test: "Horizontal category navigation"
+
+1. Assert: First category visible
+2. Scroll: right (swipe left) 5 times
+3. Assert: Different categories visible
+4. Scroll: left (swipe right) 5 times
+5. Assert: Back to first category
+```
+
+### 5. Verify After Every Scroll
+
+Confirm scrolling had the intended effect:
+
+```
+1. Scroll: down (swipe up) 3 times
+2. Assert: Target content now visible ← Verification!
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Confusing Swipe and Scroll Directions
+
+**Problem**:
+```
+// Want to see content below, but use wrong direction
+Scroll: up ← This goes UP, revealing content ABOVE!
+```
+
+**Why it fails**: Scroll direction is opposite to intent.
+
+**Solution**:
+```
+Scroll: down (swipe up) ← To see content BELOW
+```
+
+**Tip**: When in doubt, include both terms: "scroll down (swipe up)"
+
+### Pitfall 2: Not Waiting for Content to Load
+
+**Problem**:
+```
+1. Scroll: down (swipe up) 10 times
+2. Assert: Product 50 appears ← Fails!
+```
+
+**Why it fails**: Content hasn't finished loading.
+
+**Solution**:
+```
+1. Scroll: down (swipe up) 10 times
+2. Wait: 3 seconds ← Critical wait!
+3. Assert: Product 50 appears
+```
+
+### Pitfall 3: Using Fixed Scrolls for Variable Content
+
+**Problem**:
+```
+1. Scroll: down (swipe up) 6 times ← Works on iPhone 15
+2. Click: Settings item ← Fails on iPhone SE
+```
+
+**Why it fails**: Different screen sizes need different scroll amounts.
+
+**Solution**:
+```
+1. Scroll with condition: Until Settings item visible
+2. Click: Settings item
+```
+
+### Pitfall 4: Scrolling Too Fast
+
+**Problem**:
+```
+1. Scroll: down (swipe up) 20 times
+2. Scroll: down (swipe up) 20 times
+3. Assert: Bottom reached
+```
+
+**Why it fails**: App can't keep up with rapid scrolling.
+
+**Solution**:
+```
+1. Scroll: down (swipe up) 20 times
+2. Wait: 2 seconds ← Let app stabilize
+3. Scroll: down (swipe up) 20 times
+4. Wait: 2 seconds
+5. Assert: Bottom reached
+```
+
+### Pitfall 5: Forgetting Horizontal Scrolling Exists
+
+**Problem**:
+```
+// Testing stories/carousel, but only trying vertical scroll
+1. Scroll: down (swipe up) 5 times
+2. Click: Next story ← Can't find it!
+```
+
+**Why it fails**: Stories scroll horizontally.
+
+**Solution**:
+```
+1. Scroll: right (swipe left) 5 times
+2. Assert: Different stories visible
+```
+
+### Pitfall 6: Using String Instead of Number
+
+**Problem**:
+```
+Scroll: down (swipe up) "5" times ← Error!
+```
+
+**Why it fails**: Metadata must be a number.
+
+**Solution**:
+```
+Scroll: down (swipe up) 5 times ← Correct
+```
+
+## When to Choose Scroll (Mobile) vs Other Scroll Interactions
+
+**Use Scroll (Mobile) when:**
+- Testing mobile apps (iOS/Android)
+- You know exactly how many swipes needed
+- General navigation through content
+- Triggering infinite scroll behavior
+
+**Use Scroll With Condition when:**
+- Element position varies
+- You don't know how many swipes needed
+- Finding specific content by scrolling
+- Cross-device testing
+
+**Use OCR Scroll when:**
+- Scrolling within nested containers
+- Modal dialogs with scrollable content
+- Specific UI components that scroll independently
+
+**Use Move Carousel when:**
+- Dedicated carousel components
+- Horizontal card-based layouts
+- Story-style navigation
+
+## Combining Scroll (Mobile) With Other Interactions
+
+### With Assert
+
+```
+1. Scroll: down (swipe up) 5 times
+2. Assert: Product category visible
+```
+
+### With Add Prompt (Click)
+
+```
+1. Scroll: down (swipe up) 3 times
+2. Add prompt: "Click on the first promoted item"
+```
+
+### With Input Text
+
+```
+1. Scroll: down (swipe up) 2 times
+2. Input text: "Hello World" in comment field
+```
+
+### With Extract Information
+
+```
+1. Scroll: down (swipe up) 10 times
+2. Extract information: Version number from footer
+```
+
+### With Wait Until
+
+```
+1. Scroll: down (swipe up) 5 times
+2. Wait until: Loading indicator disappears
+3. Assert: Content loaded
+```
+
+## Testing Pull-to-Refresh
+
+Many mobile apps use pull-to-refresh:
+
+```
+Test: "Pull to refresh feed"
+
+1. Scroll: up (swipe down) at top of screen
+2. Wait until: Refresh animation completes
+3. Wait: 2 seconds
+4. Assert: Feed updated with new content
+5. Extract information: First post timestamp
+```
+
+## Performance Testing
+
+Mobile scrolling can reveal performance issues:
+
+```
+Test: "Scroll performance check"
+
+1. Wait until: Feed fully loaded
+2. Start timer
+3. Scroll: down (swipe up) 20 times
+4. Wait until: All content rendered
+5. Stop timer
+6. Assert: Scrolling completed within 10 seconds
+```
+
+## Accessibility on Mobile
+
+Consider mobile accessibility features:
+
+### VoiceOver (iOS) and TalkBack (Android)
+
+```
+Test: "Accessible navigation"
+
+1. Enable VoiceOver/TalkBack
+2. Scroll: down (swipe up) with accessibility
+3. Assert: Focus moves to next element
+4. Assert: Content is announced
+```
+
+### Large Text Support
+
+```
+Test: "Large text scrolling"
+
+1. Enable large text size
+2. Scroll: down (swipe up) 5 times
+3. Assert: Content remains readable
+4. Assert: Scrolling works smoothly
+```
+
+## Example Prompts
+
+Here are example prompts that trigger the Scroll (Mobile) interaction:
+
+**Vertical scrolling**:
+- "scroll down"
+- "swipe up"
+- "scroll up"
+- "swipe down"
+- "scroll down 3 times"
+- "swipe up 5 times"
+
+**Horizontal scrolling**:
+- "scroll left"
+- "swipe right"
+- "scroll right"
+- "swipe left"
+- "swipe left 4 times"
+- "scroll right 2 times"
+
+**With context**:
+- "swipe up to see more products"
+- "scroll down the feed"
+- "swipe left through the stories"
+
+## Quick Reference
+
+| Aspect | Details |
+|--------|---------|
+| **Directions** | Up, Down, Left, Right |
+| **Swipe vs Scroll** | Swipe up = Scroll down, Swipe down = Scroll up |
+| **Metadata** | Number of times to swipe (default: 1) |
+| **Platform** | Mobile only (iOS and Android) |
+| **Use for** | Fixed-distance scrolling, general navigation |
+| **Avoid for** | Finding specific elements (use Scroll With Condition) |
+| **Common count** | 3-5 for mid-screen, 10+ for bottom |
+| **Best practice** | Always add wait after scrolling |
+
+## What's Next
+
+Now that you understand mobile scrolling:
+
+- **Scroll With Condition** - Learn conditional scrolling that works on mobile too
+- **Move Carousel** - Master horizontal carousel navigation
+- **OCR Scroll** - Scroll within nested containers
+- **Scroll (Web)** - Compare with web scrolling behavior
+
+---
+
+Mobile scrolling is the foundation of mobile app testing. Master the swipe-scroll relationship, and you'll navigate any mobile interface with confidence.

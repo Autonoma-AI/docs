@@ -1,0 +1,588 @@
+---
+title: "Conditional Click"
+description: "Click elements only if they're present. Perfect for handling optional UI elements like popups, modals, and banners that don't appear in every test run."
+---
+
+## What is Conditional Click?
+
+Conditional Click is a specialized clicking interaction that only executes if the target element is present. Unlike standard Click, which fails if the element isn't found, Conditional Click gracefully skips the action when the element doesn't exist.
+
+Think of it like this: standard Click says "click this button" and fails if the button isn't there. Conditional Click says "if this button is visible, click it; otherwise, continue." It's the difference between a command and a polite request.
+
+This makes Conditional Click perfect for handling optional UI elements—cookie banners, promotional modals, notification prompts, and any other elements that appear sometimes but not always.
+
+## When to Use Conditional Click
+
+Conditional Click is designed for optional, intermittent elements that don't appear in every test execution.
+
+**Use Conditional Click when:**
+- Elements appear sometimes but not always
+- Cookie consent banners (appear once, then disappear)
+- Promotional modals (shown to some users, not others)
+- Notification permission prompts (shown once, then remembered)
+- "What's new" announcements (appear after updates)
+- First-time user tutorials or tooltips
+- Limited-time promotional banners
+- A/B test variants that might not show
+- Interrupting overlays that block your workflow
+
+**Don't use Conditional Click when:**
+- Element should always be present (use standard Click)
+- Element's absence indicates a problem (use standard Click to detect failures)
+- You need to verify element exists (use standard Click with assertion)
+- Element appears after waiting (add wait condition + standard Click)
+
+## How It Works
+
+Conditional Click operates with built-in forgiveness:
+
+1. **Element Check**: Looks for the target element
+2. **Conditional Logic**: Evaluates if element is present
+3. **Conditional Execution**:
+   - **If present**: Clicks the element
+   - **If absent**: Skips the action without failing
+4. **Test Continues**: Either way, test proceeds to next step
+5. **No Failure**: Missing elements don't cause test failure
+
+This is fundamentally different from standard Click, which throws an error if the element isn't found.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support
+
+Conditional Click works universally across platforms, making it ideal for handling platform-specific optional elements.
+
+## Example Scenarios
+
+### Scenario 1: Cookie Consent Banner
+
+You're testing an e-commerce site that shows a cookie banner on first visit but remembers your choice afterward.
+
+```
+Test: "Browse products"
+
+1. Navigate to homepage
+2. Wait until: Page loads
+3. Add prompt: "if there's a cookies button accept them"
+4. Wait until: Page ready for interaction
+5. Click "Products" menu
+6. Proceed with test...
+```
+
+**Why Conditional Click works here**:
+- First run: Banner appears, Conditional Click accepts cookies
+- Subsequent runs: Banner doesn't appear, Conditional Click skips gracefully
+- Test succeeds either way
+
+### Scenario 2: Promotional Modal
+
+You're testing a SaaS application that occasionally shows promotional modals for new features.
+
+```
+Test: "Complete user workflow"
+
+1. Log in to application
+2. Wait until: Dashboard loads
+3. Add prompt: "close the modal if it's present"
+4. Proceed with workflow...
+```
+
+**Why Conditional Click works here**: Modal might show for some users, not others. Conditional Click handles both cases.
+
+### Scenario 3: Mobile App Permissions
+
+You're testing a mobile app that requests notification permissions on first launch.
+
+```
+Test: "Complete onboarding"
+
+1. Launch app
+2. Wait until: Welcome screen loads
+3. Click "Get Started"
+4. Wait until: Next screen loads
+5. Add prompt: "if there's a modal of new news close it"
+6. Continue onboarding...
+```
+
+**Why Conditional Click works here**: Permission prompt appears once. On subsequent test runs, it's not shown. Conditional Click handles both scenarios.
+
+### Scenario 4: A/B Test Variants
+
+You're testing a site that shows different promotional banners to different users.
+
+```
+Test: "Complete purchase flow"
+
+1. Navigate to product page
+2. Wait until: Page loads
+3. Add prompt: "if there's a special offer banner close it"
+4. Click "Add to Cart"
+5. Proceed with checkout...
+```
+
+**Why Conditional Click works here**: Some users see the banner (A), others don't (B). Test works for both variants.
+
+### Scenario 5: Browser-Specific Popups
+
+You're testing a web app that shows different popups based on browser or user state.
+
+```
+Test: "Access application features"
+
+1. Log in
+2. Wait until: Home loads
+3. Add prompt: "if there's a browser notification request deny it"
+4. Navigate to features
+5. Add prompt: "if location permission is requested decline it"
+6. Use features...
+```
+
+**Why Conditional Click works here**: Different browsers show different prompts. Conditional Click adapts to each environment.
+
+## Example Prompts
+
+Conditional Click uses "if" language to indicate conditionality:
+
+**Cookie banners:**
+```
+if there's a cookies button accept them
+if cookie consent appears accept it
+accept cookies if banner is present
+```
+
+**Modals and popups:**
+```
+close the modal if it's present
+if there's a popup dismiss it
+dismiss the dialog if it appears
+```
+
+**Notification prompts:**
+```
+if there's a modal of new news close it
+si se muestra el cartel de notificaciones cerrarlo
+close notification prompt if visible
+```
+
+**Buttons and elements:**
+```
+click the get started button if it's visible
+if there's a "Continue" button click it
+click login if it appears
+```
+
+**Important patterns:**
+- Use "if" to indicate conditionality
+- Reference what element to look for
+- Specify action to take if present
+- Works in multiple languages
+
+## Best Practices
+
+### 1. Reserve for Truly Optional Elements
+
+Only use Conditional Click for elements that legitimately might not appear.
+
+**Good use:**
+```
+if there's a cookies button accept them  ← Appears once, then gone
+if promotional modal shows close it  ← Sometimes shown, sometimes not
+```
+
+**Bad use:**
+```
+if there's a login button click it  ← Login button should always be there
+if submit button exists click it  ← Submit should always exist
+```
+
+### 2. Front-Load Conditional Clicks
+
+Handle optional interruptions early in your test flow.
+
+**Good structure:**
+```
+Test: "User workflow"
+
+1. Navigate to page
+2. Wait until: Page loads
+3. if there's a cookies banner accept it  ← Handle early
+4. if there's a modal close it  ← Handle early
+5. Begin actual workflow
+6. Standard interactions...
+```
+
+**Less ideal:**
+```
+Mix conditional and standard clicks throughout randomly
+```
+
+### 3. Be Specific About What You're Looking For
+
+Clear descriptions help Conditional Click identify elements.
+
+**Good:**
+```
+if there's a cookies button accept them
+if the "What's New" modal appears close it
+if notification permission is requested deny it
+```
+
+**Too vague:**
+```
+if there's something close it
+if popup click ok
+```
+
+### 4. Don't Hide Real Failures
+
+If an element should always be present, don't use Conditional Click.
+
+**Problem scenario:**
+```
+Test: "Login"
+1. Navigate to login page
+2. if there's a login button click it  ← BAD: should always be there
+3. Type credentials
+```
+
+**Why it's bad**: If login button is missing, that's a real bug. Conditional Click would hide it.
+
+**Better approach:**
+```
+Test: "Login"
+1. Navigate to login page
+2. click login button  ← Standard Click: will fail if missing (good!)
+3. Type credentials
+```
+
+### 5. Combine with Wait Conditions
+
+Use appropriate waits before conditional checks.
+
+**Good:**
+```
+1. Navigate to page
+2. Wait until: Page fully loads
+3. if there's a cookies banner accept it
+4. Proceed with test
+```
+
+**Risky:**
+```
+1. Navigate to page
+2. if there's a cookies banner accept it  ← Might check before banner appears
+3. Proceed with test
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using for Required Elements
+
+**Problem:**
+```
+if there's a submit button click it
+# Submit button should always exist - this hides a real failure
+```
+
+**Solution:**
+```
+click submit button  ← Standard Click: fails if missing (as it should)
+```
+
+### Pitfall 2: Not Understanding Why Elements Are Optional
+
+**Problem:**
+```
+Using Conditional Click because element "sometimes doesn't work"
+# This might indicate timing issue, not optional element
+```
+
+**Solution:**
+```
+Understand why element is optional:
+- Is it truly optional by design?
+- Or is it a timing/loading issue?
+- Or is standard Click failing incorrectly?
+Fix root cause rather than masking with Conditional Click
+```
+
+### Pitfall 3: Overusing Conditional Clicks
+
+**Problem:**
+```
+Test with 15 interactions
+All 15 use Conditional Click "just in case"
+```
+
+**Solution:**
+```
+Use Conditional Click judiciously
+Most elements should use standard Click
+Reserve conditional for legitimately optional elements
+```
+
+### Pitfall 4: Not Waiting for Page State
+
+**Problem:**
+```
+1. Navigate to page
+2. if there's a modal close it  ← Checks immediately, modal might not have appeared yet
+```
+
+**Solution:**
+```
+1. Navigate to page
+2. Wait until: Page rendering completes
+3. if there's a modal close it  ← Now checks after page is ready
+```
+
+### Pitfall 5: Ambiguous Conditions
+
+**Problem:**
+```
+if there's a button click it
+# Which button? Many buttons exist
+```
+
+**Solution:**
+```
+if there's a "Close" button in the modal click it
+# Specific button, specific context
+```
+
+## Comparison with Similar Interactions
+
+### Conditional Click vs Click
+
+**Standard Click:**
+- Behavior: Always attempts to click
+- Failure: Fails if element not found
+- Best for: Required elements
+- Use when: Element should always exist
+- Validates: Element presence
+
+**Conditional Click:**
+- Behavior: Only clicks if element present
+- Failure: Never fails due to missing element
+- Best for: Optional elements
+- Use when: Element appears sometimes
+- Validates: Nothing (skips if absent)
+
+**Decision rule**: Use standard Click by default. Use Conditional Click only for elements that legitimately might not appear.
+
+### Conditional Click vs Wait Until
+
+**Conditional Click:**
+- Purpose: Optional interaction
+- Behavior: Skips if not present
+- Doesn't wait: Checks current state
+- Best for: Elements that might not appear
+
+**Wait Until:**
+- Purpose: Required condition
+- Behavior: Waits for condition to become true
+- Waits: Until condition met or timeout
+- Best for: Elements that will appear
+
+**Not the same:**
+```
+Wrong: Using Conditional Click for slow-loading elements
+Right: Use Wait Until + Standard Click
+
+Conditional Click is for optional elements, not slow elements
+```
+
+### Conditional Click vs Try-Catch Logic
+
+**Conditional Click:**
+- Built-in: Native Autonoma feature
+- Syntax: Natural language with "if"
+- Behavior: Designed for optional elements
+- Clean: No error thrown or caught
+
+**Try-Catch:**
+- Not available: Autonoma uses conditional instead
+- Syntax: Would require code-like structure
+- Behavior: General error handling
+- Complex: Error handling logic
+
+**In Autonoma**: Use Conditional Click instead of try-catch for optional element handling.
+
+## Interaction Patterns
+
+### Pattern 1: Clean the Slate
+
+Start tests by dismissing optional interruptions:
+
+```
+Test: "Core functionality"
+
+# Clean the slate
+1. Navigate to application
+2. Wait until: Page loads
+3. if there's a cookies banner accept it
+4. if there's a promotional modal close it
+5. if notification request appears dismiss it
+
+# Now proceed with clean UI
+6. Begin actual test workflow...
+```
+
+### Pattern 2: Guard Critical Paths
+
+Use conditional clicks to prevent optional elements from blocking critical flows:
+
+```
+Test: "Checkout flow"
+
+1. Add product to cart
+2. Click cart
+3. if there's an upsell modal dismiss it  ← Don't let it block checkout
+4. Click "Proceed to Checkout"
+5. if there's a promo code modal skip it  ← Don't let it interrupt
+6. Fill shipping info
+7. Complete purchase
+```
+
+### Pattern 3: Platform-Specific Optionals
+
+Handle platform differences with conditional clicks:
+
+```
+Test: "Cross-platform workflow"
+
+1. Launch application
+2. if iOS permission prompt appears accept it  ← iOS specific
+3. if Android setup wizard shows complete it  ← Android specific
+4. if browser notification request appears deny it  ← Web specific
+5. Proceed with platform-agnostic workflow...
+```
+
+### Pattern 4: User State Variations
+
+Handle variations based on user state:
+
+```
+Test: "Returning user workflow"
+
+1. Log in
+2. if welcome tutorial appears skip it  ← First-time users only
+3. if "What's new" modal appears close it  ← After updates only
+4. if subscription renewal prompt shows dismiss it  ← Expiring users only
+5. Access core features...
+```
+
+## Advanced Usage
+
+### Handling Multiple Optional Elements
+
+Chain conditional clicks for multiple possible interruptions:
+
+```
+Test: "Navigate with multiple optional elements"
+
+1. Navigate to page
+2. Wait until: Page loads
+3. if there's a cookies banner accept it
+4. if there's a location request deny it
+5. if there's a promotional modal close it
+6. if there's a newsletter signup dismiss it
+7. if there's an app download prompt close it
+8. Proceed with actual test...
+```
+
+### Language Support
+
+Conditional Click works in multiple languages:
+
+```
+English:
+if there's a cookies button accept them
+close the modal if it's present
+
+Spanish:
+si se muestra el cartel de notificaciones cerrarlo
+si hay un modal de noticias nuevas cerrarlo
+
+Works in any language you write your prompts in
+```
+
+### Conditional Click with Verification
+
+Even though it's conditional, you can verify expected behavior:
+
+```
+Test: "Cookie handling"
+
+1. Navigate to homepage
+2. Wait until: Page loads
+3. if there's a cookies banner accept them
+4. # Don't verify banner is gone - it might never have appeared
+5. # Instead, verify main content is accessible
+6. Verify: Main navigation is visible
+```
+
+## Real-World Example: Complete E-commerce Test
+
+Here's a realistic test that properly uses Conditional Click:
+
+```
+Test: "Complete purchase from search to checkout"
+
+# Setup: Navigate and clear optional interruptions
+1. Navigate to site
+2. Wait until: Homepage loads
+3. if there's a cookies banner accept it  ← Conditional: appears once
+4. if there's a promotional popup close it  ← Conditional: sometimes shown
+5. if newsletter signup appears dismiss it  ← Conditional: shown to some users
+
+# Core workflow: Standard interactions
+6. Type "laptop" in search
+7. Press Enter
+8. Wait until: Results load
+9. Click first product
+10. Wait until: Product page loads
+11. Click "Add to Cart"
+
+# Handle optional interruptions again
+12. if there's an upsell modal decline it  ← Conditional: A/B test variant
+
+# Continue core workflow
+13. Click cart icon
+14. Click "Proceed to Checkout"
+15. Fill shipping information
+16. Click "Complete Purchase"
+17. Wait until: Confirmation page loads
+
+# Final verification
+18. Verify: Order confirmation number visible
+
+Why this works:
+- Used Conditional Click for optional elements (3, 4, 5, 12)
+- Used standard Click for required elements (9, 11, 13, 14, 16)
+- Test succeeds whether optional elements appear or not
+- Core workflow isn't disrupted by UI variants
+```
+
+## Key Takeaways
+
+1. **Conditional Click handles optional elements** - Skips if not present
+2. **Never fails on missing elements** - Gracefully continues
+3. **Use "if" language** - Indicates conditional behavior
+4. **Reserve for truly optional elements** - Don't hide real failures
+5. **Front-load in test flow** - Handle interruptions early
+6. **Both platforms supported** - Works on web and mobile
+7. **Different from Wait** - Doesn't wait, checks current state
+8. **Language agnostic** - Works in any language
+9. **Don't overuse** - Most clicks should be standard
+10. **Verify workflow, not element** - Check test succeeded, not that element appeared
+
+## What's Next
+
+Now that you understand Conditional Click for optional elements, explore these related interactions:
+
+- **Click**: Master the standard clicking method for required elements
+- **Click Until**: Learn how to repeatedly click until a condition is met
+- **Wait Until**: Understand how to wait for conditions before proceeding
+- **OCR Click**: Discover text-based clicking when DOM access fails

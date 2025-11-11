@@ -1,0 +1,601 @@
+---
+title: "Double Tap"
+description: "Perform double-tap or double-click actions on elements. Essential for interfaces that require two rapid taps to trigger specific actions like zooming, selecting, or activating special features."
+---
+
+## What is Double Tap?
+
+Double Tap is an interaction that performs two rapid taps (or clicks) on an element, simulating the double-tap or double-click gesture that many interfaces use for special actions. Just like double-clicking a file to open it on your computer, or double-tapping an image to zoom in on mobile, Double Tap executes two quick successive taps on a target element.
+
+The key characteristic of Double Tap is timing—the two taps happen in quick succession, making them register as a double-tap gesture rather than two separate single taps. This timing matters because many UIs treat double-taps differently from two individual taps.
+
+Double Tap works across both web and mobile platforms, intelligently handling the different contexts of double-clicking (desktop) versus double-tapping (mobile).
+
+## When to Use Double Tap
+
+Double Tap is for interfaces specifically designed to respond to double-tap/double-click gestures.
+
+**Use Double Tap when:**
+- The interface explicitly requires double-tap/double-click
+- Zooming into images or content via double-tap
+- Selecting text or elements that need double-tap
+- Activating "favorite" or "like" features with double-tap (e.g., Instagram)
+- Opening items that require double-click (file managers, desktop apps)
+- Triggering special modes or states via double-tap
+- Playing/pausing media with double-tap
+- The UI documentation specifies double-tap interaction
+
+**Don't use Double Tap when:**
+- Standard single tap/click works (use Click)
+- The element doesn't respond to double-tap
+- Two separate sequential clicks are needed (use two Click actions)
+- Long press is the required gesture (use Long Press)
+- Right-click is needed (use Right Click)
+
+## How It Works
+
+Double Tap executes two rapid taps with proper timing:
+
+1. **Target Detection**: Identifies the element using visual object detection
+2. **Position Calculation**: Determines exact tap location
+3. **First Tap**: Executes first tap
+4. **Brief Pause**: Waits minimal time (milliseconds)
+5. **Second Tap**: Executes second tap at same position
+6. **Gesture Recognition**: UI recognizes this as double-tap
+7. **Action Triggers**: Interface responds to double-tap gesture
+
+The timing between taps is calibrated to register as a double-tap gesture rather than two independent taps.
+
+## Platform Support
+
+- **Web**: Full support (double-click)
+- **Mobile**: Full support (double-tap)
+
+Double Tap works universally, translating to double-click on web and double-tap on mobile devices.
+
+## Example Scenarios
+
+### Scenario 1: Social Media Like (Instagram-style)
+
+You're testing a social media app where users double-tap posts to "like" them.
+
+```
+Test: "Like post via double-tap"
+
+1. Navigate to feed
+2. Wait until: Posts load
+3. Add prompt: "double tap on the first post image"
+4. Wait until: Heart animation appears
+5. Verify: Like count increases
+6. Verify: Post shows as liked
+```
+
+**Why Double Tap works here**: The interface is specifically designed for double-tap to like, just like Instagram. Single tap wouldn't trigger the like action.
+
+### Scenario 2: Image Zoom
+
+You're testing an image gallery where double-tapping zooms into images.
+
+```
+Test: "Zoom into image"
+
+1. Navigate to gallery
+2. Wait until: Gallery loads
+3. Click on first image thumbnail
+4. Wait until: Full image displays
+5. Add prompt: "double tap on the image"
+6. Wait until: Image zooms in
+7. Verify: Zoom controls appear
+8. Verify: Image is enlarged
+```
+
+**Why Double Tap works here**: Double-tap is the standard gesture for zoom. Single tap might close the image or do nothing.
+
+### Scenario 3: Desktop Application File Opening
+
+You're testing a web-based file manager that mimics desktop behavior.
+
+```
+Test: "Open file with double-click"
+
+1. Navigate to file manager
+2. Wait until: File list loads
+3. Add prompt: "double tap on the project.pdf file"
+4. Wait until: PDF viewer opens
+5. Verify: Document content is visible
+```
+
+**Why Double Tap works here**: File managers traditionally require double-click to open files. Single click just selects the file.
+
+### Scenario 4: Text Selection
+
+You're testing a text editor where double-tapping selects words.
+
+```
+Test: "Select word via double-tap"
+
+1. Navigate to editor
+2. Wait until: Document loads
+3. Add prompt: "double tap on the word 'important'"
+4. Wait until: Word is highlighted
+5. Verify: Text selection menu appears
+6. Apply formatting to selected word
+```
+
+**Why Double Tap works here**: Double-tap to select a word is standard text editor behavior.
+
+### Scenario 5: Mobile Game Interaction
+
+You're testing a mobile game where double-tap activates special abilities.
+
+```
+Test: "Activate special ability"
+
+1. Start game level
+2. Wait until: Character is ready
+3. Add prompt: "double tap on the character"
+4. Wait until: Special ability animation plays
+5. Verify: Ability cooldown starts
+6. Verify: Effect is applied
+```
+
+**Why Double Tap works here**: Game uses double-tap as the trigger for special actions, distinct from single tap for regular actions.
+
+## Example Prompts
+
+Double Tap uses natural language with "double tap" or "double click":
+
+**Basic double-tap:**
+```
+double tap on the login button
+double tap sign up
+double tap on the image
+double tap the profile picture
+```
+
+**Specific targets:**
+```
+double tap the red heart icon
+double tap on the play button
+double tap the eye button to see the password
+double tap on delete
+```
+
+**With context:**
+```
+double tap on the first post
+double tap the settings gear
+double tap 'BUY NOW' button
+double tap on the logo
+```
+
+**Important**: Include "double tap" or "double click" in your prompt. Without this, standard single Click will be used instead.
+
+## Best Practices
+
+### 1. Use Only When Genuinely Required
+
+Verify that double-tap is actually needed, not just single tap.
+
+**Good:**
+```
+Test interface manually first
+Confirm single tap doesn't work
+Confirm double-tap produces different result
+Then use Double Tap in test
+```
+
+**Avoid:**
+```
+Using Double Tap "just in case" when single Click works fine
+```
+
+### 2. Wait for Previous Actions to Complete
+
+Ensure UI is ready before double-tapping.
+
+**Good:**
+```
+1. Navigate to page
+2. Wait until: Images load
+3. double tap on the image
+```
+
+**Risky:**
+```
+1. Navigate to page
+2. double tap on the image  ← Image might not be loaded yet
+```
+
+### 3. Verify Expected Result
+
+Confirm double-tap produced the intended effect.
+
+**Good:**
+```
+1. double tap on post image
+2. Wait until: Like animation appears
+3. Verify: Like count increased
+4. Verify: Heart icon is filled
+```
+
+### 4. Be Specific About Target
+
+Clear target descriptions help accurate double-tap placement.
+
+**Good:**
+```
+double tap on the first image in the gallery
+double tap the red heart icon on the second post
+double tap the profile picture in the header
+```
+
+**Less effective:**
+```
+double tap something
+double tap the thing
+```
+
+### 5. Consider Platform Differences
+
+Remember it's double-click on web, double-tap on mobile, but both use the same interaction.
+
+**Good understanding:**
+```
+Web test: Double Tap translates to double-click
+Mobile test: Double Tap translates to double-tap
+Same instruction, platform-appropriate execution
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using When Single Tap Works
+
+**Problem:**
+```
+double tap the login button
+# But single tap works fine for login
+```
+
+**Solution:**
+```
+Use standard Click for buttons that respond to single tap
+Reserve Double Tap for gestures that genuinely require it
+```
+
+### Pitfall 2: Confusing with Two Separate Clicks
+
+**Problem:**
+```
+Need: Click button A, then click button B
+Wrong: double tap button A
+```
+
+**Solution:**
+```
+Double Tap: Two taps on SAME element rapidly
+Two Clicks: Two separate Click actions on different elements or with time between
+```
+
+### Pitfall 3: Not Waiting for Element to Be Ready
+
+**Problem:**
+```
+1. Trigger image load
+2. double tap on image  ← Image might not be tappable yet
+```
+
+**Solution:**
+```
+1. Trigger image load
+2. Wait until: Image fully renders
+3. double tap on image
+```
+
+### Pitfall 4: Using on Non-Interactive Elements
+
+**Problem:**
+```
+double tap on static text
+# Text might not respond to double-tap
+```
+
+**Solution:**
+```
+Verify element is interactive and responds to double-tap
+Use appropriate interaction for the element type
+```
+
+### Pitfall 5: Not Verifying the Result
+
+**Problem:**
+```
+1. double tap on image
+2. Proceed immediately without checking if zoom occurred
+```
+
+**Solution:**
+```
+1. double tap on image
+2. Wait until: Zoom animation completes
+3. Verify: Image is zoomed
+4. Then proceed
+```
+
+## Comparison with Similar Interactions
+
+### Double Tap vs Click
+
+**Standard Click:**
+- Gesture: Single tap/click
+- Best for: Standard button presses
+- Speed: One tap
+- Use case: 95% of interactions
+
+**Double Tap:**
+- Gesture: Two rapid taps/clicks
+- Best for: Special actions requiring double-tap
+- Speed: Two rapid taps
+- Use case: Interfaces designed for double-tap
+
+**Decision rule**: Use Click by default. Only use Double Tap when interface specifically requires double-tap gesture.
+
+### Double Tap vs Two Separate Clicks
+
+**Double Tap:**
+- Action: Two rapid taps on SAME element
+- Timing: Immediate succession
+- Purpose: Trigger double-tap gesture
+- Example: Double-tap to zoom
+
+**Two Click Actions:**
+- Action: Two separate Click interactions
+- Timing: Can have delay between
+- Purpose: Two distinct actions
+- Example: Click button A, then click button B
+
+**Not interchangeable**: These are fundamentally different interaction patterns.
+
+### Double Tap vs Long Press
+
+**Double Tap:**
+- Gesture: Two rapid taps
+- Duration: Brief
+- Best for: Quick actions (like, zoom, select)
+- Platform: Web and Mobile
+
+**Long Press:**
+- Gesture: Press and hold
+- Duration: Extended (1-2 seconds)
+- Best for: Context menus, special options
+- Platform: Web and Mobile
+
+**Decision rule**: Check UI behavior. Does it need rapid double-tap or press-and-hold?
+
+## Interaction Patterns
+
+### Pattern 1: Social Media Engagement
+
+Double-tap to like/favorite content:
+
+```
+Test: "Engage with social content"
+
+1. Navigate to feed
+2. Wait until: Posts load
+3. Add prompt: "double tap on the first post image"
+4. Wait until: Like animation appears
+5. Verify: Post is liked
+6. Add prompt: "double tap on the second post image"
+7. Wait until: Like animation appears
+8. Verify: Second post is liked
+```
+
+### Pattern 2: Image Viewing and Zoom
+
+Double-tap to zoom, interact, then zoom out:
+
+```
+Test: "Examine image details"
+
+1. Navigate to gallery
+2. Wait until: Gallery loads
+3. Click on image thumbnail
+4. Wait until: Full image displays
+5. Add prompt: "double tap on the image to zoom"
+6. Wait until: Image zooms in
+7. Examine details
+8. Tap once to zoom out
+9. Wait until: Image returns to normal size
+```
+
+### Pattern 3: File Management
+
+Double-click to open files:
+
+```
+Test: "Open and view document"
+
+1. Navigate to file manager
+2. Wait until: File list loads
+3. Add prompt: "double tap on the document.pdf file"
+4. Wait until: PDF viewer opens
+5. Verify: Document loads correctly
+6. Interact with document
+```
+
+### Pattern 4: Text Selection and Editing
+
+Double-tap to select, then format:
+
+```
+Test: "Format text"
+
+1. Navigate to text editor
+2. Wait until: Document loads
+3. Add prompt: "double tap on the word 'important'"
+4. Wait until: Word is selected
+5. Click "Bold" button
+6. Verify: Word is bolded
+```
+
+## Advanced Usage
+
+### Combining with Other Interactions
+
+Double Tap as part of complex workflows:
+
+```
+Test: "Social media interaction flow"
+
+1. Navigate to profile
+2. Wait until: Posts load
+3. Scroll down to post
+4. Add prompt: "double tap on post image to like"
+5. Wait until: Like registered
+6. Click on post to view comments
+7. Type comment
+8. Click "Post Comment"
+9. Verify: Comment appears
+```
+
+### Mobile-Specific Gestures
+
+Double Tap in mobile contexts:
+
+```
+Test: "Mobile image interaction"
+
+1. Navigate to mobile gallery
+2. Wait until: Gallery loads
+3. Tap on first image
+4. Wait until: Full screen image appears
+5. Add prompt: "double tap to zoom in"
+6. Wait until: Zoom animation completes
+7. Pinch to zoom out
+8. Verify: Image returns to original size
+```
+
+### Handling Different Response Times
+
+Account for animation and response delays:
+
+```
+Test: "Double-tap with animation"
+
+1. Navigate to content
+2. Wait until: Content ready
+3. Add prompt: "double tap on the heart icon"
+4. Wait until: Heart animation completes (may take 500ms)
+5. Verify: Like is registered
+6. Proceed only after confirmation
+```
+
+## Platform-Specific Considerations
+
+### Web (Double-Click)
+
+On web platforms, Double Tap translates to double-click:
+
+```
+Test: "Desktop-style interaction"
+
+Context: Web-based desktop application
+- Double Tap = Double-click with mouse
+- Common for: File opening, text selection
+- Behavior: Traditional desktop interaction patterns
+```
+
+### Mobile (Double-Tap)
+
+On mobile platforms, Double Tap translates to double-tap:
+
+```
+Test: "Mobile gesture interaction"
+
+Context: Native or mobile web application
+- Double Tap = Two rapid finger taps
+- Common for: Like actions, zoom, select
+- Behavior: Touch-optimized interaction patterns
+```
+
+### Cross-Platform Testing
+
+Same test works on both:
+
+```
+Test: "Cross-platform double-tap test"
+
+Instruction: "double tap on the image"
+
+Execution:
+- On web: Performs double-click
+- On mobile: Performs double-tap
+- Result: Same functionality, platform-appropriate gesture
+```
+
+## Real-World Example: Social Media App
+
+Here's a complete test using Double Tap appropriately:
+
+```
+Test: "Engage with social media content"
+
+Context: Testing Instagram-like social media application
+Users can like posts by double-tapping images
+
+Step 1: Navigate to feed
+1. Open application
+2. Navigate to home feed
+3. Wait until: Feed loads with posts
+
+Step 2: Like first post via double-tap
+4. Add prompt: "double tap on the first post image"
+5. Wait until: Heart animation appears and fades
+6. Verify: Heart icon is now filled (solid)
+7. Verify: Like count increased by 1
+
+Step 3: View post details
+8. Click on first post (single tap)
+9. Wait until: Post detail view opens
+10. Verify: Post shows as liked
+
+Step 4: Unlike by tapping heart icon
+11. Click on heart icon (single tap to unlike)
+12. Wait until: Heart becomes unfilled
+13. Verify: Like count decreased by 1
+
+Step 5: Like again via double-tap
+14. Add prompt: "double tap on the post image"
+15. Wait until: Heart animation appears
+16. Verify: Post is liked again
+
+Why this works:
+- Used Double Tap for image double-tap gesture (steps 4, 14)
+- Used standard Click for single-tap actions (steps 8, 11)
+- Distinguished between double-tap (like via image) and single-tap (like via icon)
+- Properly verified each interaction's result
+- Mixed interaction types based on UI behavior
+```
+
+## Key Takeaways
+
+1. **Double Tap is two rapid taps** - Quick succession on same element
+2. **Use when specifically required** - Reserve for double-tap/double-click interfaces
+3. **Both platforms** - Works as double-click (web) and double-tap (mobile)
+4. **Not two separate clicks** - Special timed gesture, not sequential clicks
+5. **Verify responses** - Confirm double-tap produced expected result
+6. **Wait for readiness** - Ensure elements are interactive before double-tapping
+7. **Be specific** - Clear target descriptions for accurate placement
+8. **Check first** - Verify single tap doesn't work before using double-tap
+9. **Common uses** - Like actions, zoom, file opening, text selection
+10. **Different from Long Press** - Quick taps, not press-and-hold
+
+## What's Next
+
+Now that you understand Double Tap for double-tap gestures, explore these related interactions:
+
+- **Click**: Master the standard single-click interaction
+- **Long Press**: Learn about press-and-hold gestures
+- **Right Click**: Discover context menu interactions
+- **Freestyle Gesture**: Understand custom drag and swipe gestures

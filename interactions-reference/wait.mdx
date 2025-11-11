@@ -1,0 +1,917 @@
+---
+title: "Wait"
+description: "Pause test execution for a specific duration—useful for animations, deliberate pacing, and scenarios where conditional waiting isn't appropriate."
+---
+
+# Wait
+
+## What It Does
+
+The `Wait` interaction pauses your test execution for a fixed amount of time. You specify the duration in seconds, and Autonoma will pause exactly that long before proceeding to the next step.
+
+This is a **fixed time wait**—it always waits the full duration you specify, regardless of what's happening in your application.
+
+```
+Wait 3 seconds
+```
+
+The test stops for exactly 3 seconds, then continues. Simple as that.
+
+## When to Use Wait vs Wait Until
+
+Before using `Wait`, you should understand the difference between fixed time waits and conditional waits:
+
+**Fixed time wait** (`Wait`):
+```
+Wait 2 seconds ← Pauses exactly 2 seconds, no matter what
+```
+
+**Conditional wait** (`Wait Until`):
+```
+Wait until: Products load ← Pauses until condition is met, then proceeds immediately
+```
+
+**The default choice should be `Wait Until` in 95% of scenarios.** Conditional waits are faster, more reliable, and adapt to your application's actual behavior.
+
+Use `Wait` only for specific edge cases where a fixed duration is necessary.
+
+## When to Use Fixed Time Waits
+
+### 1. Animations Without State Changes
+
+Sometimes you need to wait for an animation to complete, but the animation doesn't affect any detectable state:
+
+```
+Test: "Verify animated banner"
+
+1. Click "Show Banner"
+2. Wait until: Banner appears ← Conditional wait for element
+3. Wait 1 second ← Fixed wait for slide-in animation
+4. Take screenshot ← Now animation is complete
+```
+
+The banner element exists immediately, but the slide-in animation takes 1 second. You need the fixed wait to let the animation finish before taking a screenshot.
+
+**Real-world example**:
+```
+Test: "Cart icon badge animation"
+
+1. Click "Add to Cart"
+2. Wait until: Cart badge updates to "1" ← State change happens immediately
+3. Wait 0.5 seconds ← Badge has a bounce animation
+4. Take screenshot of cart icon ← Animation is complete
+```
+
+### 2. Deliberate Pacing for Visual Clarity
+
+When creating test recordings or demos, you might want to slow down execution so viewers can see what's happening:
+
+```
+Test: "Demo video - complete checkout"
+
+1. Fill out shipping form
+2. Wait 2 seconds ← Let viewers see completed form
+3. Click "Continue to Payment"
+4. Wait until: Payment form loads
+5. Fill out payment details
+6. Wait 2 seconds ← Let viewers see payment details
+7. Click "Place Order"
+```
+
+This makes your test videos easier to follow. Without these pauses, the test would complete too quickly for human viewers to comprehend.
+
+**When recording demos**:
+- Use fixed waits between major steps
+- Typically 1-3 seconds is enough
+- Don't overdo it—the test still needs to be reasonably paced
+
+### 3. Known Rate Limits or Processing Delays
+
+Some systems have known, fixed processing times that aren't tied to visible state changes:
+
+```
+Test: "Payment processing flow"
+
+1. Click "Submit Payment"
+2. Wait until: "Processing..." message appears
+3. Wait 5 seconds ← Payment processor has 5-second minimum processing time
+4. Wait until: Success message appears
+```
+
+The payment processor might take 5-10 seconds to complete, but you know it will take *at least* 5 seconds. The fixed wait ensures you're not hammering the backend with unnecessary checks.
+
+**Real-world example**:
+```
+Test: "Email verification code"
+
+1. Click "Send Verification Code"
+2. Wait until: "Code sent" message appears
+3. Wait 3 seconds ← Email delivery has ~3 second delay
+4. Extract verification code from email
+```
+
+### 4. Testing Time-Based Features
+
+When testing features that explicitly involve time passing:
+
+```
+Test: "Session timeout warning"
+
+1. Log in to application
+2. Wait until: Dashboard loads
+3. Wait 180 seconds ← App shows warning after 3 minutes of inactivity
+4. Assert: "Session expiring soon" warning appears
+5. Click "Stay Logged In"
+```
+
+You're testing that the timeout warning appears after a specific duration. The fixed wait is intentional—you're testing the time-based behavior.
+
+**Other time-based scenarios**:
+- Auto-save that triggers every 30 seconds
+- Countdown timers
+- Session expiration
+- Timed notifications
+
+### 5. Debugging and Investigation
+
+When you're trying to understand why a test is failing, a temporary fixed wait can help:
+
+```
+Test: "Debug checkout issue"
+
+1. Click "Place Order"
+2. Wait 5 seconds ← Temporary: helps you see what happens during the delay
+3. Assert: Order confirmation appears
+```
+
+This gives you time to observe the application state during test execution. Once you understand the problem, replace the fixed wait with a proper conditional wait.
+
+**Remember**: This is temporary debugging only. Don't leave fixed waits in your tests as a lazy solution to flakiness.
+
+## When NOT to Use Fixed Time Waits
+
+Don't use `Wait` for these common scenarios:
+
+### Loading States
+
+**Bad**:
+```
+1. Navigate to /products
+2. Wait 3 seconds ← Bad: What if it loads in 500ms? What if it takes 4 seconds?
+3. Assert: Products appear
+```
+
+**Good**:
+```
+1. Navigate to /products
+2. Wait until: Products load ← Good: Adapts to actual load time
+3. Assert: Products appear
+```
+
+### After Clicking Buttons
+
+**Bad**:
+```
+1. Click "Add to Cart"
+2. Wait 2 seconds ← Bad: Fixed time doesn't guarantee state change
+3. Assert: Cart badge shows "1"
+```
+
+**Good**:
+```
+1. Click "Add to Cart"
+2. Wait until: Cart badge updates ← Good: Waits for actual state change
+3. Assert: Cart badge shows "1"
+```
+
+### Form Submissions
+
+**Bad**:
+```
+1. Click "Submit"
+2. Wait 3 seconds ← Bad: What if the API is slow today?
+3. Assert: Success message appears
+```
+
+**Good**:
+```
+1. Click "Submit"
+2. Wait until: Success message appears ← Good: Waits however long it takes
+3. Assert: Form submission was successful
+```
+
+### API Calls
+
+**Bad**:
+```
+1. Click "Load More"
+2. Wait 2 seconds ← Bad: API response time varies
+3. Assert: More items appear
+```
+
+**Good**:
+```
+1. Click "Load More"
+2. Wait until: Additional items appear ← Good: Waits for API response
+3. Assert: More items are visible
+```
+
+### Navigation
+
+**Bad**:
+```
+1. Click "Settings" link
+2. Wait 1 second ← Bad: Page might not be loaded yet
+3. Assert: Settings page appears
+```
+
+**Good**:
+```
+1. Click "Settings" link
+2. Wait until: Settings page loads ← Good: Waits for actual navigation
+3. Assert: Settings heading is visible
+```
+
+**The rule**: If you're waiting for something to happen or change, use `Wait Until`, not `Wait`.
+
+## How to Use Wait
+
+### Basic Syntax
+
+Specify the duration in seconds:
+
+```
+Wait 1 second
+Wait 2 seconds
+Wait 5 seconds
+Wait 0.5 seconds
+```
+
+You can use decimals for sub-second precision:
+
+```
+Wait 0.5 seconds ← Half a second
+Wait 1.5 seconds ← One and a half seconds
+Wait 0.25 seconds ← Quarter second
+```
+
+### In Test Context
+
+```
+Test: "Product image animation"
+
+1. Navigate to product page
+2. Wait until: Product page loads
+3. Click "View Gallery"
+4. Wait until: Gallery modal opens
+5. Wait 0.8 seconds ← Gallery has fade-in animation
+6. Click "Next" arrow
+7. Wait 0.8 seconds ← Image transition animation
+8. Take screenshot
+```
+
+### Combining with Other Interactions
+
+Fixed waits often work best when combined with conditional waits:
+
+```
+Test: "Animated success flow"
+
+1. Click "Submit Order"
+2. Wait until: "Processing" message appears ← Conditional
+3. Wait until: Success checkmark appears ← Conditional
+4. Wait 1 second ← Fixed: Let success animation complete
+5. Take screenshot
+6. Wait until: Modal closes automatically ← Conditional
+```
+
+Pattern:
+1. Wait conditionally for state change
+2. Wait fixed time for visual effect
+3. Continue with next action
+
+## Platform Support
+
+**Web**: Yes
+**Mobile**: Yes
+
+The `Wait` interaction works identically across all platforms. The pause duration is consistent regardless of whether you're testing a web application or mobile app.
+
+## Real-World Examples
+
+### Example 1: Screenshot Gallery Navigation
+
+```
+Test: "Product gallery walkthrough"
+
+1. Navigate to product page
+2. Wait until: Product page loads
+3. Click "View Images" button
+4. Wait until: Gallery opens
+5. Wait 1 second ← Gallery open animation
+6. Take screenshot of first image
+7. Click "Next" arrow
+8. Wait 0.5 seconds ← Image slide animation
+9. Take screenshot of second image
+10. Click "Next" arrow
+11. Wait 0.5 seconds ← Image slide animation
+12. Take screenshot of third image
+```
+
+**Why fixed waits here?** The gallery's slide animation doesn't change any detectable state—the next image exists in the DOM before the animation completes. Fixed waits ensure animations finish before screenshots are taken.
+
+### Example 2: Demo Video for Sales
+
+```
+Test: "Onboarding flow demo"
+
+1. Navigate to sign-up page
+2. Wait until: Form loads
+3. Input text: "Sarah" in first name field
+4. Input text: "Johnson" in last name field
+5. Input text: "sarah@example.com" in email field
+6. Wait 2 seconds ← Let viewers see completed form
+7. Click "Continue"
+8. Wait until: Step 2 loads
+9. Select "Marketing" from department dropdown
+10. Select "Team Lead" from role dropdown
+11. Wait 2 seconds ← Let viewers see selections
+12. Click "Complete Setup"
+13. Wait until: Dashboard loads
+14. Wait 3 seconds ← Let viewers see final result
+```
+
+**Why fixed waits here?** This test is designed to create a demo video. The pauses make the video easier to follow for human viewers.
+
+### Example 3: Testing Auto-Save Feature
+
+```
+Test: "Auto-save functionality"
+
+1. Navigate to document editor
+2. Wait until: Editor loads
+3. Input text: "This is my document content"
+4. Wait 30 seconds ← App auto-saves every 30 seconds
+5. Assert: "Saved" indicator appears
+6. Refresh page
+7. Wait until: Editor loads
+8. Assert: Previously typed content is still there
+```
+
+**Why fixed wait here?** You're testing a time-based feature. The auto-save explicitly triggers after 30 seconds of inactivity. The fixed wait is intentional.
+
+### Example 4: Mobile App Splash Screen
+
+```
+Test: "App launch experience"
+
+1. Open application
+2. Wait 2 seconds ← Splash screen displays for 2 seconds
+3. Wait until: Home screen loads
+4. Assert: "Welcome" message appears
+```
+
+**Why fixed wait here?** The splash screen displays for a fixed duration by design. You're testing that the experience includes this deliberate delay.
+
+### Example 5: Notification Toast Auto-Dismiss
+
+```
+Test: "Success notification behavior"
+
+1. Click "Save Changes"
+2. Wait until: "Saved successfully" toast appears
+3. Take screenshot of success state
+4. Wait 5 seconds ← Toast auto-dismisses after 5 seconds
+5. Assert: Toast is no longer visible
+6. Assert: Changes are persisted
+```
+
+**Why fixed wait here?** You're testing that the toast auto-dismisses after a specific duration. The fixed wait matches the designed behavior.
+
+## Common Pitfalls
+
+### Pitfall 1: Using Wait as a Lazy Solution to Flakiness
+
+**The problem**:
+```
+Test: "Add to cart - keeps failing"
+
+1. Click "Add to Cart"
+2. Wait 5 seconds ← "Just to be safe"
+3. Assert: Item in cart
+```
+
+**Why it's bad**:
+- Makes test slower even when the operation completes in 200ms
+- Doesn't fix the root cause—if it takes 6 seconds, test still fails
+- Masks underlying performance issues
+
+**The fix**:
+```
+Test: "Add to cart"
+
+1. Click "Add to Cart"
+2. Wait until: Cart badge updates ← Properly waits for state change
+3. Assert: Item in cart
+```
+
+### Pitfall 2: Stacking Multiple Fixed Waits
+
+**The problem**:
+```
+Test: "Checkout flow"
+
+1. Navigate to checkout
+2. Wait 3 seconds
+3. Wait 2 seconds
+4. Wait 1 second
+5. Click "Place Order"
+```
+
+**Why it's bad**:
+- Unnecessarily slow (6 seconds of waiting!)
+- Doesn't actually improve reliability
+- Usually indicates confusion about what you're waiting for
+
+**The fix**:
+```
+Test: "Checkout flow"
+
+1. Navigate to checkout
+2. Wait until: Checkout form loads ← One clear conditional wait
+3. Click "Place Order"
+```
+
+### Pitfall 3: Using Fixed Wait When Condition is Detectable
+
+**The problem**:
+```
+Test: "Search products"
+
+1. Type "laptop" in search field
+2. Wait 2 seconds ← Waiting for search results
+3. Assert: Results appear
+```
+
+**Why it's bad**:
+- Search might complete in 300ms, wasting 1.7 seconds
+- Search might take 2.5 seconds, causing test to fail
+- You're not actually checking if results loaded
+
+**The fix**:
+```
+Test: "Search products"
+
+1. Type "laptop" in search field
+2. Wait until: Search results display ← Waits for actual results
+3. Assert: Results contain "laptop"
+```
+
+### Pitfall 4: Insufficient Wait Duration
+
+**The problem**:
+```
+Test: "Video upload"
+
+1. Set file to upload: "video.mp4"
+2. Click "Upload"
+3. Wait 2 seconds ← Video processing takes 5-10 seconds
+4. Assert: Upload complete
+```
+
+**Why it's bad**:
+- Test will almost always fail
+- Fixed wait doesn't account for variable processing time
+
+**The fix**:
+```
+Test: "Video upload"
+
+1. Set file to upload: "video.mp4"
+2. Click "Upload"
+3. Wait until: Upload progress reaches 100% ← Waits however long needed
+4. Wait until: "Processing complete" message appears
+5. Assert: Video is playable
+```
+
+### Pitfall 5: Leaving Debugging Waits in Production Tests
+
+**The problem**:
+```
+Test: "Debug payment issue"
+
+1. Fill out payment form
+2. Click "Submit Payment"
+3. Wait 10 seconds ← Added while debugging, never removed
+4. Assert: Payment successful
+```
+
+**Why it's bad**:
+- Unnecessarily slows down test suite
+- Was meant to be temporary but was forgotten
+- Should have been replaced with proper wait
+
+**The fix**:
+```
+Test: "Payment flow"
+
+1. Fill out payment form
+2. Click "Submit Payment"
+3. Wait until: Payment processing completes ← Proper conditional wait
+4. Assert: Payment successful
+```
+
+## Wait vs Wait Until: Decision Tree
+
+Use this decision tree when choosing between `Wait` and `Wait Until`:
+
+**Q: Are you waiting for something specific to happen or appear?**
+→ Yes: Use `Wait Until`
+→ No: Continue...
+
+**Q: Are you waiting for an animation to complete?**
+→ Yes: Does the animation change any detectable state?
+  → Yes: Use `Wait Until` for the state change
+  → No: Use `Wait` for the animation duration
+→ No: Continue...
+
+**Q: Are you creating a demo or recording?**
+→ Yes: Use `Wait` for deliberate pacing
+→ No: Continue...
+
+**Q: Are you testing a time-based feature?**
+→ Yes: Use `Wait` for the specific duration
+→ No: Continue...
+
+**Q: Are you debugging a flaky test?**
+→ Yes: Use `Wait` temporarily, then replace with `Wait Until`
+→ No: You probably don't need `Wait`
+
+**When in doubt, use `Wait Until`.**
+
+## Best Practices
+
+### 1. Prefer Conditional Waits
+
+Start with `Wait Until` by default. Only use `Wait` when you have a specific reason.
+
+**Default approach**:
+```
+Wait until: [describe what should happen]
+```
+
+**Only use fixed waits for**:
+- Animation timing
+- Deliberate pacing
+- Time-based features
+- Known processing delays
+
+### 2. Keep Wait Durations Short
+
+When you do use fixed waits, keep them short:
+
+**Good durations**:
+```
+Wait 0.5 seconds ← Half second for quick animation
+Wait 1 second ← Standard animation duration
+Wait 2 seconds ← Demo pacing
+Wait 3 seconds ← Short processing delay
+```
+
+**Avoid long waits**:
+```
+Wait 10 seconds ← Usually indicates you should use Wait Until
+Wait 30 seconds ← Definitely should be conditional
+```
+
+**Exception**: Testing time-based features where long waits are intentional.
+
+### 3. Document Why You're Using Fixed Waits
+
+Add comments to explain fixed waits:
+
+```
+Test: "Animated checkout"
+
+1. Click "Place Order"
+2. Wait until: Order confirmation appears
+3. Wait 1 second ← Success checkmark animation duration
+4. Take screenshot
+```
+
+This helps future maintainers understand why the fixed wait is there.
+
+### 4. Combine with Conditional Waits
+
+Use fixed waits to complement conditional waits, not replace them:
+
+```
+Pattern:
+1. Wait until: State changes ← Conditional
+2. Wait X seconds ← Fixed for animation
+3. Next action
+```
+
+Example:
+```
+1. Click "Open Modal"
+2. Wait until: Modal appears ← Waits for element
+3. Wait 0.5 seconds ← Waits for fade-in animation
+4. Click button inside modal
+```
+
+### 5. Remove Debugging Waits
+
+Don't leave temporary debugging waits in your tests:
+
+```
+During debugging:
+Wait 5 seconds ← TEMP: trying to see what happens
+
+After fixing:
+Wait until: Expected element appears ← Proper solution
+```
+
+Set a reminder to clean up temporary waits once you've identified the issue.
+
+## Metadata Format
+
+The `Wait` interaction requires metadata specifying the duration:
+
+**Format**: Number of seconds
+
+**Examples**:
+```
+Wait 1 second    → metadata: 1
+Wait 2 seconds   → metadata: 2
+Wait 3 seconds   → metadata: 3
+Wait 0.5 seconds → metadata: 0.5
+Wait 1.5 seconds → metadata: 1.5
+```
+
+You can use integers or decimals. Autonoma interprets the natural language and extracts the duration.
+
+## Performance Implications
+
+Fixed waits directly impact test execution time:
+
+**Example test with fixed waits**:
+```
+1. Wait 2 seconds
+2. Click button
+3. Wait 3 seconds
+4. Assert success
+5. Wait 2 seconds
+
+Total unnecessary wait time: 7 seconds per test run
+```
+
+**If you run this test**:
+- 10 times: 70 seconds of waiting
+- 100 times: 700 seconds (11.6 minutes) of waiting
+- 1000 times: 7000 seconds (1.9 hours) of waiting
+
+**Better approach**:
+```
+1. Wait until: Page loads ← Typically 200-500ms
+2. Click button
+3. Wait until: Success appears ← Typically 300-800ms
+4. Assert success
+
+Total wait time: 500-1300ms per test run (5-10x faster!)
+```
+
+Fixed waits add up quickly. Use them sparingly.
+
+## Advanced Patterns
+
+### Pattern 1: Wait Sandwich
+
+When you need to verify both that something appears and then disappears:
+
+```
+Test: "Toast notification lifecycle"
+
+1. Click "Save"
+2. Wait until: Toast appears ← Conditional
+3. Assert: Toast says "Saved successfully"
+4. Wait 5 seconds ← Fixed: Toast auto-dismisses after 5s
+5. Assert: Toast is no longer visible
+```
+
+### Pattern 2: Animation + Interaction Chain
+
+When multiple animations need to complete in sequence:
+
+```
+Test: "Multi-step modal animation"
+
+1. Click "Open Wizard"
+2. Wait until: Modal appears ← Conditional
+3. Wait 0.5 seconds ← Fixed: Modal fade-in
+4. Click "Next"
+5. Wait until: Step 2 appears ← Conditional
+6. Wait 0.3 seconds ← Fixed: Step transition animation
+7. Click "Next"
+8. Wait until: Step 3 appears ← Conditional
+9. Wait 0.3 seconds ← Fixed: Step transition animation
+10. Click "Complete"
+```
+
+### Pattern 3: Deliberate Pacing with Verification
+
+When creating demos, still verify state changes:
+
+```
+Test: "Onboarding demo"
+
+1. Fill out form
+2. Wait until: Form validation passes ← Conditional verification
+3. Wait 2 seconds ← Fixed: Demo pacing
+4. Click "Continue"
+5. Wait until: Next step loads ← Conditional verification
+6. Wait 2 seconds ← Fixed: Demo pacing
+7. Complete next step
+```
+
+### Pattern 4: Minimum Processing Time
+
+When you know something takes at least a certain amount of time:
+
+```
+Test: "Image processing"
+
+1. Upload image
+2. Wait until: "Processing..." appears ← Conditional
+3. Wait 3 seconds ← Fixed: Processing takes minimum 3 seconds
+4. Wait until: Processing completes ← Conditional for actual completion
+5. Assert: Processed image appears
+```
+
+This combines a minimum fixed wait with a conditional wait for variable completion time.
+
+## Troubleshooting
+
+### "My test is too slow"
+
+**Check for unnecessary fixed waits**:
+```bash
+# Look for Wait interactions
+# Replace with Wait Until where possible
+```
+
+**Before**:
+```
+Wait 3 seconds ← Slowing down every test run
+```
+
+**After**:
+```
+Wait until: Element loads ← Fast when quick, patient when slow
+```
+
+### "My test is flaky even with Wait"
+
+**Problem**: Fixed wait doesn't guarantee timing
+
+**Solution**: Switch to conditional wait
+```
+Instead of:
+Wait 2 seconds
+Assert: Element appears ← Might not be there yet
+
+Use:
+Wait until: Element appears ← Guarantees element is there
+Assert: Element is visible
+```
+
+### "Animation looks wrong in screenshots"
+
+**Problem**: Screenshot taken mid-animation
+
+**Solution**: Add fixed wait for animation duration
+```
+1. Click "Show Modal"
+2. Wait until: Modal appears ← Element exists
+3. Wait 0.5 seconds ← Animation completes
+4. Take screenshot ← Now animation is done
+```
+
+### "Test times out waiting too long"
+
+**Problem**: Using unnecessarily long fixed waits
+
+**Solution**: Replace with conditional waits or reduce duration
+```
+Instead of:
+Wait 10 seconds ← Way too long
+
+Use:
+Wait until: Expected condition ← As fast as possible
+```
+
+## Comparison with Related Interactions
+
+### Wait vs Wait Until
+
+| Feature | Wait | Wait Until |
+|---------|------|------------|
+| Type | Fixed time | Conditional |
+| Duration | Always the same | Adapts to reality |
+| Speed | Slower on average | Faster on average |
+| Reliability | Can fail if too short | More reliable |
+| Use case | Animations, pacing | Loading, state changes |
+| Default choice | No | Yes |
+
+**Rule of thumb**: Use `Wait Until` unless you have a specific reason to use `Wait`.
+
+### Wait vs Scroll With Condition
+
+Both involve waiting, but `Scroll With Condition` combines scrolling with waiting:
+
+**Wait Until**:
+```
+Wait until: Element appears ← Waits without scrolling
+```
+
+**Scroll With Condition**:
+```
+Scroll until: Element appears ← Scrolls repeatedly until element is found
+```
+
+Use `Scroll With Condition` when the element you're waiting for requires scrolling to reveal it.
+
+## Migration Guide: From Fixed to Conditional Waits
+
+If you have tests using many fixed waits, here's how to migrate:
+
+### Step 1: Identify Fixed Waits
+
+Look for patterns like:
+```
+1. [Action]
+2. Wait X seconds ← Fixed wait
+3. [Verification]
+```
+
+### Step 2: Understand What You're Waiting For
+
+Ask: "What am I actually waiting for?"
+- Page to load?
+- Element to appear?
+- State to change?
+- API call to complete?
+
+### Step 3: Replace with Conditional Wait
+
+```
+Before:
+1. Click "Load More"
+2. Wait 2 seconds ← Fixed
+3. Assert: More items appear
+
+After:
+1. Click "Load More"
+2. Wait until: Additional items appear ← Conditional
+3. Assert: Correct number of items
+```
+
+### Step 4: Test and Validate
+
+Run tests multiple times to ensure conditional waits are reliable.
+
+### Step 5: Document Remaining Fixed Waits
+
+For fixed waits you keep, document why:
+```
+Wait 1 second ← Animation duration for screenshot timing
+```
+
+## Summary
+
+**Use `Wait` for**:
+- Animations without state changes
+- Deliberate pacing in demo videos
+- Testing time-based features
+- Known minimum processing delays
+- Temporary debugging (then remove!)
+
+**Don't use `Wait` for**:
+- Loading states → Use `Wait Until`
+- API calls → Use `Wait Until`
+- Form submissions → Use `Wait Until`
+- Navigation → Use `Wait Until`
+- Element appearance → Use `Wait Until`
+
+**Remember**:
+- `Wait Until` should be your default choice
+- `Wait` is for specific edge cases
+- Fixed waits slow down test suites
+- Document why you're using fixed waits
+- Remove temporary debugging waits
+
+**When in doubt, ask**: "Am I waiting for something to happen or change?"
+- Yes → Use `Wait Until`
+- No → Consider if you need to wait at all
+
+The `Wait` interaction is a useful tool, but it's not the right tool for most scenarios. Master both `Wait` and `Wait Until`, and you'll write faster, more reliable tests.

@@ -1,0 +1,1024 @@
+---
+title: "Fetch"
+description: "Execute pre-configured API requests using stored fetch scripts—perfect for testing API integrations, data retrieval workflows, and backend communication patterns."
+---
+
+## What is Fetch?
+
+The Fetch interaction allows you to execute pre-configured API requests that you've stored in Autonoma's database. Think of it as a way to save complex API calls—complete with headers, authentication, request bodies, and more—and trigger them with a simple natural language command during your tests.
+
+Instead of manually configuring the same API call repeatedly across multiple tests, you define it once as a named script (like "SCRIPT_1" or "GET_USER_PROFILE") and then execute it whenever needed with a simple prompt.
+
+This is particularly powerful for:
+- Testing API integrations within your application
+- Validating that your UI correctly triggers backend calls
+- Seeding test data before UI interactions
+- Verifying API responses affect the UI as expected
+- Testing error handling when APIs return specific responses
+
+## When to Use Fetch vs Other Approaches
+
+Understanding when to use Fetch versus other methods is crucial for building maintainable test suites.
+
+### Use Fetch when:
+
+**Testing API-driven UI updates**
+```
+Your application makes an API call when a user clicks "Refresh Balance"
+You want to verify the UI updates correctly with the API response
+```
+
+**Seeding data before UI tests**
+```
+Before testing the order history page, use Fetch to create test orders via API
+Then verify they appear correctly in the UI
+```
+
+**Testing error handling**
+```
+Use Fetch to trigger API error responses
+Verify your application displays appropriate error messages
+```
+
+**Validating API integration**
+```
+User submits a form
+Use Fetch to verify the correct API call was made with proper data
+```
+
+**Reusing complex API calls across tests**
+```
+Multiple tests need to authenticate or fetch user data
+Store the API call once, execute it in all tests that need it
+```
+
+### Use alternatives when:
+
+**Testing pure UI interactions**
+```
+If you're not testing API behavior, you don't need Fetch
+Use standard interactions like Click, Input Text, Assert
+```
+
+**One-off API calls**
+```
+If you only need an API call once, consider using cURL interaction
+Or configure it directly in your test setup
+```
+
+**External API testing**
+```
+If you're testing third-party APIs without UI validation
+Consider using dedicated API testing tools
+```
+
+**Real-time data that changes constantly**
+```
+If the API response varies unpredictably
+Fetch might not provide the control you need
+```
+
+## Fetch vs cURL: What's the Difference?
+
+Both Fetch and cURL interactions execute HTTP requests, but they serve different purposes:
+
+### Fetch (JavaScript Fetch API style)
+
+**Best for:**
+- Modern RESTful APIs
+- JSON request/response patterns
+- Standard authentication patterns (Bearer tokens, API keys)
+- Promise-based async operations
+- CORS-aware requests
+
+**Example use cases:**
+```
+Fetch user profile data from your REST API
+Post form data in JSON format
+Retrieve paginated results
+Update resources with PUT/PATCH requests
+```
+
+### cURL (Command-line style)
+
+**Best for:**
+- Complex HTTP scenarios requiring fine-grained control
+- Custom headers or unusual configurations
+- Binary data or file uploads
+- Legacy systems with non-standard patterns
+- Debugging and exploring APIs
+
+**Example use cases:**
+```
+Testing APIs with custom authentication schemes
+Uploading files via multipart/form-data
+Making requests with very specific header requirements
+Replicating exact cURL commands from documentation
+```
+
+**Rule of thumb**: Start with Fetch for standard REST APIs. Use cURL when you need command-line-level control or are replicating existing cURL commands.
+
+## How It Works
+
+When you use the Fetch interaction, here's what happens:
+
+1. **Script Lookup**: Autonoma retrieves the named fetch script from your account's stored scripts
+2. **Configuration Loading**: The script contains all request details (URL, method, headers, body, auth)
+3. **Request Execution**: Autonoma executes the fetch request using the configured parameters
+4. **Response Handling**: The response is captured and can be used in subsequent test steps
+5. **Validation**: You can verify the response or check how it affects your application
+
+### Typical Fetch Script Structure
+
+A fetch script you've stored might look like this:
+
+```javascript
+{
+  "name": "GET_USER_PROFILE",
+  "method": "GET",
+  "url": "https://api.example.com/users/profile",
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}",
+    "Content-Type": "application/json"
+  }
+}
+```
+
+When you execute this with "use GET_USER_PROFILE to fetch data", Autonoma runs this exact configuration.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+Fetch works identically across platforms. Whether testing a web application or mobile app, your fetch scripts execute the same way.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing Account Balance Refresh
+
+You're testing a banking app where users can refresh their account balance. The balance updates via an API call.
+
+```
+Test: "Refresh account balance"
+
+Setup:
+1. Log in to application
+2. Navigate to account dashboard
+3. Extract information about current balance with key BALANCE_BEFORE
+
+Trigger Balance Update:
+4. Click "Refresh Balance" button
+5. Wait until: Loading indicator disappears
+
+Execute API Verification:
+6. Execute the fetch command called GET_ACCOUNT_BALANCE
+7. Extract information about balance from API response with key API_BALANCE
+
+Verify UI Updated:
+8. Extract information about displayed balance with key BALANCE_AFTER
+9. Assert: Balance {{key:BALANCE_AFTER}} matches API balance {{key:API_BALANCE}}
+10. Assert: Balance {{key:BALANCE_AFTER}} is different from {{key:BALANCE_BEFORE}}
+```
+
+**Why Fetch is perfect here**: You're verifying that clicking the UI button correctly triggers the API and the UI updates with the API response. Fetch lets you confirm the API was called correctly.
+
+### Scenario 2: Seeding Test Data for Order History
+
+You need to test the order history page, but it requires existing orders to display properly.
+
+```
+Test: "Order history displays correctly"
+
+Seed Test Data:
+1. Execute the fetch command called CREATE_TEST_ORDER
+2. Extract information about order number from response with key ORDER_1
+3. Execute the fetch command called CREATE_TEST_ORDER
+4. Extract information about order number from response with key ORDER_2
+5. Execute the fetch command called CREATE_TEST_ORDER
+6. Extract information about order number from response with key ORDER_3
+
+Navigate and Verify:
+7. Navigate to {{variable:APP_URL}}/orders
+8. Wait until: Order history page loads
+9. Assert: Order {{key:ORDER_1}} appears in list
+10. Assert: Order {{key:ORDER_2}} appears in list
+11. Assert: Order {{key:ORDER_3}} appears in list
+12. Assert: Total order count shows 3
+```
+
+**Why Fetch is perfect here**: Creating orders via the UI would be time-consuming and fragile. Using API calls to seed data is fast and reliable, then you verify the UI displays them correctly.
+
+### Scenario 3: Testing Error Handling
+
+You want to verify your application handles API errors gracefully.
+
+```
+Test: "Handle API errors appropriately"
+
+Normal State:
+1. Navigate to profile settings
+2. Wait until: Settings form loads
+
+Trigger API Error:
+3. Execute the fetch command called TRIGGER_API_500_ERROR
+4. Wait until: Error state is detected
+
+Verify Error Handling:
+5. Assert: "Something went wrong" error message appears
+6. Assert: Retry button is visible
+7. Assert: User can still navigate away
+8. Click "Retry" button
+
+Verify Recovery:
+9. Execute the fetch command called GET_USER_SETTINGS
+10. Wait until: Settings form loads successfully
+11. Assert: Error message is no longer visible
+```
+
+**Why Fetch is perfect here**: You can control exactly what API responses occur, allowing you to test error scenarios that are difficult to reproduce naturally.
+
+### Scenario 4: Testing Real-Time Data Updates
+
+You're testing a dashboard that displays real-time analytics that update via API polling.
+
+```
+Test: "Dashboard data updates correctly"
+
+Initial State:
+1. Navigate to analytics dashboard
+2. Wait until: Dashboard loads
+3. Extract information about current visitor count with key VISITORS_INITIAL
+4. Extract information about current page views with key PAGEVIEWS_INITIAL
+
+Simulate Data Change:
+5. Execute the fetch command called UPDATE_ANALYTICS_DATA
+6. Wait 2 seconds for polling cycle
+
+Trigger Manual Refresh:
+7. Click "Refresh Data" button
+8. Wait until: Loading indicator disappears
+
+Verify Updated Data:
+9. Execute the fetch command called GET_ANALYTICS_DATA
+10. Extract information about visitors from response with key VISITORS_API
+11. Extract information about page views from response with key PAGEVIEWS_API
+12. Extract information about displayed visitors with key VISITORS_UI
+13. Extract information about displayed page views with key PAGEVIEWS_UI
+
+Validate Synchronization:
+14. Assert: UI visitors {{key:VISITORS_UI}} matches API {{key:VISITORS_API}}
+15. Assert: UI page views {{key:PAGEVIEWS_UI}} matches API {{key:PAGEVIEWS_API}}
+16. Assert: Values changed from initial state
+```
+
+**Why Fetch is perfect here**: You can control the backend data, trigger updates, and verify the UI stays synchronized with the API responses.
+
+### Scenario 5: Multi-Step Checkout with API Validation
+
+Testing a checkout flow where each step involves API calls to validate data and progress.
+
+```
+Test: "Complete checkout with API verification"
+
+Start Checkout:
+1. Add products to cart
+2. Proceed to checkout
+3. Fill out shipping information
+4. Click "Continue to Payment"
+
+Verify Shipping API Call:
+5. Execute the fetch command called VERIFY_SHIPPING_ADDRESS
+6. Extract information about validation status with key SHIPPING_VALID
+7. Assert: Shipping validation status {{key:SHIPPING_VALID}} is "approved"
+8. Wait until: Payment form loads
+
+Complete Payment Information:
+9. Fill out payment details
+10. Click "Review Order"
+
+Verify Payment Validation:
+11. Execute the fetch command called VERIFY_PAYMENT_METHOD
+12. Extract information about payment status with key PAYMENT_VALID
+13. Assert: Payment status {{key:PAYMENT_VALID}} is "valid"
+14. Wait until: Order review page loads
+
+Place Order:
+15. Click "Place Order"
+16. Wait until: Order confirmation appears
+
+Verify Order Created:
+17. Execute the fetch command called GET_ORDER_DETAILS
+18. Extract information about order ID with key API_ORDER_ID
+19. Extract information about order total with key API_ORDER_TOTAL
+20. Extract information about displayed order ID with key UI_ORDER_ID
+21. Extract information about displayed total with key UI_ORDER_TOTAL
+
+Validate Order Data:
+22. Assert: UI order ID {{key:UI_ORDER_ID}} matches API {{key:API_ORDER_ID}}
+23. Assert: UI total {{key:UI_ORDER_TOTAL}} matches API {{key:API_ORDER_TOTAL}}
+```
+
+**Why Fetch is perfect here**: Each checkout step involves API validation. Fetch lets you verify each API call succeeded and returned correct data before the UI moves to the next step.
+
+### Scenario 6: Testing Pagination with API Verification
+
+Verifying that pagination controls correctly trigger API calls with proper parameters.
+
+```
+Test: "Pagination loads correct data"
+
+Load First Page:
+1. Navigate to products page
+2. Wait until: Products load
+3. Extract information about displayed product count with key PAGE_1_COUNT
+4. Assert: 20 products are displayed
+
+Verify First Page API:
+5. Execute the fetch command called GET_PRODUCTS_PAGE_1
+6. Extract information about product count from response with key API_PAGE_1_COUNT
+7. Assert: API returned {{key:API_PAGE_1_COUNT}} products
+8. Assert: UI count {{key:PAGE_1_COUNT}} matches API count {{key:API_PAGE_1_COUNT}}
+
+Navigate to Page 2:
+9. Click "Next Page" button
+10. Wait until: Page 2 products load
+11. Extract information about displayed product count with key PAGE_2_COUNT
+
+Verify Second Page API:
+12. Execute the fetch command called GET_PRODUCTS_PAGE_2
+13. Extract information about product count from response with key API_PAGE_2_COUNT
+14. Assert: API returned {{key:API_PAGE_2_COUNT}} products
+15. Assert: UI count {{key:PAGE_2_COUNT}} matches API count {{key:API_PAGE_2_COUNT}}
+16. Assert: Products on page 2 are different from page 1
+```
+
+**Why Fetch is perfect here**: You verify that pagination controls trigger the correct API calls with proper page parameters.
+
+## Setting Up Fetch Scripts
+
+Before using Fetch in your tests, you need to configure your scripts in Autonoma. Here's how to structure effective fetch scripts:
+
+### Basic Fetch Script Structure
+
+```javascript
+{
+  "name": "DESCRIPTIVE_SCRIPT_NAME",
+  "method": "GET|POST|PUT|PATCH|DELETE",
+  "url": "https://api.example.com/endpoint",
+  "headers": {
+    "Authorization": "Bearer token_here",
+    "Content-Type": "application/json"
+  },
+  "body": {
+    // For POST/PUT/PATCH requests
+  }
+}
+```
+
+### Using Variables in Fetch Scripts
+
+Make your scripts flexible with variables:
+
+```javascript
+{
+  "name": "GET_USER_ORDERS",
+  "method": "GET",
+  "url": "{{variable:API_BASE_URL}}/users/{{key:USER_ID}}/orders",
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}",
+    "Content-Type": "application/json"
+  }
+}
+```
+
+This script uses:
+- `{{variable:API_BASE_URL}}` - Set before test runs (staging vs production)
+- `{{key:USER_ID}}` - Extracted during test execution
+- `{{variable:AUTH_TOKEN}}` - Authentication token from test configuration
+
+### Common Fetch Script Patterns
+
+**GET request with authentication:**
+```javascript
+{
+  "name": "GET_USER_PROFILE",
+  "method": "GET",
+  "url": "{{variable:API_URL}}/profile",
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}"
+  }
+}
+```
+
+**POST request with JSON body:**
+```javascript
+{
+  "name": "CREATE_ORDER",
+  "method": "POST",
+  "url": "{{variable:API_URL}}/orders",
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}",
+    "Content-Type": "application/json"
+  },
+  "body": {
+    "items": [
+      {"productId": "{{key:PRODUCT_ID}}", "quantity": 1}
+    ],
+    "shippingAddress": {
+      "street": "{{variable:TEST_ADDRESS}}",
+      "city": "{{variable:TEST_CITY}}"
+    }
+  }
+}
+```
+
+**PUT request to update resource:**
+```javascript
+{
+  "name": "UPDATE_USER_EMAIL",
+  "method": "PUT",
+  "url": "{{variable:API_URL}}/users/{{key:USER_ID}}",
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}",
+    "Content-Type": "application/json"
+  },
+  "body": {
+    "email": "{{random:email}}"
+  }
+}
+```
+
+**DELETE request:**
+```javascript
+{
+  "name": "DELETE_CART_ITEM",
+  "method": "DELETE",
+  "url": "{{variable:API_URL}}/cart/{{key:ITEM_ID}}",
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}"
+  }
+}
+```
+
+## Example Prompts
+
+Here are effective ways to phrase Fetch commands in your tests:
+
+**Basic execution:**
+```
+execute the fetch command called SCRIPT_1
+run the SCRIPT_1 fetch command
+use the fetch script SCRIPT_1
+execute fetch SCRIPT_1
+```
+
+**With descriptive names:**
+```
+execute the fetch command called GET_USER_PROFILE
+use GET_ORDER_DETAILS to fetch data from an API
+run the CREATE_TEST_USER fetch script
+execute the DELETE_OLD_ORDERS fetch command
+```
+
+**In context of workflow:**
+```
+use REFRESH_BALANCE to fetch updated account data
+execute the VALIDATE_SHIPPING_ADDRESS fetch command
+run GET_AVAILABLE_PRODUCTS to load inventory data
+use SUBMIT_PAYMENT to process the transaction
+```
+
+**Verify response:**
+```
+execute the fetch command GET_USER_DATA and verify response
+run PLACE_ORDER and extract the order ID
+use LOAD_CART_ITEMS to fetch data and confirm item count
+```
+
+## Best Practices
+
+### 1. Use Descriptive Script Names
+
+**Poor naming:**
+```
+SCRIPT_1
+SCRIPT_2
+TEST_API
+API_CALL
+```
+
+**Good naming:**
+```
+GET_USER_PROFILE
+CREATE_TEST_ORDER
+UPDATE_SHIPPING_ADDRESS
+DELETE_CART_CONTENTS
+VERIFY_PAYMENT_METHOD
+```
+
+Descriptive names make your tests self-documenting and easier to maintain.
+
+### 2. Store Commonly Used API Calls
+
+If multiple tests need the same API call, create a fetch script:
+
+**Instead of:**
+```
+Configuring the same API call in 15 different tests
+```
+
+**Do this:**
+```
+Create one fetch script named "GET_USER_SETTINGS"
+Use it across all 15 tests with one line:
+"execute the fetch command called GET_USER_SETTINGS"
+```
+
+### 3. Use Variables for Flexibility
+
+Make scripts work across environments:
+
+```javascript
+{
+  "name": "GET_ORDERS",
+  "url": "{{variable:API_BASE_URL}}/orders", // Not hardcoded!
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}" // Not hardcoded!
+  }
+}
+```
+
+Then configure variables per environment:
+- Staging: `API_BASE_URL = https://staging-api.example.com`
+- Production: `API_BASE_URL = https://api.example.com`
+
+### 4. Combine with Extraction for Validation
+
+Always extract and verify API responses:
+
+```
+1. Execute the fetch command called GET_BALANCE
+2. Extract information about balance from response with key API_BALANCE
+3. Extract information about displayed balance with key UI_BALANCE
+4. Assert: UI balance {{key:UI_BALANCE}} matches API balance {{key:API_BALANCE}}
+```
+
+### 5. Use Fetch for Test Setup
+
+Speed up tests by using APIs to set up initial state:
+
+```
+Test: "Edit existing order"
+
+Setup via API:
+1. Execute the fetch command called CREATE_TEST_ORDER
+2. Extract information about order ID with key ORDER_ID
+
+Test via UI:
+3. Navigate to order history
+4. Click order {{key:ORDER_ID}}
+5. Click "Edit Order"
+6. Update order details
+7. Save changes
+
+Verify via API:
+8. Execute the fetch command called GET_ORDER_DETAILS
+9. Verify changes persisted
+```
+
+This is faster than creating orders through the UI.
+
+### 6. Handle Authentication Properly
+
+Store auth tokens securely in variables:
+
+```javascript
+{
+  "headers": {
+    "Authorization": "Bearer {{variable:AUTH_TOKEN}}" // From secure variable
+  }
+}
+```
+
+Never hardcode tokens in fetch scripts.
+
+### 7. Test Both Success and Failure Scenarios
+
+Create fetch scripts for different response scenarios:
+
+```
+Scripts:
+- GET_PRODUCTS_SUCCESS (returns 200 with products)
+- GET_PRODUCTS_EMPTY (returns 200 with empty array)
+- GET_PRODUCTS_ERROR (returns 500 error)
+- GET_PRODUCTS_UNAUTHORIZED (returns 401)
+```
+
+Then test how your UI handles each:
+
+```
+Test: "Handle API errors gracefully"
+1. Execute the fetch command called GET_PRODUCTS_ERROR
+2. Assert: Error message displays
+3. Assert: Retry button is available
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Extracting Response Data
+
+**Problem:**
+```
+1. Execute the fetch command called GET_USER_PROFILE
+2. Assert: Profile page looks correct
+```
+
+You executed the API but didn't verify the response or extract useful data.
+
+**Solution:**
+```
+1. Execute the fetch command called GET_USER_PROFILE
+2. Extract information about username from response with key USERNAME
+3. Extract information about email from response with key EMAIL
+4. Navigate to profile page
+5. Assert: Username {{key:USERNAME}} is displayed
+6. Assert: Email {{key:EMAIL}} is displayed
+```
+
+### Pitfall 2: Hardcoding Environment-Specific URLs
+
+**Problem:**
+```javascript
+{
+  "name": "GET_ORDERS",
+  "url": "https://staging-api.example.com/orders" // Hardcoded!
+}
+```
+
+This script only works in staging. It will fail in production.
+
+**Solution:**
+```javascript
+{
+  "name": "GET_ORDERS",
+  "url": "{{variable:API_BASE_URL}}/orders" // Flexible!
+}
+```
+
+### Pitfall 3: Not Handling Async Responses
+
+**Problem:**
+```
+1. Execute the fetch command called CREATE_ORDER
+2. Assert: Order appears in UI immediately
+```
+
+API might not have finished, or UI might not have refreshed yet.
+
+**Solution:**
+```
+1. Execute the fetch command called CREATE_ORDER
+2. Extract information about order ID with key ORDER_ID
+3. Wait until: Order {{key:ORDER_ID}} appears in UI
+4. Assert: Order is visible
+```
+
+### Pitfall 4: Overusing Fetch for UI Testing
+
+**Problem:**
+```
+Test: "Complete checkout flow"
+1. Execute fetch to add items to cart
+2. Execute fetch to apply discount
+3. Execute fetch to set shipping
+4. Execute fetch to place order
+5. Verify order confirmation appears
+```
+
+This tests the API, not the UI. Users don't interact with APIs directly.
+
+**Solution:**
+```
+Test: "Complete checkout flow"
+1. Navigate to products
+2. Click "Add to Cart" on product
+3. Click cart icon
+4. Click "Proceed to Checkout"
+5. Fill out shipping form
+6. Click "Place Order"
+7. Extract information about order ID with key ORDER_ID
+8. Execute fetch called VERIFY_ORDER_CREATED to confirm backend state
+```
+
+Test the UI primarily, use Fetch to verify backend state.
+
+### Pitfall 5: Not Handling Rate Limits
+
+**Problem:**
+```
+Loop 100 times:
+  Execute the fetch command called GET_PRODUCTS
+```
+
+You'll hit rate limits and tests will fail.
+
+**Solution:**
+```
+Add appropriate waits between API calls
+Consider batching operations
+Use API pagination instead of repeated calls
+```
+
+### Pitfall 6: Ignoring Response Status Codes
+
+**Problem:**
+```
+1. Execute the fetch command called UPDATE_PROFILE
+2. Assume it succeeded
+3. Navigate to profile page
+```
+
+The API might have returned an error, but you didn't check.
+
+**Solution:**
+```
+1. Execute the fetch command called UPDATE_PROFILE
+2. Extract information about response status with key API_STATUS
+3. Assert: Status {{key:API_STATUS}} is "200" or "204"
+4. Navigate to profile page
+5. Verify changes applied
+```
+
+## Advanced Patterns
+
+### Pattern 1: API and UI State Synchronization
+
+Verify that UI state matches API state throughout a workflow:
+
+```
+Test: "Shopping cart synchronization"
+
+Add via UI, Verify via API:
+1. Click "Add to Cart" on product A
+2. Execute the fetch command called GET_CART_CONTENTS
+3. Extract information about cart items count with key API_CART_COUNT
+4. Extract information about UI cart badge with key UI_CART_COUNT
+5. Assert: {{key:UI_CART_COUNT}} matches {{key:API_CART_COUNT}}
+
+Add via API, Verify via UI:
+6. Execute the fetch command called ADD_TO_CART_VIA_API
+7. Wait 2 seconds for UI to sync
+8. Extract information about cart badge with key UI_CART_UPDATED
+9. Assert: Cart badge increased by 1
+
+Remove via UI, Verify via API:
+10. Click cart icon
+11. Click "Remove" on item
+12. Execute the fetch command called GET_CART_CONTENTS
+13. Verify item was removed from API response
+```
+
+### Pattern 2: Data Setup and Teardown
+
+Use Fetch for test data management:
+
+```
+Test: "Order management workflow"
+
+Setup:
+1. Execute the fetch command called CLEAR_TEST_ORDERS
+2. Execute the fetch command called CREATE_TEST_ORDER_1
+3. Extract order ID with key ORDER_1
+4. Execute the fetch command called CREATE_TEST_ORDER_2
+5. Extract order ID with key ORDER_2
+
+Test:
+6. Navigate to order history
+7. Verify both orders appear
+8. Edit order {{key:ORDER_1}}
+9. Delete order {{key:ORDER_2}}
+
+Verify via API:
+10. Execute the fetch command called GET_ORDER_DETAILS for ORDER_1
+11. Verify edits persisted
+12. Execute the fetch command called GET_ORDER_DETAILS for ORDER_2
+13. Verify order was deleted
+
+Teardown:
+14. Execute the fetch command called CLEAR_TEST_ORDERS
+```
+
+### Pattern 3: Conditional API Calls Based on State
+
+```
+Test: "Dynamic checkout flow"
+
+Check if user has saved payment methods:
+1. Execute the fetch command called GET_PAYMENT_METHODS
+2. Extract information about payment methods count with key PAYMENT_COUNT
+
+If payment methods exist:
+3. Assert: Saved payment options are displayed
+4. Select existing payment method
+5. Proceed to review
+
+If no payment methods exist:
+3. Fill out new payment method form
+4. Execute the fetch command called SAVE_PAYMENT_METHOD
+5. Verify payment saved
+6. Proceed to review
+```
+
+### Pattern 4: Testing Real-Time Features
+
+```
+Test: "Live notifications system"
+
+Setup notification trigger:
+1. Execute the fetch command called CREATE_NOTIFICATION_EVENT
+2. Extract event ID with key EVENT_ID
+
+Wait for real-time delivery:
+3. Wait until: Notification appears in UI
+4. Extract notification content with key UI_NOTIFICATION
+
+Verify against source:
+5. Execute the fetch command called GET_EVENT_DETAILS
+6. Extract event details with key API_EVENT
+7. Assert: UI notification matches API event data
+```
+
+### Pattern 5: Multi-User Testing
+
+```
+Test: "Collaborative features"
+
+Setup User A:
+1. Execute the fetch command called CREATE_TEST_USER_A
+2. Extract user A credentials with key USER_A_TOKEN
+3. Log in as user A
+4. Create shared document
+
+Setup User B:
+5. Execute the fetch command called CREATE_TEST_USER_B
+6. Extract user B credentials with key USER_B_TOKEN
+
+Verify User B sees User A's changes:
+7. Log in as user B
+8. Navigate to shared document
+9. Verify content created by user A
+10. Execute fetch to verify permissions via API
+```
+
+## Debugging Fetch Issues
+
+### Common Error: Script Not Found
+
+**Error message:**
+```
+Failed to execute fetch command: Script "GET_USER_DATA" not found
+```
+
+**Causes:**
+- Script name typo in your test
+- Script not created in Autonoma
+- Script name case mismatch
+
+**Solution:**
+```
+1. Verify script name exactly matches what you stored
+2. Check script exists in your Autonoma account
+3. Ensure case matches (GET_USER_DATA vs get_user_data)
+```
+
+### Common Error: Authentication Failed
+
+**Error message:**
+```
+Fetch request failed with 401 Unauthorized
+```
+
+**Causes:**
+- Auth token expired or invalid
+- Token not properly included in headers
+- Variable containing token is empty
+
+**Solution:**
+```
+1. Verify {{variable:AUTH_TOKEN}} is set correctly
+2. Check token hasn't expired
+3. Ensure token is included in Authorization header
+4. Test the API call manually with the token
+```
+
+### Common Error: Request Timeout
+
+**Error message:**
+```
+Fetch request timed out after 30 seconds
+```
+
+**Causes:**
+- API endpoint is slow or unresponsive
+- Network connectivity issues
+- Wrong URL configured
+
+**Solution:**
+```
+1. Test API endpoint manually
+2. Check API URL is correct
+3. Verify network connectivity
+4. Consider increasing timeout if API is legitimately slow
+```
+
+### Common Error: Invalid Response Format
+
+**Error message:**
+```
+Failed to parse response: Unexpected token < in JSON
+```
+
+**Causes:**
+- API returned HTML instead of JSON (usually error page)
+- API URL is incorrect
+- Authentication failed and returned login page
+
+**Solution:**
+```
+1. Check API URL is correct
+2. Verify authentication is working
+3. Test API endpoint manually to see actual response
+4. Ensure Content-Type headers are correct
+```
+
+## Combining Fetch with Other Interactions
+
+### With Extract Information
+
+Capture API response data and use throughout test:
+
+```
+1. Execute the fetch command called GET_USER_PROFILE
+2. Extract information about user ID from response with key USER_ID
+3. Extract information about username from response with key USERNAME
+4. Navigate to profile page
+5. Assert: Page shows username {{key:USERNAME}}
+6. Execute the fetch command called GET_USER_ORDERS with user {{key:USER_ID}}
+```
+
+### With Assert
+
+Verify API responses match UI state:
+
+```
+1. Execute the fetch command called GET_CART_TOTAL
+2. Extract information about total from API with key API_TOTAL
+3. Navigate to cart
+4. Extract information about displayed total with key UI_TOTAL
+5. Assert: Cart total {{key:UI_TOTAL}} matches API total {{key:API_TOTAL}}
+```
+
+### With Math Assert
+
+Validate calculations using API data:
+
+```
+1. Execute the fetch command called GET_ORDER_DETAILS
+2. Extract subtotal with key SUBTOTAL
+3. Extract tax with key TAX
+4. Extract total with key TOTAL
+5. Math Assert: "{{key:TOTAL}} = {{key:SUBTOTAL}} + {{key:TAX}}"
+```
+
+### With Email Testing
+
+Verify emails sent based on API events:
+
+```
+1. Execute the fetch command called PLACE_ORDER
+2. Extract order ID with key ORDER_ID
+3. Wait 5 seconds for email delivery
+4. Retrieve confirmation email
+5. Assert: Email contains order ID {{key:ORDER_ID}}
+```
+
+## What's Next
+
+Now that you understand the Fetch interaction, you can:
+- Test API-driven features with confidence
+- Verify UI and backend state synchronization
+- Seed test data efficiently via APIs
+- Validate complex workflows involving multiple API calls
+
+Fetch is one of the Advanced Features in Autonoma that bridges UI testing with API validation, giving you complete coverage of your application's behavior.
+
+Explore related interactions:
+- **cURL**: For command-line style HTTP requests with fine-grained control
+- **Extract Information**: To capture and reuse data from API responses
+- **Assert**: To verify API responses match expected values
+- **Variables**: To configure API URLs, tokens, and parameters
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

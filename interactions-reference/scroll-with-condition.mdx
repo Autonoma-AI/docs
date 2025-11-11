@@ -1,0 +1,709 @@
+---
+title: "Scroll With Condition"
+description: "Intelligently scroll until a specific element appears—perfect for finding content at unknown positions on web and mobile."
+---
+
+## What It Does
+
+Scroll With Condition is the smart version of scrolling. Instead of blindly scrolling a fixed number of times, it scrolls progressively until a specific condition is met—typically until a target element becomes visible.
+
+Think of it like looking for a specific section in a long book. You don't count pages; you flip through until you find what you're looking for. That's exactly what Scroll With Condition does: it keeps scrolling until it finds your target.
+
+This is one of the most powerful interactions in Autonoma because it makes your tests resilient to changes in content position, page length, and screen size.
+
+## When to Use It
+
+Use Scroll With Condition when:
+
+- **Element position is unknown** - You need to find something but don't know how far down it is
+- **Content length varies** - Page or screen length changes between test runs
+- **Cross-device testing** - Different screen sizes show different amounts of content
+- **Dynamic content** - Items appear in different positions based on data
+- **Finding specific elements** - You need to locate a particular button, section, or item
+- **Infinite scroll** - Content loads progressively as you scroll
+- **Long forms** - Multi-section forms where field positions may vary
+
+**Don't use it when:**
+- You need exactly N scrolls for test logic - Use regular **Scroll** instead
+- Element is always visible - No scrolling needed
+- You want to scroll a fixed amount regardless of content - Use **Scroll** instead
+
+## Platform Support
+
+- **Web**: Yes
+- **Mobile**: Yes (iOS and Android)
+
+This is one of the few interactions that works identically and effectively on both platforms.
+
+## How It Works
+
+Scroll With Condition intelligently scrolls in increments, checking after each scroll whether your target element has become visible. Once found, it stops scrolling.
+
+**Basic pattern**:
+```
+Scroll with condition: Until "Footer" appears
+```
+
+**What happens behind the scenes**:
+1. Check if "Footer" is visible → No
+2. Scroll once → Check again → No
+3. Scroll once → Check again → No
+4. Scroll once → Check again → Yes! Found it
+5. Stop scrolling
+
+**You don't specify how many times to scroll**—the interaction figures it out based on when the condition is met.
+
+## Real-World Scenarios
+
+### Scenario 1: Finding Content in a Long Article
+
+Testing a blog or documentation site where sections are at varying depths.
+
+```
+Test: "Navigate to specific article section"
+
+1. Navigate to documentation page
+2. Wait until: Page loads
+3. Assert: Article title visible
+4. Scroll with condition: Until "API Reference" section appears
+5. Assert: "API Reference" heading visible
+6. Click: "See example" button
+7. Wait until: Code example expands
+```
+
+**Why this works**: The "API Reference" section might be at different positions depending on content above it. Scroll With Condition finds it regardless.
+
+### Scenario 2: E-Commerce Product Search
+
+Finding a specific product in search results where position varies based on inventory and ranking.
+
+```
+Test: "Find and purchase specific product"
+
+1. Navigate to products page
+2. Input text: "wireless headphones" in search
+3. Press: Enter
+4. Wait until: Search results load
+5. Scroll with condition: Until "Sony WH-1000XM5" product appears
+6. Click: "Sony WH-1000XM5" product
+7. Wait until: Product page loads
+8. Click: "Add to Cart" button
+9. Assert: Cart updated
+```
+
+**Why this works**: Product ranking changes based on stock, sales, and algorithms. This test finds the product regardless of position.
+
+### Scenario 3: Accessing Footer Information
+
+Testing footer links that are always at the bottom, but bottom position varies.
+
+```
+Test: "Access privacy policy from footer"
+
+1. Navigate to homepage
+2. Wait until: Page loads
+3. Scroll with condition: Until footer appears
+4. Assert: Footer visible
+5. Click: "Privacy Policy" link
+6. Wait until: Privacy page loads
+7. Assert: "Privacy Policy" heading visible
+```
+
+**Why this works**: Homepage length varies with promotions, news, and content. This reliably reaches the footer every time.
+
+### Scenario 4: Long Form Submission
+
+Filling out a multi-section form where section positions may vary.
+
+```
+Test: "Complete extended registration form"
+
+1. Navigate to registration page
+2. Input text: "John Doe" in name field
+3. Input text: "john@example.com" in email field
+4. Scroll with condition: Until "Address Information" section visible
+5. Input text: "123 Main St" in address field
+6. Input text: "New York" in city field
+7. Scroll with condition: Until "Terms and Conditions" checkbox visible
+8. Click: "I agree to terms" checkbox
+9. Scroll with condition: Until "Submit" button visible
+10. Click: "Submit" button
+11. Wait until: Confirmation appears
+```
+
+**Why this works**: Form sections expand/collapse based on previous answers. Scroll With Condition adapts to any layout.
+
+### Scenario 5: Mobile Feed Navigation
+
+Finding specific content in a social media or news feed.
+
+```
+Test: "Find and interact with specific post"
+
+1. Open app feed
+2. Wait until: Feed loads
+3. Scroll with condition: Until post from "@techblog" appears
+4. Assert: "@techblog" post visible
+5. Click: "@techblog" post
+6. Wait until: Post details load
+7. Scroll with condition: Until "Comments" section visible
+8. Click: "Add Comment" button
+```
+
+**Why this works**: Feed content is dynamic. The post's position depends on when it was published and user engagement.
+
+### Scenario 6: Settings Menu Navigation
+
+Accessing deeply nested settings options.
+
+```
+Test: "Access advanced privacy settings"
+
+1. Open app settings
+2. Wait until: Settings menu loads
+3. Scroll with condition: Until "Privacy" option visible
+4. Click: "Privacy" option
+5. Wait until: Privacy settings load
+6. Scroll with condition: Until "Data Sharing" toggle visible
+7. Assert: "Data Sharing" current state
+8. Click: "Data Sharing" toggle
+9. Assert: Setting changed
+```
+
+**Why this works**: Settings menus vary in length. New settings get added over time. This finds options regardless of position.
+
+### Scenario 7: Infinite Scroll Product Catalog
+
+Testing lazy-loaded content that appears as you scroll.
+
+```
+Test: "Browse infinite scroll catalog"
+
+1. Navigate to products page
+2. Wait until: Initial products load
+3. Scroll with condition: Until "Load More" button appears
+4. Click: "Load More" button
+5. Wait until: More products load
+6. Scroll with condition: Until product with "Limited Edition" tag appears
+7. Click: Product with "Limited Edition" tag
+8. Wait until: Product details load
+```
+
+**Why this works**: Products load progressively. Scroll With Condition triggers loading and finds specific items.
+
+## Understanding "Until" Conditions
+
+The condition you specify after "Until" describes what Autonoma should look for:
+
+### Element Appearance
+```
+Scroll with condition: Until "Subscribe" button appears
+```
+Stops when the button becomes visible.
+
+### Section Visibility
+```
+Scroll with condition: Until "Contact" section visible
+```
+Stops when the section is on screen.
+
+### Text Content
+```
+Scroll with condition: Until "Copyright 2024" text appears
+```
+Stops when specific text is found.
+
+### Complex Conditions
+```
+Scroll with condition: Until login button is visible
+```
+Natural language description of the target.
+
+### Bottom/Top of Page
+```
+Scroll with condition: Until reach the bottom of the page
+```
+Continues until no more scrolling is possible.
+
+## Scroll Direction
+
+Scroll With Condition typically scrolls downward (the most common direction), but it can work in any direction:
+
+### Downward (Most Common)
+```
+Scroll with condition: Until footer appears
+```
+Scrolls down to find content below.
+
+### Upward
+```
+Scroll with condition: Until top navigation visible
+```
+Scrolls up to find content above.
+
+### To Bottom
+```
+Scroll with condition: Until reach bottom of page
+```
+Continues scrolling down until the very bottom.
+
+### To Top
+```
+Scroll with condition: Until reach top of page
+```
+Continues scrolling up until the very top.
+
+## Key Advantages Over Regular Scroll
+
+### 1. Resilient to Content Changes
+
+**Regular Scroll (brittle)**:
+```
+Test: "Access footer"
+1. Scroll: down 10 times ← Breaks if page gets longer or shorter
+2. Click: Footer link
+```
+
+**Scroll With Condition (robust)**:
+```
+Test: "Access footer"
+1. Scroll with condition: Until footer appears ← Always works
+2. Click: Footer link
+```
+
+### 2. Works Across Devices
+
+**Regular Scroll (device-specific)**:
+```
+Test: "Find settings"
+1. Scroll: down 7 times ← Works on iPhone 15
+                          ← Fails on iPhone SE (smaller screen)
+                          ← Overshoots on iPad (larger screen)
+2. Click: Settings option
+```
+
+**Scroll With Condition (device-agnostic)**:
+```
+Test: "Find settings"
+1. Scroll with condition: Until "Settings" option visible ← Works everywhere
+2. Click: Settings option
+```
+
+### 3. Adapts to Dynamic Content
+
+**Regular Scroll (fails with dynamic content)**:
+```
+Test: "Find product"
+1. Scroll: down 5 times ← Product might be at position 3 or 8
+2. Click: Specific product ← May not be visible
+```
+
+**Scroll With Condition (handles dynamic content)**:
+```
+Test: "Find product"
+1. Scroll with condition: Until "Blue Sneakers" product appears ← Finds it anywhere
+2. Click: "Blue Sneakers" product
+```
+
+### 4. Prevents Over-Scrolling
+
+**Regular Scroll (can overshoot)**:
+```
+Test: "Access form section"
+1. Scroll: down 10 times ← Scrolls past the target
+2. Click: Form section ← Not visible anymore
+```
+
+**Scroll With Condition (stops at target)**:
+```
+Test: "Access form section"
+1. Scroll with condition: Until form section visible ← Stops exactly when found
+2. Click: Form section
+```
+
+## Common Patterns
+
+### Pattern 1: Find and Interact
+
+```
+1. Scroll with condition: Until target element visible
+2. Click: Target element
+3. Wait until: New screen loads
+```
+
+### Pattern 2: Progressive Section Access
+
+```
+1. Scroll with condition: Until "Section 1" visible
+2. Assert: Section 1 content
+3. Scroll with condition: Until "Section 2" visible
+4. Assert: Section 2 content
+5. Scroll with condition: Until "Section 3" visible
+6. Assert: Section 3 content
+```
+
+### Pattern 3: Bottom Verification
+
+```
+1. Scroll with condition: Until reach bottom of page
+2. Assert: Footer visible
+3. Assert: "End of content" message appears
+```
+
+### Pattern 4: Search Within Scrollable Area
+
+```
+1. Scroll with condition: Until "Target Item" appears
+2. Extract information: Position of target item
+3. Click: Target item
+```
+
+### Pattern 5: Conditional Interaction
+
+```
+1. Scroll with condition: Until "Special Offer" banner appears
+2. If banner exists:
+   3. Click: "Special Offer" banner
+   4. Assert: Offer details appear
+```
+
+## Best Practices
+
+### 1. Be Specific About the Target
+
+**Vague (might find wrong element)**:
+```
+Scroll with condition: Until button appears
+```
+
+**Specific (finds exact element)**:
+```
+Scroll with condition: Until "Submit Order" button appears
+```
+
+### 2. Always Add Assertions After Scrolling
+
+```
+Good:
+1. Scroll with condition: Until footer appears
+2. Assert: Footer is visible ← Verify it worked
+
+Basic:
+1. Scroll with condition: Until footer appears
+```
+
+### 3. Use for Variable-Position Elements
+
+```
+Perfect use case:
+1. Scroll with condition: Until product with "Sale" tag appears
+
+Wrong use case:
+1. Scroll with condition: Until logo appears ← Logo is always at top!
+```
+
+### 4. Combine With Waits for Async Content
+
+```
+1. Scroll with condition: Until "Load More" button appears
+2. Click: "Load More" button
+3. Wait: 2 seconds ← Let content load
+4. Scroll with condition: Until new content appears
+```
+
+### 5. Set Reasonable Expectations
+
+```
+Realistic:
+1. Scroll with condition: Until footer appears ← Will find it
+
+Unrealistic:
+1. Scroll with condition: Until "404 Error" appears ← Might never appear
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using When Element Is Always Visible
+
+**Problem**:
+```
+1. Scroll with condition: Until logo appears ← Logo is at top, always visible!
+```
+
+**Why it's wrong**: No scrolling needed.
+
+**Solution**:
+```
+1. Assert: Logo visible ← It's already there
+```
+
+### Pitfall 2: Targeting Elements That Don't Exist
+
+**Problem**:
+```
+1. Scroll with condition: Until "Unicorn Product" appears ← Product doesn't exist
+```
+
+**Why it fails**: Will scroll forever or timeout.
+
+**Solution**:
+```
+1. Assert: At least one product visible
+2. Scroll with condition: Until first available product appears
+```
+
+### Pitfall 3: Overly Generic Descriptions
+
+**Problem**:
+```
+1. Scroll with condition: Until button appears ← Which button?
+```
+
+**Why it fails**: Might stop at wrong button.
+
+**Solution**:
+```
+1. Scroll with condition: Until "Add to Cart" button appears ← Specific!
+```
+
+### Pitfall 4: Not Waiting for Content to Load
+
+**Problem**:
+```
+1. Navigate to page
+2. Scroll with condition: Until product appears ← Page hasn't loaded yet
+```
+
+**Why it fails**: Can't find element if page isn't ready.
+
+**Solution**:
+```
+1. Navigate to page
+2. Wait until: Page loads ← Critical wait
+3. Scroll with condition: Until product appears
+```
+
+### Pitfall 5: Using for Fixed Scrolling Logic
+
+**Problem**:
+```
+// Test requires scrolling exactly 5 times for some reason
+1. Scroll with condition: Until something appears ← Won't scroll exactly 5 times
+```
+
+**Why it's wrong**: Not the right tool for fixed-count scrolling.
+
+**Solution**:
+```
+1. Scroll: down 5 times ← Use regular scroll for fixed counts
+```
+
+### Pitfall 6: Scrolling to Content That's Below a Lazy-Load Threshold
+
+**Problem**:
+```
+1. Scroll with condition: Until "Item 100" appears ← Item 100 hasn't loaded yet
+```
+
+**Why it fails**: Content only loads as you scroll; may not exist yet.
+
+**Solution**:
+```
+1. Scroll: down 10 times
+2. Wait: 2 seconds ← Trigger and wait for loading
+3. Scroll with condition: Until "Item 100" appears
+```
+
+## When to Use Scroll vs Scroll With Condition
+
+This is the most important decision:
+
+| Scenario | Use Scroll | Use Scroll With Condition |
+|----------|------------|---------------------------|
+| Element position varies | | ✓ |
+| Need exactly N scrolls | ✓ | |
+| Finding specific content | | ✓ |
+| Cross-device testing | | ✓ |
+| Content length changes | | ✓ |
+| Fixed test pattern | ✓ | |
+| Triggering infinite scroll | ✓ (sometimes) | ✓ (usually better) |
+| General browsing | ✓ | |
+| Finding unknown element | | ✓ |
+
+**General rule**: If you're looking for something specific, use Scroll With Condition. If you're scrolling for the action itself, use regular Scroll.
+
+## Combining With Other Interactions
+
+### With Assert
+
+```
+1. Scroll with condition: Until "Newsletter" section visible
+2. Assert: Newsletter signup form appears ← Verify
+```
+
+### With Click
+
+```
+1. Scroll with condition: Until "Contact Us" button visible
+2. Click: "Contact Us" button ← Interact with found element
+```
+
+### With Extract Information
+
+```
+1. Scroll with condition: Until "Order Number" appears
+2. Extract information: Order number value ← Capture data
+```
+
+### With Input Text
+
+```
+1. Scroll with condition: Until "Message" field visible
+2. Input text: "Hello!" in message field ← Fill found field
+```
+
+### With Wait Until
+
+```
+1. Scroll with condition: Until "Load More" button visible
+2. Click: "Load More" button
+3. Wait until: Loading spinner disappears ← Wait for result
+4. Scroll with condition: Until new products appear
+```
+
+## Performance Considerations
+
+Scroll With Condition is efficient but:
+
+### It Checks Repeatedly
+
+Each scroll triggers a visibility check. For very long pages, this can take time.
+
+**Optimization strategy**:
+```
+// If you know it's far down, scroll some first
+1. Scroll: down 10 times ← Get close
+2. Scroll with condition: Until footer appears ← Finish precisely
+```
+
+### Set Reasonable Timeouts
+
+Very deep scrolling may need longer timeouts:
+
+```
+1. Wait until: Page fully loaded
+2. Scroll with condition: Until deep content appears
+   (with timeout: 30 seconds) ← Allow time for deep scrolling
+```
+
+## Mobile-Specific Behavior
+
+On mobile, Scroll With Condition accounts for:
+
+### Screen Size Variations
+Works identically on different device sizes.
+
+### Swipe Direction
+Automatically translates to correct swipe direction:
+```
+Scroll with condition: Until footer appears
+// Autonoma knows to swipe up (scroll down) on mobile
+```
+
+### Pull-to-Refresh
+Avoids triggering pull-to-refresh when scrolling upward.
+
+## Accessibility Testing
+
+Scroll With Condition helps with accessibility:
+
+```
+Test: "Keyboard navigation to footer"
+
+1. Use keyboard to navigate
+2. Tab through page elements
+3. Scroll with condition: Until footer visible
+4. Assert: Focus can reach footer links
+```
+
+## Example Prompts
+
+Here are example prompts that trigger Scroll With Condition:
+
+**Finding specific elements**:
+- "scroll until the login button is visible"
+- "scroll until you see the footer"
+- "scroll until the product appears"
+
+**Reaching page positions**:
+- "scroll until you reach the bottom of the page"
+- "scroll until the comments section is visible"
+
+**Mobile contexts**:
+- "swipe until the settings option appears"
+- "scroll down until you see the submit button"
+
+**With specific content**:
+- "scroll until the 'Subscribe' button is visible"
+- "scroll until the copyright notice appears"
+- "scroll until you find the contact form"
+
+## Quick Reference
+
+| Aspect | Details |
+|--------|---------|
+| **Direction** | Usually down, can be any direction |
+| **Condition** | Describes target element or position |
+| **Platform** | Web and Mobile |
+| **Use for** | Finding elements at unknown positions |
+| **Avoid for** | Fixed-count scrolling, always-visible elements |
+| **Stops when** | Condition is met |
+| **Advantage** | Resilient to content changes |
+| **Best practice** | Be specific about target element |
+
+## Advanced Use Case: Multiple Conditions
+
+Sometimes you need to scroll to find one of several possibilities:
+
+```
+Test: "Find any available product"
+
+1. Scroll with condition: Until any product with "In Stock" appears
+2. Click: First "In Stock" product
+3. Assert: Product details load
+```
+
+## Debugging Tips
+
+If Scroll With Condition isn't working:
+
+**Check**: Is the element actually on the page?
+```
+1. Assert: Page contains target element text
+2. Scroll with condition: Until target element visible
+```
+
+**Check**: Is the description specific enough?
+```
+Vague: "button"
+Better: "Submit Order button"
+```
+
+**Check**: Did the page finish loading?
+```
+1. Wait until: Page fully loaded
+2. Scroll with condition: Until element appears
+```
+
+## What's Next
+
+Now that you understand conditional scrolling:
+
+- **OCR Scroll** - Learn to scroll within specific containers
+- **Move Carousel** - Master horizontal scrolling for carousels
+- **Scroll (Web)** - Compare with fixed-count web scrolling
+- **Scroll (Mobile)** - Compare with fixed-count mobile scrolling
+
+---
+
+Scroll With Condition is your most robust scrolling tool. Use it whenever element position is uncertain, and your tests will adapt gracefully to any change.

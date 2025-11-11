@@ -1,0 +1,819 @@
+---
+title: "OCR Hover"
+description: "Hover over elements using optical character recognition—perfect for testing hover states on canvas elements, images with text, and elements not properly exposed in the DOM."
+---
+
+## What is OCR Hover?
+
+OCR Hover uses optical character recognition (OCR) to identify text visually on the screen and then hovers the mouse over that element. Unlike standard hover interactions that rely on the DOM structure, OCR Hover looks at what's actually visible on screen—just like a human would—and positions the mouse over it.
+
+Think of it as teaching your test to "read" the screen and hover over what it sees, rather than relying on HTML elements. This is particularly powerful for situations where standard DOM-based interactions fail because elements aren't properly structured or accessible.
+
+This interaction is valuable for:
+- Hovering over canvas-rendered elements
+- Testing hover states on images containing text
+- Interacting with elements lacking proper accessibility attributes
+- Testing applications using non-standard rendering
+- Validating hover behavior on dynamically generated visuals
+- Testing third-party components with limited DOM access
+
+## The OCR Hover Use Case
+
+Modern web applications increasingly use rendering technologies that bypass traditional DOM structures:
+
+**Canvas-Based Applications**
+```
+Drawing tools and image editors
+Data visualizations rendered on canvas
+Games and interactive graphics
+Charts that don't use SVG or HTML elements
+```
+
+**Image-Based Interfaces**
+```
+Scanned documents with interactive regions
+Image maps without proper HTML areas
+Screenshots with clickable elements
+Visual mockups that became functional
+```
+
+**Third-Party Components**
+```
+Embedded widgets with shadow DOM
+IFrames with limited access
+Proprietary components with hidden structure
+Legacy applications wrapped in modern shells
+```
+
+**Accessibility Issues**
+```
+Elements missing proper ARIA labels
+Interactive elements without text content
+Buttons rendered as background images
+Clickable regions without semantic markup
+```
+
+**Standard hover fails** when:
+- Element isn't in the accessible DOM
+- Element lacks text content or labels
+- Element is part of a canvas rendering
+- Element is within an inaccessible iframe
+
+**OCR Hover succeeds** because:
+- It sees what's actually rendered
+- It reads visible text using OCR
+- It doesn't require DOM structure
+- It works like a human using visual cues
+
+## When to Use OCR Hover
+
+### Use OCR Hover when:
+
+**Standard hover doesn't work**
+```
+You've tried regular hover and it fails
+Element exists visually but not in DOM
+No appropriate selector available
+```
+
+**Canvas-based elements**
+```
+Buttons rendered on HTML5 canvas
+Interactive charts using canvas
+Drawing tools with text labels
+Game UI elements
+```
+
+**Images with text**
+```
+Image-based navigation
+Buttons that are images with text
+Scanned documents with interactive regions
+Infographics with clickable areas
+```
+
+**Third-party components**
+```
+Embedded widgets you can't inspect
+Black-box components with limited API
+Legacy systems with non-standard markup
+```
+
+**Missing accessibility attributes**
+```
+Elements without proper labels
+Interactive elements lacking semantic HTML
+Components built before accessibility standards
+```
+
+### Use standard hover when:
+
+**Elements are properly in the DOM**
+```
+Standard buttons, links, and interactive elements
+Elements with proper HTML structure
+Components with accessible markup
+```
+
+**Performance is critical**
+```
+OCR has overhead compared to DOM-based hover
+For speed, prefer standard interactions when possible
+```
+
+**Text might change**
+```
+If the visible text changes frequently
+OCR-based identification might be inconsistent
+Consider more stable selectors
+```
+
+## How It Works
+
+When you use OCR Hover:
+
+1. **Screenshot Capture**: Autonoma captures the current screen state
+2. **OCR Processing**: Text recognition identifies visible text on screen
+3. **Text Matching**: Your specified text is located in the OCR results
+4. **Position Calculation**: Element position is determined from OCR coordinates
+5. **Mouse Movement**: Mouse moves to hover over the identified element
+6. **Hover State**: Hover state is triggered, potentially revealing tooltips or effects
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+OCR Hover works across platforms because it relies on visual recognition rather than platform-specific APIs.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing Canvas-Based Chart Tooltips
+
+You're testing a data visualization application that renders charts on HTML5 canvas.
+
+```
+Test: "Canvas chart hover tooltips"
+
+Navigate to Chart:
+1. Navigate to {{variable:APP_URL}}/analytics
+2. Wait until: Sales chart loads
+3. Assert: Chart is visible on canvas
+
+Test Hover on Data Point:
+4. OCR hover on "January"
+5. Wait 1 second for hover state
+6. Assert: Tooltip appears showing January data
+7. Extract information about January sales with key JAN_SALES
+8. Assert: Tooltip displays "Sales: ${{key:JAN_SALES}}"
+
+Test Different Data Point:
+9. OCR hover on "February"
+10. Wait 1 second for hover state
+11. Assert: January tooltip disappears
+12. Assert: February tooltip appears
+13. Extract information about February sales with key FEB_SALES
+
+Test Legend Hover:
+14. OCR hover on "Revenue"
+15. Wait 1 second for hover state
+16. Assert: Revenue data series highlights on chart
+17. Assert: Other series dim or fade
+
+Test Axis Label Hover:
+18. OCR hover on "Q1" axis label
+19. Wait 1 second for hover state
+20. Assert: Q1 region highlights or shows details
+```
+
+**Why OCR Hover is essential**: Canvas charts don't expose individual data points in the DOM. OCR Hover sees the rendered text labels and hovers over them.
+
+### Scenario 2: Testing Image-Based Navigation
+
+You're testing a navigation menu that uses image buttons with text labels burned into the images.
+
+```
+Test: "Image-based navigation hover states"
+
+Navigate to Page:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Navigation bar loads
+3. Assert: Navigation uses image-based buttons
+
+Test Products Button Hover:
+4. OCR hover on "Products"
+5. Wait 500ms for hover effect
+6. Assert: Products button shows hover state (glow, color change, etc.)
+7. Assert: Dropdown menu appears below Products
+8. Assert: Submenu items are visible
+
+Test Services Button Hover:
+9. OCR hover on "Services"
+10. Wait 500ms for hover effect
+11. Assert: Products dropdown disappears
+12. Assert: Services button shows hover state
+13. Assert: Services dropdown appears
+
+Test Submenu Hover:
+14. OCR hover on "Consulting"
+15. Wait 500ms for hover effect
+16. Assert: Consulting item highlights
+17. Assert: Deeper submenu may appear
+
+Test Hover Away:
+18. OCR hover on page content area
+19. Wait 500ms
+20. Assert: All dropdowns close
+21. Assert: Buttons return to default state
+```
+
+**Why OCR Hover is essential**: Image-based buttons don't have traditional hover events in the DOM. OCR Hover reads the text in the images and hovers appropriately.
+
+### Scenario 3: Testing Third-Party Widget Interactions
+
+You're testing an embedded third-party widget that doesn't expose its internal structure.
+
+```
+Test: "Third-party calendar widget hover"
+
+Load Widget:
+1. Navigate to {{variable:APP_URL}}/booking
+2. Wait until: Calendar widget loads
+3. Assert: Calendar is visible in iframe or embedded component
+
+Test Date Hover:
+4. OCR hover on "15"
+5. Wait 500ms for hover effect
+6. Assert: Date 15 highlights
+7. Assert: Availability tooltip shows
+8. Extract availability information with key DATE_15_AVAIL
+9. Assert: Tooltip shows "Available" or "Booked"
+
+Test Different Date:
+10. OCR hover on "22"
+11. Wait 500ms for hover effect
+12. Assert: Date 15 unhighlights
+13. Assert: Date 22 highlights
+14. Assert: New tooltip appears
+15. Extract availability with key DATE_22_AVAIL
+
+Test Month Navigation Hover:
+16. OCR hover on "Next"
+17. Wait 500ms for hover effect
+18. Assert: Next button shows hover state
+19. Assert: Next button appears clickable
+
+Test Legend Item Hover:
+20. OCR hover on "Available"
+21. Wait 500ms for hover effect
+22. Assert: Available dates highlight on calendar
+23. Assert: Visual connection between legend and calendar
+```
+
+**Why OCR Hover is essential**: Third-party widgets often don't expose their internal elements for testing. OCR Hover interacts with visible text regardless of component structure.
+
+### Scenario 4: Testing Drawing Tool Interface
+
+You're testing a canvas-based drawing application with toolbar buttons.
+
+```
+Test: "Drawing tool hover states"
+
+Load Drawing Tool:
+1. Navigate to {{variable:APP_URL}}/draw
+2. Wait until: Canvas and toolbar load
+3. Assert: Drawing area is ready
+
+Test Brush Tool Hover:
+4. OCR hover on "Brush"
+5. Wait 500ms for hover effect
+6. Assert: Brush tool button highlights
+7. Assert: Cursor preview shows brush size
+8. Assert: Tooltip shows "Brush Tool (B)"
+
+Test Eraser Tool Hover:
+9. OCR hover on "Eraser"
+10. Wait 500ms for hover effect
+11. Assert: Brush unhighlights
+12. Assert: Eraser highlights
+13. Assert: Cursor preview shows eraser size
+14. Assert: Tooltip shows "Eraser Tool (E)"
+
+Test Color Palette Hover:
+15. OCR hover on "Red"
+16. Wait 500ms for hover effect
+17. Assert: Red color swatch highlights
+18. Assert: Preview shows red color selection
+19. Assert: RGB values may display
+
+Test Size Slider Hover:
+20. OCR hover on "Size"
+21. Wait 500ms for hover effect
+22. Assert: Size slider highlights
+23. Assert: Current size value shows
+24. Assert: Preview updates with size indicator
+```
+
+**Why OCR Hover is essential**: Drawing tools render their entire interface on canvas, including toolbar buttons and labels. OCR Hover reads these labels and enables testing.
+
+### Scenario 5: Testing Game UI Elements
+
+You're testing a browser-based game with UI elements rendered on canvas.
+
+```
+Test: "Game UI hover interactions"
+
+Load Game:
+1. Navigate to {{variable:APP_URL}}/game
+2. Wait until: Game canvas loads
+3. Wait for: Game menu appears
+4. Assert: Start screen is visible
+
+Test Menu Button Hover:
+5. OCR hover on "Start Game"
+6. Wait 500ms for hover effect
+7. Assert: Button shows hover animation
+8. Assert: Button may pulse or glow
+9. Assert: Cursor changes to pointer
+
+Test Settings Hover:
+10. OCR hover on "Settings"
+11. Wait 500ms for hover effect
+12. Assert: Settings button highlights
+13. Assert: Tooltip or description may appear
+
+Start Game and Test HUD:
+14. OCR hover on "Start Game"
+15. Click to start
+16. Wait until: Game starts
+
+Test In-Game HUD Hover:
+17. OCR hover on "Inventory"
+18. Wait 500ms for hover effect
+19. Assert: Inventory icon highlights
+20. Assert: Inventory count may display
+
+21. OCR hover on "Health"
+22. Wait 500ms for hover effect
+23. Assert: Health bar highlights
+24. Assert: Numerical health value may show
+
+Test Pause Menu:
+25. Press Escape to pause
+26. Wait until: Pause menu appears
+27. OCR hover on "Resume"
+28. Wait 500ms for hover effect
+29. Assert: Resume button highlights
+```
+
+**Why OCR Hover is essential**: Games render everything on canvas, including menus and HUD elements. OCR Hover enables testing of these visual interfaces.
+
+### Scenario 6: Testing Accessibility Remediation
+
+You're testing an application that's being updated for accessibility but still has legacy image-based buttons.
+
+```
+Test: "Legacy button hover during accessibility update"
+
+Navigate to Legacy Interface:
+1. Navigate to {{variable:APP_URL}}/admin/legacy
+2. Wait until: Legacy admin panel loads
+3. Assert: Interface uses image-based buttons
+
+Document Current State:
+4. OCR hover on "Save"
+5. Wait 500ms for hover effect
+6. Assert: Hover state exists (even if using images)
+7. Extract hover behavior with key SAVE_HOVER_LEGACY
+
+Test All Legacy Buttons:
+8. OCR hover on "Cancel"
+9. Document hover behavior
+
+10. OCR hover on "Delete"
+11. Document hover behavior
+
+12. OCR hover on "Edit"
+13. Document hover behavior
+
+Compare with New Accessible Version:
+14. Navigate to {{variable:APP_URL}}/admin/new
+15. Wait until: New admin panel loads
+16. Hover on "Save" button (using standard hover)
+17. Extract hover behavior with key SAVE_HOVER_NEW
+
+Verify Parity:
+18. Assert: Hover behaviors are equivalent
+19. Assert: Visual feedback is similar
+20. Assert: Functionality is maintained
+
+Document for Migration:
+21. Confirm OCR Hover works on legacy
+22. Confirm standard hover works on new
+23. Migration path is validated
+```
+
+**Why OCR Hover is essential**: During accessibility remediation, OCR Hover enables testing of legacy image-based interfaces while standard hover validates new accessible versions.
+
+## Example Prompts
+
+Here are effective ways to phrase OCR Hover commands:
+
+**Basic OCR hover:**
+```
+ocr hover on the login button
+ocr-hover on products
+hover using ocr on "Submit"
+ocr hover over "Settings"
+```
+
+**With context:**
+```
+ocr hover on "January" data label
+ocr hover on the "Save" button in the toolbar
+hover using ocr on "Next" in the calendar
+ocr hover over the "Help" icon
+```
+
+**For specific elements:**
+```
+ocr hover on the chart legend item "Revenue"
+ocr hover on "Q1" in the axis labels
+ocr hover on "Available" in the color legend
+ocr hover on toolbar button "Brush"
+```
+
+## Best Practices
+
+### 1. Try Standard Hover First
+
+OCR Hover should be a fallback, not the first choice:
+
+```
+# Try standard hover:
+Hover on "Login" button
+
+# If that fails:
+OCR hover on "Login"
+```
+
+Standard hover is faster and more reliable when it works.
+
+### 2. Use Specific Text for OCR
+
+Be specific about the text to hover over:
+
+**Vague:**
+```
+ocr hover on button
+```
+
+**Specific:**
+```
+ocr hover on "Submit Form"
+```
+
+**Very specific (if multiple similar texts):**
+```
+ocr hover on "Submit" button in footer
+```
+
+### 3. Wait After OCR Hover
+
+Allow time for hover effects to appear:
+
+```
+1. OCR hover on "Products"
+2. Wait 500ms for hover effect
+3. Assert: Dropdown menu appears
+4. Assert: Hover state is visible
+```
+
+### 4. Account for OCR Accuracy
+
+OCR isn't perfect—use clear, distinct text:
+
+**Good for OCR:**
+```
+ocr hover on "Settings"
+ocr hover on "Login"
+ocr hover on "Submit"
+```
+
+**Challenging for OCR:**
+```
+ocr hover on "|||" (icon without text)
+ocr hover on "..." (ambiguous)
+ocr hover on "1" (when many numbers present)
+```
+
+### 5. Test OCR Hover Consistency
+
+OCR results can vary slightly:
+
+```
+Test multiple times:
+1. OCR hover on "Dashboard"
+2. Verify hover works
+3. Hover away
+4. OCR hover on "Dashboard" again
+5. Verify still works consistently
+```
+
+### 6. Combine with Visual Assertions
+
+Verify hover effects are visible:
+
+```
+1. OCR hover on "Chart"
+2. Wait 500ms
+3. Take screenshot
+4. Assert: Tooltip is visible
+5. Assert: Hover state styling applied
+```
+
+### 7. Document When OCR Hover is Necessary
+
+Help future maintainers understand why OCR Hover is used:
+
+```
+# Using OCR hover because chart is canvas-based
+1. OCR hover on "January" data label
+2. Wait for tooltip
+
+# Standard hover doesn't work on image buttons
+3. OCR hover on "Products" image button
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using OCR Hover When Standard Hover Works
+
+**Problem:**
+```
+Using OCR hover for all hovers
+Slower test execution
+Unnecessary complexity
+```
+
+**Solution:**
+```
+1. Try standard hover first
+2. Only use OCR hover when standard hover fails
+3. Document why OCR hover is necessary
+```
+
+### Pitfall 2: Hovering on Ambiguous Text
+
+**Problem:**
+```
+ocr hover on "1"
+```
+
+There might be many "1"s on the page (dates, counts, IDs, etc.)
+
+**Solution:**
+```
+ocr hover on "January 1st"
+ocr hover on "Product 1" in the product list
+```
+
+Be specific to avoid ambiguity.
+
+### Pitfall 3: Not Waiting for Hover Effects
+
+**Problem:**
+```
+1. OCR hover on "Menu"
+2. Immediately click submenu item ← Submenu hasn't appeared yet!
+```
+
+**Solution:**
+```
+1. OCR hover on "Menu"
+2. Wait 500ms for hover effect
+3. Wait until: Submenu appears
+4. Click submenu item
+```
+
+### Pitfall 4: OCR on Dynamic Text
+
+**Problem:**
+```
+ocr hover on "Loading..."
+```
+
+Text changes to "Complete", OCR can't find "Loading..." anymore.
+
+**Solution:**
+```
+1. Wait until: Loading completes
+2. Wait until: Text changes to stable state
+3. OCR hover on "Dashboard" (stable text)
+```
+
+### Pitfall 5: Expecting Perfect OCR Accuracy
+
+**Problem:**
+```
+ocr hover on "Scttings" (expecting to find typo)
+```
+
+OCR might correct the typo or fail to find it.
+
+**Solution:**
+```
+# Hover on the corrected text:
+ocr hover on "Settings"
+
+# Or be flexible with partial matches
+```
+
+### Pitfall 6: Not Testing OCR Hover Fallback
+
+**Problem:**
+```
+Test assumes OCR hover always works
+No fallback when OCR fails
+```
+
+**Solution:**
+```
+1. Try OCR hover on "Button"
+2. If OCR fails:
+3.   Try standard hover on button element
+4.   Or try clicking directly
+5. Assert: One method succeeded
+```
+
+## Advanced Patterns
+
+### Pattern 1: Progressive Hover Strategy
+
+```
+Test: "Find best hover method"
+
+Try Standard Hover:
+1. Attempt: Hover on "Login" button
+2. If successful: Continue
+3. If fails: Go to step 4
+
+Try OCR Hover:
+4. Attempt: OCR hover on "Login"
+5. If successful: Continue
+6. If fails: Go to step 7
+
+Try Visual Click (no hover):
+7. Click "Login" directly
+8. Document: Hover not available
+
+This pattern finds the best method automatically
+```
+
+### Pattern 2: Canvas Element Mapping
+
+```
+Test: "Map all canvas elements with OCR"
+
+Identify Canvas Elements:
+1. Navigate to canvas application
+2. Take screenshot
+3. Run OCR to extract all text
+4. Create map of clickable/hoverable elements
+
+Test Each Element:
+5. For each text label found:
+6.   OCR hover on label
+7.   Assert: Hover state appears
+8.   Document: Element is interactive
+9.   Or: No hover state (informational only)
+
+Create Element Catalog:
+10. List all interactive canvas elements
+11. Document hover behaviors
+12. Use for future test design
+```
+
+### Pattern 3: Hover State Verification
+
+```
+Test: "Verify hover states across interface"
+
+Test Navigation Hover:
+1. OCR hover on "Products"
+2. Take screenshot with key PRODUCTS_HOVER
+3. Assert: Visual difference from default state
+
+Test Button Hover:
+4. OCR hover on "Submit"
+5. Take screenshot with key SUBMIT_HOVER
+6. Assert: Button shows hover styling
+
+Test Chart Hover:
+7. OCR hover on "Q1" data point
+8. Take screenshot with key Q1_HOVER
+9. Assert: Tooltip appears
+
+Compare Hover Consistency:
+10. Assert: All hover states provide visual feedback
+11. Assert: Feedback is consistent across interface
+12. Document: Hover UX patterns
+```
+
+## Debugging OCR Hover Issues
+
+### Issue: OCR Can't Find Text
+
+**Error:**
+```
+OCR hover failed: Text "Login" not found
+```
+
+**Possible causes:**
+1. Text isn't visible on screen
+2. Text is too small or blurry
+3. Low contrast between text and background
+4. Font is unusual and OCR can't recognize it
+
+**Solutions:**
+```
+# Check text is visible:
+Take screenshot and verify text appears
+
+# Try different text:
+If button says "Sign In" but you looked for "Login"
+
+# Zoom in:
+Zoom in to make text larger and clearer
+
+# Verify contrast:
+Ensure text has sufficient contrast
+```
+
+### Issue: Wrong Element Hovered
+
+**Problem:**
+```
+Multiple elements have same text
+OCR hovers on wrong one
+```
+
+**Solution:**
+```
+# Be more specific:
+Instead of: ocr hover on "Submit"
+Use: ocr hover on "Submit" button at bottom
+
+# Or use position clues:
+ocr hover on "Submit" in the checkout form
+
+# Or use standard hover if possible:
+If elements are in DOM, use regular hover with selector
+```
+
+### Issue: Hover Effect Not Appearing
+
+**Problem:**
+```
+OCR hover executes but no hover effect shows
+```
+
+**Possible causes:**
+1. Element doesn't have hover effect
+2. Hover event not properly implemented
+3. CSS hover doesn't work with programmatic hover
+4. Need to wait longer for effect
+
+**Solutions:**
+```
+# Wait longer:
+1. OCR hover on element
+2. Wait 1 second instead of 500ms
+
+# Verify hover is implemented:
+Check if element actually has hover styling
+
+# Try different interaction:
+If hover doesn't work, try clicking
+```
+
+## What's Next
+
+Now that you understand OCR Hover, you can:
+- Test canvas-based applications and visualizations
+- Interact with image-based interfaces
+- Test third-party widgets without DOM access
+- Handle elements lacking proper accessibility attributes
+- Test legacy applications during modernization
+
+OCR Hover is a specialized interaction for scenarios where standard DOM-based interactions fail, providing visual-based interaction capabilities.
+
+Explore related interactions:
+- **OCR Click**: Click elements using optical character recognition
+- **OCR Scroll**: Scroll using visual text identification
+- **Hover**: Standard DOM-based hover for most use cases
+- **Visual Click**: Another visual-based clicking method
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

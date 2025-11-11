@@ -1,0 +1,747 @@
+---
+title: "Open URL On New Page"
+description: "Opens a specific URL in a new browser tab or page without disrupting your existing navigation—essential for testing multi-tab workflows and parallel browsing scenarios."
+---
+
+## What is Open URL On New Page?
+
+Open URL On New Page is the interaction that lets you open a specific URL in a new browser tab while keeping your current page intact. It's the digital equivalent of right-clicking a link and selecting "Open in new tab" or pressing Cmd+Click (Mac) or Ctrl+Click (Windows) on a link.
+
+Think of it as your ability to branch your test flow into multiple tabs—testing scenarios where users compare products, reference documentation while filling forms, or work with multiple pages simultaneously.
+
+Unlike simply navigating to a URL (which replaces the current page), Open URL On New Page creates a new tab and switches focus to it. Your original tab remains in the background, preserving its state and allowing you to return to it later.
+
+This becomes essential when testing real-world workflows where users don't navigate linearly through a single page, but instead open multiple tabs to accomplish their goals.
+
+## When to Use Open URL On New Page
+
+This interaction is specifically designed for multi-tab scenarios. Here's when it's the right choice:
+
+**Perfect for:**
+- Testing product comparison workflows (opening multiple products in separate tabs)
+- Verifying "open in new tab" functionality on links
+- Testing workflows that require referencing information from another page
+- Checking external link behavior (ensuring they open in new tabs)
+- Testing user workflows that naturally involve multiple tabs
+- Setting up parallel sessions or viewing multiple states simultaneously
+- Validating that tab management works correctly in your application
+
+**Choose an alternative when:**
+- You want to navigate within the same tab (use standard navigation or `go-back-on-page`)
+- You want to close the current tab and work with a previous one (use `exit-last-tab`)
+- You're testing mobile apps (use `go-home` for device-level navigation)
+- You don't need multi-tab functionality (simpler navigation is more maintainable)
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not supported (mobile browsers handle tabs differently)
+
+Open URL On New Page is specifically designed for web browser testing where tabs are a core navigation pattern. Mobile applications typically don't use browser tabs in the same way, so this interaction isn't applicable there.
+
+## How It Works
+
+When you use Open URL On New Page, here's what happens:
+
+1. **Tab Creation**: Autonoma creates a new browser tab in the same browser window
+2. **URL Loading**: The specified URL begins loading in the new tab
+3. **Focus Switch**: The browser switches focus to the new tab (making it active)
+4. **Previous Tab Preserved**: Your original tab remains open in the background, maintaining its state
+5. **Test Continues**: Subsequent interactions happen in the new tab until you explicitly switch back
+
+The key behavior is that focus moves to the new tab. If you want to interact with the new page, you can immediately continue with clicks, assertions, or other interactions. If you want to return to the original tab, you'll need to use browser navigation or close the new tab.
+
+## Real-World Scenarios
+
+### Scenario 1: E-commerce Product Comparison
+
+Users often open multiple product pages to compare features, prices, and reviews side-by-side.
+
+```
+Test: "Compare products across multiple tabs"
+
+Setup:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Assert: At least 5 products are visible
+
+Open First Product:
+4. Open URL on new page: {{variable:APP_URL}}/products/laptop-pro-15
+5. Wait until: Product page loads
+6. Assert: Product title "Laptop Pro 15" appears
+7. Assert: Price is displayed
+8. Extract information about the price with key PRODUCT_1_PRICE
+
+Return and Open Second Product:
+9. Exit last tab (closes first product, returns to product grid)
+10. Open URL on new page: {{variable:APP_URL}}/products/laptop-ultra-13
+11. Wait until: Product page loads
+12. Assert: Product title "Laptop Ultra 13" appears
+13. Assert: Price is displayed
+14. Extract information about the price with key PRODUCT_2_PRICE
+
+Compare:
+15. Assert: Both products loaded successfully
+16. Add prompt: "Note price difference for user decision"
+```
+
+**Why this works**: Users naturally open multiple products in tabs to compare them. This test validates that behavior works correctly.
+
+### Scenario 2: Form with Reference Documentation
+
+Users filling out complex forms often need to reference documentation or instructions in a separate tab.
+
+```
+Test: "Complete form while referencing help documentation"
+
+Load Application Form:
+1. Navigate to {{variable:APP_URL}}/application-form
+2. Wait until: Form loads
+3. Assert: "Employment Application" heading appears
+
+Open Help Documentation:
+4. Open URL on new page: {{variable:APP_URL}}/help/application-guide
+5. Wait until: Help page loads
+6. Assert: "Application Guide" heading appears
+7. Assert: Step-by-step instructions are visible
+8. Extract information about required documents with key REQUIRED_DOCS
+
+Return to Form:
+9. Exit last tab (returns to application form)
+10. Wait until: Form is visible again
+
+Fill Form with Referenced Information:
+11. Click: "Position" field
+12. Type: "Senior Developer"
+13. Click: "Years of Experience" field
+14. Type: "5"
+15. Click: "Upload Resume" button
+16. Wait until: File picker appears
+17. Upload: resume.pdf
+
+Verify Completion:
+18. Assert: Resume uploaded successfully
+19. Click: "Submit Application" button
+20. Wait until: Confirmation appears
+21. Assert: "Application submitted" message displays
+```
+
+**Why this works**: Real users reference documentation while filling forms. Testing this workflow ensures your multi-tab experience works smoothly.
+
+### Scenario 3: External Link Validation
+
+Many websites link to external resources. You need to verify these links open in new tabs (preventing users from losing their place).
+
+```
+Test: "External links open in new tabs"
+
+Navigate to About Page:
+1. Navigate to {{variable:APP_URL}}/about
+2. Wait until: About page loads
+3. Assert: "About Us" heading appears
+
+Test Social Media Links:
+4. Assert: Social media icons are visible
+5. Open URL on new page: https://twitter.com/yourcompany
+6. Wait until: Twitter page loads
+7. Assert URL Location: https://twitter.com/yourcompany
+8. Assert: Company Twitter profile loads
+
+Return and Test Another Link:
+9. Exit last tab (returns to about page)
+10. Wait until: About page visible
+11. Open URL on new page: https://linkedin.com/company/yourcompany
+12. Wait until: LinkedIn page loads
+13. Assert URL Location: https://linkedin.com/company/yourcompany
+14. Assert: Company LinkedIn profile loads
+
+Verify Original Page Intact:
+15. Exit last tab (returns to about page)
+16. Assert: "About Us" heading still visible
+17. Assert: Page state unchanged
+```
+
+**Why this works**: External links should open in new tabs to prevent users from losing their place. This test validates that behavior.
+
+### Scenario 4: Multi-Tab Checkout Flow
+
+Some checkout processes involve opening terms of service, return policies, or shipping information in new tabs during purchase.
+
+```
+Test: "Review policies during checkout without losing cart"
+
+Add Product to Cart:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Click: First product
+4. Wait until: Product page loads
+5. Click: "Add to Cart" button
+6. Wait until: Cart updates
+7. Assert: Cart badge shows "1"
+
+Begin Checkout:
+8. Click: Cart icon
+9. Wait until: Cart page loads
+10. Click: "Checkout" button
+11. Wait until: Checkout form loads
+12. Assert: Order summary visible
+
+Review Return Policy:
+13. Open URL on new page: {{variable:APP_URL}}/policies/returns
+14. Wait until: Returns policy page loads
+15. Assert: "Return Policy" heading appears
+16. Assert: Return window information visible
+17. Add prompt: "Review 30-day return policy details"
+
+Return to Checkout:
+18. Exit last tab (returns to checkout)
+19. Wait until: Checkout form visible
+20. Assert: Cart contents still present
+21. Assert: Order summary unchanged
+
+Review Shipping Information:
+22. Open URL on new page: {{variable:APP_URL}}/policies/shipping
+23. Wait until: Shipping policy page loads
+24. Assert: "Shipping Information" heading appears
+25. Assert: Delivery timeframes visible
+
+Complete Purchase:
+26. Exit last tab (returns to checkout)
+27. Fill shipping information
+28. Fill payment information
+29. Click: "Place Order" button
+30. Wait until: Order confirmation loads
+31. Assert: "Thank you for your order" message appears
+```
+
+**Why this works**: Users often review policies during checkout. This test ensures multi-tab workflows don't break the checkout process.
+
+### Scenario 5: Dashboard with Multiple Reports
+
+Enterprise dashboards often require opening different reports in separate tabs for parallel analysis.
+
+```
+Test: "Open and analyze multiple reports simultaneously"
+
+Access Dashboard:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Dashboard loads
+3. Assert: "Analytics Dashboard" heading appears
+4. Assert: Report links are visible
+
+Open Sales Report:
+5. Open URL on new page: {{variable:APP_URL}}/reports/sales
+6. Wait until: Sales report loads
+7. Assert: "Monthly Sales Report" heading appears
+8. Assert: Sales chart is visible
+9. Extract information about total sales with key SALES_TOTAL
+
+Open Traffic Report:
+10. Open URL on new page: {{variable:APP_URL}}/reports/traffic
+11. Wait until: Traffic report loads
+12. Assert: "Website Traffic Report" heading appears
+13. Assert: Traffic chart is visible
+14. Extract information about total visitors with key VISITOR_COUNT
+
+Open Conversion Report:
+15. Open URL on new page: {{variable:APP_URL}}/reports/conversions
+16. Wait until: Conversion report loads
+17. Assert: "Conversion Report" heading appears
+18. Assert: Conversion funnel visible
+19. Extract information about conversion rate with key CONVERSION_RATE
+
+Navigate Back Through Tabs:
+20. Exit last tab (closes conversion report)
+21. Assert: Traffic report visible
+22. Exit last tab (closes traffic report)
+23. Assert: Sales report visible
+24. Exit last tab (closes sales report)
+25. Assert: Dashboard visible again
+```
+
+**Why this works**: Analysts open multiple reports for cross-referencing. This test validates that workflow operates smoothly.
+
+## Example Prompts
+
+Here are effective ways to use Open URL On New Page:
+
+**Basic URL opening:**
+```
+open the url https://autonoma.app on a new page
+open https://example.com/products in a new tab
+go to https://documentation.site.com on a new page
+open url https://checkout.example.com/cart in new tab
+```
+
+**With context:**
+```
+open the product page https://shop.com/products/123 on a new page
+open the help documentation https://docs.app.com/guide in a new tab
+open the external link https://partner-site.com on a new page
+open the terms of service https://legal.app.com/terms in new tab
+```
+
+**With variables:**
+```
+open url {{variable:APP_URL}}/products/featured on a new page
+open https://example.com/user/{{key:USER_ID}} in a new tab
+open url {{variable:BASE_URL}}/reports/{{key:REPORT_ID}} on a new page
+```
+
+## Best Practices
+
+### 1. Use Intentionally for Multi-Tab Workflows
+
+Only use Open URL On New Page when multi-tab behavior is essential to the test.
+
+**Good (legitimate multi-tab need):**
+```
+Test: "Compare two products"
+1. Navigate to products page
+2. Open URL on new page: Product A
+3. Extract product A details
+4. Exit last tab
+5. Open URL on new page: Product B
+6. Extract product B details
+7. Compare data
+```
+
+**Unnecessary (single tab would work):**
+```
+Test: "Check product page loads"
+1. Navigate to products page
+2. Open URL on new page: Product A  ← Unnecessary, just navigate directly
+3. Assert: Product loads
+```
+
+**Why**: Opening new tabs adds complexity. Only use it when testing actual multi-tab workflows.
+
+### 2. Always Handle Tab Cleanup
+
+When you open new tabs, close them to avoid confusion about which tab is active.
+
+**Good:**
+```
+1. Open URL on new page: https://example.com/page1
+2. Test page1 functionality
+3. Exit last tab (returns to original tab)
+4. Assert: Back on original page
+```
+
+**Problematic:**
+```
+1. Open URL on new page: https://example.com/page1
+2. Open URL on new page: https://example.com/page2
+3. Open URL on new page: https://example.com/page3
+← Now you have 4 tabs open (original + 3 new), unclear which is active
+```
+
+**Why**: Cleaning up tabs keeps your test flow clear and predictable.
+
+### 3. Verify Tab Context After Opening
+
+After opening a new tab, confirm you're on the expected page.
+
+**Good:**
+```
+1. Open URL on new page: https://example.com/products
+2. Wait until: Page loads
+3. Assert URL Location: https://example.com/products
+4. Assert: Products page heading visible
+```
+
+**Risky:**
+```
+1. Open URL on new page: https://example.com/products
+2. Click: First product  ← May fail if wrong page loaded
+```
+
+**Why**: Network issues or redirects might load a different page. Always verify.
+
+### 4. Combine with Exit Last Tab for Clean Navigation
+
+Use `exit-last-tab` to return to your original tab after finishing work in the new tab.
+
+**Good pattern:**
+```
+1. On main page
+2. Open URL on new page: Reference documentation
+3. Read and extract information
+4. Exit last tab (returns to main page)
+5. Continue main flow
+```
+
+**Confusing pattern:**
+```
+1. On main page
+2. Open URL on new page: Page A
+3. Open URL on new page: Page B
+4. Click browser back button ← Which tab? Unclear behavior
+```
+
+**Why**: The exit-last-tab pattern makes tab management explicit and predictable.
+
+### 5. Use Variables for Dynamic URLs
+
+For maintainability, use variables instead of hardcoding URLs.
+
+**Good:**
+```
+open url {{variable:APP_URL}}/products/{{key:PRODUCT_ID}} on a new page
+open url {{variable:DOCS_URL}}/guide/getting-started in a new tab
+```
+
+**Less maintainable:**
+```
+open url https://staging.example.com/products/12345 on a new page
+```
+
+**Why**: Variable-based URLs adapt to different environments and dynamic data.
+
+### 6. Wait for Page Load After Opening
+
+New tabs may take time to load. Always add a wait condition.
+
+**Good:**
+```
+1. Open URL on new page: https://example.com/dashboard
+2. Wait until: Dashboard loads
+3. Assert: Dashboard heading visible
+```
+
+**Risky:**
+```
+1. Open URL on new page: https://example.com/dashboard
+2. Click: Reports button  ← May fail if page still loading
+```
+
+**Why**: Network latency means pages don't load instantly. Wait before interacting.
+
+## Common Pitfalls
+
+### Pitfall 1: Forgetting Which Tab is Active
+
+**Problem:**
+```
+1. Navigate to page A
+2. Open URL on new page: page B
+3. Open URL on new page: page C
+4. Click: "Submit" button  ← Which page? Page C, but easy to forget
+```
+
+**Solution:**
+```
+1. Navigate to page A
+2. Open URL on new page: page B
+3. Wait until: Page B loads
+4. Complete page B actions
+5. Exit last tab (explicitly return to page A)
+6. Open URL on new page: page C
+7. Wait until: Page C loads
+8. Complete page C actions
+9. Exit last tab (explicitly return to page A)
+```
+
+Always know which tab you're working in.
+
+### Pitfall 2: Not Handling URL Load Failures
+
+**Problem:**
+```
+open url https://invalid-domain-xyz123.com on a new page
+click the login button  ← Fails because page didn't load
+```
+
+**Solution:**
+```
+1. Open URL on new page: https://example.com/page
+2. Wait until: Page loads
+3. Assert: Expected page heading appears
+4. Continue interactions
+```
+
+Always verify the page loaded before continuing.
+
+### Pitfall 3: Opening Too Many Tabs
+
+**Problem:**
+```
+Test opens 10+ tabs and doesn't close them
+← Memory usage increases, browser slows, test becomes unpredictable
+```
+
+**Solution:**
+```
+Only open tabs when necessary
+Close tabs when you're done with them
+Keep active tab count low (ideally 2-3 max at any time)
+```
+
+Manage tab count actively throughout your test.
+
+### Pitfall 4: Confusing Navigate vs Open New Tab
+
+**Problem:**
+```
+Test needs to go to a new page but opens a new tab unnecessarily
+← Adds complexity without benefit
+```
+
+**Solution:**
+```
+Use standard navigation (Navigate to URL) when you don't need multi-tab behavior
+Use Open URL On New Page only when multi-tab workflow is being tested
+```
+
+Choose the simpler approach when tabs aren't needed.
+
+### Pitfall 5: Expecting Previous Tab to Update
+
+**Problem:**
+```
+1. On product list page
+2. Open URL on new page: Product details
+3. Add product to cart (in new tab)
+4. Exit last tab (returns to product list)
+5. Assert: Cart badge shows "1"  ← May fail if product list didn't update
+```
+
+**Solution:**
+```
+1. On product list page
+2. Open URL on new page: Product details
+3. Add product to cart (in new tab)
+4. Assert: Cart badge on detail page shows "1"
+5. Exit last tab (returns to product list)
+6. Wait until: Product list refreshes
+7. Assert: Cart badge on list page shows "1"
+```
+
+Background tabs may not automatically update. Verify state after tab switches.
+
+### Pitfall 6: Hardcoding Environment-Specific URLs
+
+**Problem:**
+```
+open url https://staging.example.com/page on a new page
+← Fails when test runs in production or local environment
+```
+
+**Solution:**
+```
+open url {{variable:APP_URL}}/page on a new page
+← Works across all environments
+```
+
+Use variables for environment independence.
+
+## Comparison with Similar Interactions
+
+### Open URL On New Page vs Standard Navigation
+
+**Open URL On New Page:**
+- Behavior: Opens URL in new tab, preserves current tab
+- Tab count: Increases by 1
+- Original page: Remains open and unchanged
+- Focus: Moves to new tab
+- Best for: Multi-tab workflows, comparisons, reference material
+
+**Standard Navigation (Navigate to URL):**
+- Behavior: Navigates current tab to new URL
+- Tab count: No change
+- Original page: Replaced with new page
+- Focus: Stays in current tab
+- Best for: Linear navigation flows
+
+**When to switch**: Use Open URL On New Page only when you need both pages accessible. Otherwise, use standard navigation.
+
+### Open URL On New Page vs Click Link
+
+**Open URL On New Page:**
+- Method: Directly opens specified URL in new tab
+- Requires: Exact URL
+- Simulates: User manually entering URL or Cmd+Click
+- Best for: Testing specific URLs, deep linking, forced new tab behavior
+
+**Click Link:**
+- Method: Clicks existing link on page
+- Requires: Link element present on page
+- Simulates: User clicking link
+- Best for: Testing actual link behavior, navigation flows
+
+**When to switch**: Use Click Link when testing link elements. Use Open URL On New Page when you need to open specific URLs directly.
+
+### Open URL On New Page vs Exit Last Tab
+
+**Open URL On New Page:**
+- Action: Opens a new tab
+- Tab count: Increases
+- Focus: Moves to new tab
+- Use case: Starting new context
+
+**Exit Last Tab:**
+- Action: Closes current tab
+- Tab count: Decreases
+- Focus: Returns to previous tab
+- Use case: Finishing with current context
+
+**Relationship**: These are complementary actions. Open creates tabs, Exit closes them. Use together for clean tab management.
+
+## Interaction Patterns
+
+### Pattern 1: Open, Work, Close
+
+The standard pattern for working with temporary tabs:
+
+```
+1. (On original page)
+2. Open URL on new page: Reference page
+3. Extract needed information
+4. Exit last tab (returns to original)
+5. Use extracted information
+```
+
+### Pattern 2: Comparison Workflow
+
+Opening multiple items for comparison:
+
+```
+1. (On list page)
+2. Open URL on new page: Item A
+3. Extract item A details
+4. Exit last tab
+5. Open URL on new page: Item B
+6. Extract item B details
+7. Exit last tab
+8. Make comparison-based decision
+```
+
+### Pattern 3: External Link Validation
+
+Testing that external links behave correctly:
+
+```
+1. (On page with external links)
+2. Assert: External link visible
+3. Open URL on new page: External URL
+4. Assert URL Location: External domain
+5. Assert: External page loaded correctly
+6. Exit last tab (returns to original site)
+7. Assert: Original page unchanged
+```
+
+### Pattern 4: Multi-Step Form with References
+
+Complex forms where users reference other pages:
+
+```
+1. (On application form)
+2. Start filling form
+3. Open URL on new page: Instructions
+4. Read instructions and extract requirements
+5. Exit last tab (returns to form)
+6. Continue filling form with correct information
+7. Submit form
+```
+
+## Metadata Behavior
+
+When you use Open URL On New Page, you can return the URL in the interaction metadata for verification or logging purposes:
+
+```
+Open URL on new page: https://example.com/products/123
+Metadata returns: {url: "https://example.com/products/123"}
+```
+
+This metadata can be useful for:
+- Debugging which URL was opened
+- Logging test execution details
+- Verifying the correct URL was used
+- Tracking navigation flow in test reports
+
+## Advanced Usage
+
+### Opening Dynamic URLs Based on Extracted Data
+
+```
+1. Navigate to user dashboard
+2. Extract information about user profile ID with key PROFILE_ID
+3. Open URL on new page: {{variable:APP_URL}}/profile/{{key:PROFILE_ID}}/settings
+4. Wait until: Settings page loads
+5. Modify settings
+6. Exit last tab
+```
+
+### Sequential Tab Opening for Batch Operations
+
+```
+Test: "Verify multiple external links work"
+
+For each social media platform:
+1. Open URL on new page: Twitter link
+2. Assert: Profile loads
+3. Exit last tab
+
+4. Open URL on new page: LinkedIn link
+5. Assert: Profile loads
+6. Exit last tab
+
+7. Open URL on new page: Facebook link
+8. Assert: Profile loads
+9. Exit last tab
+```
+
+### Using New Tabs for Isolated State
+
+```
+Test: "Compare logged-in vs logged-out experience"
+
+Logged-in state:
+1. Log in to application
+2. Navigate to feature page
+3. Assert: Full features visible
+4. Extract information about feature count with key LOGGED_IN_FEATURES
+
+Logged-out state:
+5. Open URL on new page: Same feature page (different session)
+6. Wait until: Page loads
+7. Assert: Limited features visible
+8. Extract information about feature count with key LOGGED_OUT_FEATURES
+
+Compare:
+9. Assert: Logged-in features > Logged-out features
+```
+
+## Mobile Considerations
+
+**Open URL On New Page is not supported on mobile platforms.**
+
+Mobile browsers handle tabs differently, and mobile apps don't use browser tabs. For mobile testing:
+
+- **Use standard navigation** for moving between pages
+- **Use `go-home`** for returning to device home screen
+- **Use `go-back-on-page`** for navigating backward in browser history
+
+The multi-tab paradigm is primarily a desktop web browser concept.
+
+## Key Takeaways
+
+1. **Multi-tab specific** - Only use when testing actual multi-tab workflows
+2. **Preserves original tab** - Your starting page remains open in background
+3. **Focus shifts to new tab** - Subsequent interactions happen in the new tab
+4. **Combine with Exit Last Tab** - Clean tab management requires closing tabs
+5. **Wait after opening** - New tabs take time to load content
+6. **Verify context** - Always confirm you're on the expected page after opening
+7. **Use variables** - Don't hardcode URLs, use variables for flexibility
+8. **Web only** - Not supported on mobile platforms
+9. **Real workflows** - Test scenarios users actually encounter (product comparison, reference docs, etc.)
+10. **Keep it simple** - Minimize tab count, close tabs when done
+
+## What's Next
+
+Now that you understand how to open URLs in new tabs, learn about the complementary navigation interactions:
+
+- **Exit Last Tab**: Learn how to close tabs and return to previous context
+- **Go Back On Page**: Discover how to navigate backward within a single tab
+- **Assert URL Location**: Verify you're on the expected page after navigation
+- **Click**: Understand clicking links vs opening URLs directly

@@ -1,0 +1,656 @@
+---
+title: "Right Click"
+description: "Trigger context menus and secondary actions using right-click. Essential for testing desktop-style web applications with context menus and advanced options."
+---
+
+## What is Right Click?
+
+Right Click is an interaction that simulates the secondary mouse button click (typically the right mouse button), which traditionally opens context menus in desktop applications and websites. Unlike a standard left-click that activates elements, right-click reveals additional options, contextual actions, and secondary features.
+
+Think of right-clicking a file to see options like "Copy", "Rename", "Delete", or right-clicking text to see "Copy", "Paste", "Select All". Right-click provides access to a secondary layer of functionality that's available but not immediately visible.
+
+Right Click is primarily a web/desktop interaction pattern. On mobile devices, this functionality is typically achieved through Long Press instead.
+
+## When to Use Right Click
+
+Right Click is for web applications that implement desktop-style context menus.
+
+**Use Right Click when:**
+- Opening context menus on web applications
+- Accessing secondary actions on desktop-style interfaces
+- Testing file managers or desktop-like web apps
+- Revealing hidden options via right-click
+- Copy/paste functionality requiring context menu
+- Developer tools or advanced user interfaces
+- Custom context menus in web applications
+- The interface explicitly uses right-click patterns
+
+**Don't use Right Click when:**
+- Testing mobile applications (use Long Press)
+- Standard left-click works (use Click)
+- Touch-based interfaces without mouse support
+- The context menu is triggered by other means (menu button, long-press)
+- No context menu exists for the element
+
+## How It Works
+
+Right Click triggers the secondary mouse button action:
+
+1. **Target Detection**: Identifies the element
+2. **Position Calculation**: Determines click location
+3. **Right Button Event**: Simulates right mouse button press
+4. **Context Menu Trigger**: Interface responds to right-click
+5. **Menu Appears**: Context menu displays
+6. **Available Actions**: Shows contextual options
+7. **User Selection**: Test can then interact with menu items
+
+The browser or application intercepts the right-click and displays its context menu instead of allowing the default browser context menu.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not supported (use Long Press for similar functionality)
+
+Right Click is web-only. Mobile devices don't have a right mouse button, so mobile apps use Long Press for similar context menu functionality.
+
+## Example Scenarios
+
+### Scenario 1: File Manager Context Menu
+
+You're testing a web-based file manager where users right-click files to see actions.
+
+```
+Test: "Delete file via context menu"
+
+1. Navigate to file manager
+2. Wait until: File list loads
+3. Add prompt: "right click on the document.pdf file"
+4. Wait until: Context menu appears
+5. Verify: Menu options include Open, Download, Delete
+6. Click "Delete" option
+7. Wait until: Confirmation dialog appears
+8. Click "Confirm"
+9. Verify: File is removed from list
+```
+
+**Why Right Click works here**: Web-based file managers mimic desktop behavior, using right-click for file context menus.
+
+### Scenario 2: Text Editor Context Menu
+
+You're testing a rich text editor with context-sensitive formatting options.
+
+```
+Test: "Format text via context menu"
+
+1. Navigate to text editor
+2. Wait until: Editor loads
+3. Select text by dragging
+4. Wait until: Text is highlighted
+5. Add prompt: "right click on the selected text"
+6. Wait until: Formatting context menu appears
+7. Verify: Options include Bold, Italic, Copy, Link
+8. Click "Bold" option
+9. Verify: Text is bolded
+```
+
+**Why Right Click works here**: Text editors often provide formatting options via right-click context menus.
+
+### Scenario 3: Data Table Actions
+
+You're testing a data grid where right-clicking rows reveals actions.
+
+```
+Test: "Edit row via context menu"
+
+1. Navigate to data table
+2. Wait until: Data loads
+3. Add prompt: "right click on the first row"
+4. Wait until: Context menu appears
+5. Verify: Menu shows Edit, Delete, Duplicate
+6. Click "Edit" option
+7. Wait until: Edit modal opens
+8. Modify data
+9. Click "Save"
+10. Verify: Row updates with new data
+```
+
+**Why Right Click works here**: Data tables often use right-click for row-level actions.
+
+### Scenario 4: Image Context Menu
+
+You're testing an image gallery with right-click options for images.
+
+```
+Test: "Download image via context menu"
+
+1. Navigate to gallery
+2. Wait until: Images load
+3. Add prompt: "right click on the first image"
+4. Wait until: Context menu appears
+5. Verify: Options include Download, Set as Background, Copy Link
+6. Click "Download" option
+7. Wait until: Download starts
+8. Verify: File is downloading
+```
+
+**Why Right Click works here**: Image galleries often provide actions via right-click.
+
+### Scenario 5: Custom Developer Interface
+
+You're testing a developer tool or IDE-like interface with extensive context menus.
+
+```
+Test: "Refactor code via context menu"
+
+1. Navigate to code editor
+2. Wait until: Code loads
+3. Click on function name to place cursor
+4. Add prompt: "right click on the function name"
+5. Wait until: Context menu appears
+6. Verify: Options include Refactor, Go to Definition, Find References
+7. Click "Refactor" option
+8. Wait until: Refactoring submenu appears
+9. Click "Rename Symbol"
+10. Type new name
+11. Verify: All references updated
+```
+
+**Why Right Click works here**: Developer tools extensively use context menus for quick actions.
+
+## Example Prompts
+
+Right Click uses "right click" language:
+
+**Basic right-click:**
+```
+right click on the login button
+right click on the delete button
+right click on the file
+right click on the image
+```
+
+**With specific targets:**
+```
+right click on the first row in the table
+right click on the document.pdf file
+right click on the selected text
+right click on the folder icon
+```
+
+**In context:**
+```
+right click on the element to open menu
+right click the item to see options
+right click to access context actions
+```
+
+**Important**: Include "right click" in your prompt. Without this, standard left-click will be used.
+
+## Best Practices
+
+### 1. Use Only for Web Applications
+
+Right Click is web-only. Don't use on mobile.
+
+**Good:**
+```
+Web test: right click on element
+Mobile test: long press on element
+```
+
+**Wrong:**
+```
+Mobile test: right click on element  ← Not supported
+```
+
+### 2. Verify Context Menu Appears
+
+Always confirm the context menu displays before trying to interact with it.
+
+**Good:**
+```
+1. right click on file
+2. Wait until: Context menu appears
+3. Verify: Expected options are present
+4. Click menu option
+```
+
+**Risky:**
+```
+1. right click on file
+2. Click menu option  ← Menu might not be ready yet
+```
+
+### 3. Test That Element Supports Right-Click
+
+Not all elements have custom context menus. Test manually first.
+
+**Good:**
+```
+Manual test: Right-click shows custom menu ✓
+Automated test: right click on element
+```
+
+**Problematic:**
+```
+Assuming every element has a right-click menu
+Using Right Click without verifying custom menu exists
+```
+
+### 4. Handle Default Browser Context Menus
+
+Some elements might show browser's default context menu instead of custom.
+
+**Understanding:**
+```
+Custom implementation: Shows application-specific menu
+No custom menu: Shows browser's default menu (usually can't automate items)
+Test the actual application behavior first
+```
+
+### 5. Be Specific About Target
+
+Clear descriptions help accurate targeting.
+
+**Good:**
+```
+right click on the project.txt file in the file list
+right click on the second row in the data table
+right click on the selected paragraph
+```
+
+**Less effective:**
+```
+right click something
+right click there
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using on Mobile
+
+**Problem:**
+```
+Mobile test: right click on element
+# Mobile doesn't have right-click
+```
+
+**Solution:**
+```
+Mobile: Use Long Press for context menus
+Web: Use Right Click for context menus
+Platform-appropriate interaction
+```
+
+### Pitfall 2: Not Waiting for Menu
+
+**Problem:**
+```
+1. right click on element
+2. Click menu option  ← Menu might not have appeared
+```
+
+**Solution:**
+```
+1. right click on element
+2. Wait until: Context menu appears
+3. Click menu option
+```
+
+### Pitfall 3: Assuming All Elements Have Context Menus
+
+**Problem:**
+```
+right click on every element
+# Most elements might not have custom context menus
+```
+
+**Solution:**
+```
+Only right-click elements that have custom menus
+Test manually to verify context menu exists
+Use standard Click for elements without menus
+```
+
+### Pitfall 4: Confusing with Long Press
+
+**Problem:**
+```
+Trying to use Right Click and Long Press interchangeably
+```
+
+**Solution:**
+```
+Right Click: Web, mouse-based, secondary button
+Long Press: Mobile, touch-based, press and hold
+Different platforms, different interactions
+```
+
+### Pitfall 5: Not Verifying Menu Contents
+
+**Problem:**
+```
+1. right click on element
+2. Click option  ← What if option isn't there?
+```
+
+**Solution:**
+```
+1. right click on element
+2. Wait until: Menu appears
+3. Verify: Expected options are present
+4. Click option
+```
+
+## Comparison with Similar Interactions
+
+### Right Click vs Click
+
+**Standard Click:**
+- Button: Left mouse button
+- Action: Primary/default action
+- Best for: Standard interactions
+- Use case: 95% of web interactions
+
+**Right Click:**
+- Button: Right mouse button
+- Action: Secondary/context actions
+- Best for: Context menus
+- Use case: Accessing additional options
+
+**Decision rule**: Use Click by default. Only use Right Click when accessing context menus.
+
+### Right Click vs Long Press
+
+**Right Click:**
+- Platform: Web (desktop)
+- Input: Mouse right button
+- Best for: Desktop-style interfaces
+- Context: Mouse/trackpad use
+
+**Long Press:**
+- Platform: Mobile
+- Input: Touch press and hold
+- Best for: Touch interfaces
+- Context: Touch screen use
+
+**Platform-specific equivalents**:
+```
+Web desktop: Right Click for context menu
+Mobile touch: Long Press for context menu
+Similar purpose, different platforms
+```
+
+### Right Click vs Menu Button
+
+**Right Click:**
+- Trigger: Right mouse button
+- Location: On the element itself
+- Appearance: Spontaneous
+- Example: Right-click file to see actions
+
+**Menu Button:**
+- Trigger: Click dedicated button (⋮ or •••)
+- Location: Separate button near element
+- Appearance: Always visible
+- Example: Click ⋮ button to see actions
+
+**Different patterns**:
+```
+Right Click: Hidden until triggered
+Menu Button: Visible affordance for actions
+Some apps use both, some use one or the other
+```
+
+## Interaction Patterns
+
+### Pattern 1: Context Menu Selection
+
+Right-click to open menu, select option:
+
+```
+Test: "Perform action via context menu"
+
+1. Navigate to interface
+2. Wait until: Content loads
+3. Add prompt: "right click on the target element"
+4. Wait until: Context menu appears
+5. Verify: Menu contains expected options
+6. Click desired option
+7. Wait until: Action completes
+8. Verify: Expected result achieved
+```
+
+### Pattern 2: Multi-Step Context Menu
+
+Right-click then navigate submenu:
+
+```
+Test: "Use nested context menu"
+
+1. Navigate to application
+2. Wait until: Ready
+3. Add prompt: "right click on element"
+4. Wait until: Context menu appears
+5. Hover over "More Actions" to reveal submenu
+6. Wait until: Submenu appears
+7. Click submenu option
+8. Verify: Action executes
+```
+
+### Pattern 3: Different Context Menus for Different Elements
+
+Test that context menus are contextual:
+
+```
+Test: "Verify contextual menus"
+
+For file:
+1. right click on file.pdf
+2. Verify: Menu shows file-specific actions (Open, Download, Delete)
+
+For folder:
+3. right click on folder
+4. Verify: Menu shows folder-specific actions (Open, Rename, New File)
+
+For text:
+5. Select text
+6. right click on selected text
+7. Verify: Menu shows text actions (Copy, Bold, Link)
+```
+
+### Pattern 4: Keyboard + Right Click
+
+Combine selection with right-click:
+
+```
+Test: "Select then context action"
+
+1. Navigate to list
+2. Click first item to select
+3. Hold Shift
+4. Click third item to select range
+5. Add prompt: "right click on the selection"
+6. Wait until: Context menu appears
+7. Click "Delete Selected"
+8. Verify: All selected items deleted
+```
+
+## Advanced Usage
+
+### Custom Context Menu Testing
+
+Testing application-specific context menus:
+
+```
+Test: "Verify custom context menu behavior"
+
+1. Navigate to application
+2. Wait until: Loaded
+3. Add prompt: "right click on the canvas element"
+4. Wait until: Custom context menu appears
+5. Verify: Menu is styled per application design
+6. Verify: All expected options present
+7. Verify: Options are enabled/disabled appropriately
+8. Click option
+9. Verify: Custom action executes
+```
+
+### Preventing Default Browser Menu
+
+Testing that custom menu prevents browser default:
+
+```
+Test: "Custom menu overrides browser menu"
+
+1. Navigate to application
+2. right click on image
+3. Wait until: Menu appears
+4. Verify: Custom application menu appears
+5. Verify: Not the browser's default image menu
+6. Verify: Custom options are available
+```
+
+### Context-Sensitive Menus
+
+Testing that menus change based on context:
+
+```
+Test: "Context menu adapts to state"
+
+When nothing is selected:
+1. right click on canvas
+2. Verify: Menu shows "New Item", "Paste"
+
+When item is selected:
+3. Click item to select
+4. right click on selected item
+5. Verify: Menu shows "Cut", "Copy", "Delete", etc.
+
+State changes what's available in menu
+```
+
+## Web-Specific Considerations
+
+Right Click is web-only, with specific behaviors:
+
+### Desktop Web Applications
+
+```
+Test: "Desktop-style web app"
+
+Context: Web app mimicking desktop software
+- Right-click for file operations
+- Right-click for edit operations
+- Right-click in different areas shows different menus
+- Custom menus override browser defaults
+```
+
+### Rich Web Editors
+
+```
+Test: "Rich text editor context menu"
+
+Context: Online document editor
+- Right-click text for formatting
+- Right-click images for image options
+- Right-click tables for table operations
+- Context-aware menus based on selection
+```
+
+### Developer Tools and IDEs
+
+```
+Test: "Web-based IDE context menus"
+
+Context: Online coding environment
+- Right-click code for refactoring
+- Right-click files for file operations
+- Right-click project for project actions
+- Extensive nested context menus
+```
+
+## Real-World Example: Web-Based File Manager
+
+Here's a complete test using Right Click appropriately:
+
+```
+Test: "Organize files using context menus"
+
+Context: Testing cloud storage web application
+Users can right-click files and folders for actions
+
+Step 1: Navigate to file manager
+1. Log in to application
+2. Navigate to "My Files" section
+3. Wait until: File list loads
+
+Step 2: Create new folder via context menu
+4. Add prompt: "right click on empty space in file area"
+5. Wait until: Context menu appears
+6. Verify: Menu includes "New Folder" option
+7. Click "New Folder"
+8. Wait until: Name input appears
+9. Type "Project Files"
+10. Press Enter
+11. Verify: New folder appears in list
+
+Step 3: Rename file via context menu
+12. Add prompt: "right click on the document.pdf file"
+13. Wait until: Context menu appears
+14. Verify: Menu includes Rename, Download, Delete, Share
+15. Click "Rename" option
+16. Wait until: Name becomes editable
+17. Type "final_report.pdf"
+18. Press Enter
+19. Verify: File name updated
+
+Step 4: Move file via context menu
+20. Add prompt: "right click on final_report.pdf"
+21. Wait until: Context menu appears
+22. Click "Move to" option
+23. Wait until: Folder picker appears
+24. Click "Project Files" folder
+25. Click "Move" button
+26. Wait until: File moved
+27. Verify: File no longer in root
+28. Open "Project Files" folder
+29. Verify: final_report.pdf is inside
+
+Step 5: Delete via context menu
+30. Add prompt: "right click on final_report.pdf"
+31. Wait until: Context menu appears
+32. Click "Delete" option
+33. Wait until: Confirmation dialog appears
+34. Click "Confirm"
+35. Verify: File deleted
+
+Why this works:
+- Used Right Click for all context menu actions (steps 4, 12, 20, 30)
+- Used standard Click for menu selections and other actions
+- Verified menus appeared before interacting
+- Verified actions completed successfully
+- Mixed Right Click with other interactions naturally
+```
+
+## Key Takeaways
+
+1. **Right Click is for web** - Desktop/mouse-based context menus
+2. **Secondary button** - Right mouse button, not left
+3. **Opens context menus** - Reveals additional options
+4. **Not for mobile** - Use Long Press on mobile instead
+5. **Verify menu appears** - Always wait for context menu
+6. **Application-specific** - Custom menus vary by application
+7. **Test manually first** - Verify element has right-click menu
+8. **Clear targets** - Be specific about what to right-click
+9. **Wait for menu** - Don't interact before menu appears
+10. **Context-sensitive** - Menus change based on element and state
+
+## What's Next
+
+Now that you understand Right Click for web context menus, explore these related interactions:
+
+- **Click**: Master the standard left-click interaction
+- **Long Press**: Learn about mobile context menu equivalent
+- **Double Tap**: Discover double-click interactions
+- **Conditional Click**: Understand optional element handling

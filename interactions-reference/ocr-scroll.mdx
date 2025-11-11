@@ -1,0 +1,782 @@
+---
+title: "OCR Scroll"
+description: "Scroll within specific containers using OCR text recognition—perfect for nested scrollable areas like modals, sidebars, and embedded lists."
+---
+
+## What It Does
+
+OCR Scroll is a specialized scrolling interaction that uses Optical Character Recognition (OCR) to locate text elements within specific scrollable containers, then scrolls in the direction needed. Unlike regular scroll interactions that affect the main page or screen, OCR Scroll can target nested scrollable areas like modal dialogs, sidebar panels, embedded lists, or any UI component with its own scroll behavior.
+
+Think of it like scrolling within a window inside a window. Your main page might scroll, but there's also a pop-up dialog with its own scrollable content. OCR Scroll lets you control that inner scroll area by identifying text landmarks through visual recognition.
+
+## When to Use It
+
+Use OCR Scroll when:
+
+- **Nested scrollable areas** - Modal dialogs, popups, or panels with independent scrolling
+- **Scrollable containers** - Embedded lists, sidebars, or content boxes within the page
+- **Complex UI layouts** - Multi-panel interfaces where multiple areas can scroll
+- **Shadow DOM elements** - Components that are hard to target with regular selectors
+- **iFrames or embedded content** - Content within frames that scroll independently
+- **Custom scrollbars** - Elements with non-standard scroll implementations
+- **Text-based navigation** - When you need to find and scroll to specific text
+
+**Don't use it when:**
+- Scrolling the main page or screen - Use regular **Scroll** instead
+- You know the scroll count and area is straightforward - Use **Scroll** or **Scroll With Condition**
+- Working with standard horizontal carousels - Use **Move Carousel** instead
+- Element doesn't contain text for OCR to recognize
+
+## Platform Support
+
+- **Web**: Yes
+- **Mobile**: Yes (iOS and Android)
+
+OCR Scroll is particularly valuable on mobile where nested scrollable containers are common in app interfaces.
+
+## How It Works
+
+OCR Scroll uses computer vision to:
+
+1. **Scan the screen** for text elements
+2. **Identify** the scrollable container containing the target text
+3. **Determine** which direction to scroll
+4. **Execute** the scroll within that specific container
+
+**Basic usage**:
+```
+OCR scroll: up
+```
+
+**Multiple scrolls**:
+```
+OCR scroll: down 2 times
+```
+
+**Directional scrolling**:
+```
+OCR scroll: left 3 times
+```
+
+The metadata is always a number representing how many times to scroll. If you don't specify, it defaults to 1.
+
+## Real-World Scenarios
+
+### Scenario 1: Modal Dialog with Long Terms & Conditions
+
+Testing acceptance of terms in a scrollable modal.
+
+```
+Test: "Accept terms and conditions in modal"
+
+1. Navigate to registration page
+2. Click: "Sign Up" button
+3. Wait until: Registration modal appears
+4. Assert: Terms modal is visible
+5. OCR scroll: down 5 times ← Scroll within the modal
+6. Wait: 1 second
+7. OCR scroll: down 3 times
+8. Assert: "I Accept" button appears at bottom
+9. Click: "I Accept" button
+10. Wait until: Modal closes
+```
+
+**Why this works**: The modal has its own scrolling separate from the main page. OCR Scroll targets the modal's scroll area specifically.
+
+### Scenario 2: Sidebar Navigation in Complex Dashboard
+
+Testing navigation within a scrollable sidebar.
+
+```
+Test: "Access deep menu item in sidebar"
+
+1. Open dashboard
+2. Wait until: Dashboard loads
+3. Assert: Sidebar visible
+4. OCR scroll: down 8 times ← Scroll within sidebar
+5. Wait: 1 second
+6. Click: "Advanced Settings" in sidebar
+7. Wait until: Settings panel loads
+8. Assert: Advanced settings visible
+```
+
+**Why this works**: Dashboard has multiple scrollable areas (sidebar, main content, panels). OCR Scroll targets just the sidebar.
+
+### Scenario 3: Product Review List
+
+Scrolling through reviews within a product page's review container.
+
+```
+Test: "Browse product reviews"
+
+1. Navigate to product page
+2. Wait until: Product details load
+3. Scroll with condition: Until reviews section visible
+4. Assert: Reviews container appears
+5. OCR scroll: down 3 times ← Scroll within reviews container
+6. Wait: 1 second
+7. Assert: More reviews visible
+8. Add prompt: "Click on the most helpful review"
+9. Wait until: Review details expand
+```
+
+**Why this works**: The reviews section is a scrollable container within the larger product page. OCR Scroll isolates that specific area.
+
+### Scenario 4: Mobile App List Within a Card
+
+Testing a scrollable list embedded in a mobile app card.
+
+```
+Test: "Select item from scrollable card list"
+
+1. Open app
+2. Navigate to: Inbox
+3. Wait until: Inbox loads
+4. Click: "Folder: Projects" card
+5. Wait until: Projects list appears
+6. OCR scroll: down 4 times ← Scroll within the Projects card
+7. Wait: 1 second
+8. Add prompt: "Click on project named 'Website Redesign'"
+9. Wait until: Project details appear
+```
+
+**Why this works**: Mobile apps often have cards with embedded scrollable lists. OCR Scroll targets the specific card's scroll area.
+
+### Scenario 5: Dropdown with Long Option List
+
+Scrolling through a custom dropdown menu with many options.
+
+```
+Test: "Select from long dropdown"
+
+1. Navigate to form
+2. Click: "Country" dropdown
+3. Wait until: Dropdown expands
+4. OCR scroll: down 5 times ← Scroll within dropdown
+5. Wait: 500ms
+6. OCR scroll: down 5 times
+7. Click: "United States" option
+8. Assert: "United States" selected
+```
+
+**Why this works**: Custom dropdowns often have internal scrolling. OCR Scroll navigates within the dropdown itself.
+
+### Scenario 6: Chat or Message History
+
+Scrolling through message history in a chat interface.
+
+```
+Test: "Find specific message in chat"
+
+1. Open chat application
+2. Click: Conversation with "Support Team"
+3. Wait until: Chat loads
+4. OCR scroll: up 10 times ← Scroll to older messages
+5. Wait: 2 seconds
+6. OCR scroll: up 10 times
+7. Assert: Specific old message visible
+8. Click: Message to see details
+```
+
+**Why this works**: Chat containers scroll independently from the main app. OCR Scroll targets the message list.
+
+### Scenario 7: iFrame with Embedded Content
+
+Interacting with content inside an iFrame.
+
+```
+Test: "Scroll within embedded content"
+
+1. Navigate to page with embedded player
+2. Wait until: iFrame loads
+3. Click: Inside iFrame to focus it
+4. OCR scroll: down 3 times ← Scroll within iFrame content
+5. Wait: 1 second
+6. Assert: Additional controls visible
+7. Click: "Settings" within iFrame
+```
+
+**Why this works**: iFrame content is isolated. OCR Scroll can target elements within the iFrame through visual text recognition.
+
+## Four-Directional OCR Scrolling
+
+OCR Scroll supports all four directions:
+
+### Vertical Scrolling
+
+**Down** - Most common for content:
+```
+OCR scroll: down
+```
+- Reveals content below in the container
+- Reading through lists, articles, reviews
+
+**Up** - Going back to previous content:
+```
+OCR scroll: up
+```
+- Returns to earlier content
+- Navigating to top of container
+- Finding older items in lists
+
+### Horizontal Scrolling
+
+**Right** - Moving to next content:
+```
+OCR scroll: right
+```
+- Horizontal lists or galleries within containers
+- Tab panels with horizontal overflow
+- Wide tables that scroll horizontally
+
+**Left** - Moving to previous content:
+```
+OCR scroll: left
+```
+- Returning to earlier horizontal content
+- Back through image galleries
+- Navigating wide data tables
+
+**Example using multiple directions**:
+```
+Test: "Navigate complex scrollable grid"
+
+1. Click: Data grid container
+2. OCR scroll: down 5 times ← Vertical navigation
+3. Wait: 1 second
+4. OCR scroll: right 3 times ← Horizontal navigation
+5. Assert: Target cell visible
+```
+
+## Understanding Metadata: The Scroll Count
+
+OCR Scroll requires metadata: a number indicating how many times to scroll.
+
+**Important**: The metadata must be a NUMBER, not a string.
+
+```
+Correct: 3
+Incorrect: "3"
+Incorrect: "three"
+```
+
+**How to specify in your test**:
+
+```
+OCR scroll: down      ← Defaults to 1 scroll
+OCR scroll: down 2    ← Scrolls 2 times
+OCR scroll: up 5      ← Scrolls up 5 times
+OCR scroll: left 3    ← Scrolls left 3 times
+```
+
+## How OCR Identifies the Target Container
+
+OCR Scroll uses visual text recognition to determine where to scroll:
+
+1. **Scans visible text** on the entire screen
+2. **Identifies scrollable containers** that contain text
+3. **Targets the appropriate container** based on context
+4. **Executes scroll** within that specific area
+
+**The AI determines the target intelligently** based on:
+- Visible text elements
+- Container boundaries
+- UI context
+- Your test's prior actions
+
+## Common Patterns
+
+### Pattern 1: Deep Dive Into Container
+
+```
+1. Click: Container to activate it
+2. OCR scroll: down 10 times
+3. Wait: 2 seconds
+4. Assert: Deep content visible
+```
+
+### Pattern 2: Progressive Container Navigation
+
+```
+1. OCR scroll: down 2 times
+2. Assert: Section 1 visible
+3. OCR scroll: down 2 times
+4. Assert: Section 2 visible
+5. OCR scroll: down 2 times
+6. Assert: Section 3 visible
+```
+
+### Pattern 3: Bidirectional Container Search
+
+```
+1. OCR scroll: down 5 times
+2. Check for element
+3. If not found:
+   4. OCR scroll: up 5 times
+   5. Check at top
+```
+
+### Pattern 4: Multi-Container Navigation
+
+```
+// Scroll main page
+1. Scroll: down 3 times
+2. Click: Open sidebar
+
+// Scroll within sidebar
+3. OCR scroll: down 5 times
+4. Click: Sidebar item
+
+// Scroll within opened panel
+5. OCR scroll: down 3 times
+6. Assert: Panel content visible
+```
+
+### Pattern 5: Horizontal Container Browsing
+
+```
+1. Click: Image gallery container
+2. OCR scroll: right 5 times
+3. Assert: Different images visible
+4. OCR scroll: left 2 times
+5. Click: Specific image
+```
+
+## OCR Scroll vs Regular Scroll
+
+Understanding the difference is crucial:
+
+### Regular Scroll
+- Scrolls the **main page/screen**
+- Affects the primary viewport
+- Simpler and faster
+- Works for standard layouts
+
+### OCR Scroll
+- Scrolls **specific containers**
+- Targets nested scrollable areas
+- Uses OCR to identify context
+- Works for complex layouts
+
+**Example comparison**:
+
+```
+// Regular scroll - affects main page
+1. Scroll: down 5 times ← Main page scrolls
+
+// OCR scroll - affects container
+1. OCR scroll: down 5 times ← Modal/panel scrolls
+```
+
+**When you have a modal open**:
+- **Regular Scroll**: Might try to scroll the page behind the modal
+- **OCR Scroll**: Scrolls within the modal itself
+
+## Best Practices
+
+### 1. Activate the Container First
+
+Click or focus the container before scrolling:
+
+```
+Good:
+1. Click: Inside review panel ← Activate focus
+2. OCR scroll: down 3 times
+
+Risky:
+1. OCR scroll: down 3 times ← Might target wrong area
+```
+
+### 2. Add Waits Between Scrolls
+
+Give content time to render:
+
+```
+Good:
+1. OCR scroll: down 5 times
+2. Wait: 1 second ← Content settles
+3. Assert: Element appears
+
+Risky:
+1. OCR scroll: down 5 times
+2. Assert: Element appears ← Might not be rendered yet
+```
+
+### 3. Be Patient With Multiple Scrolls
+
+Break up large scroll counts:
+
+```
+Better:
+1. OCR scroll: down 5 times
+2. Wait: 1 second
+3. OCR scroll: down 5 times
+4. Wait: 1 second
+
+Aggressive:
+1. OCR scroll: down 10 times ← Might be too fast
+```
+
+### 4. Verify the Container is Scrollable
+
+Ensure the container actually has scrollable content:
+
+```
+1. Assert: Container has more content below
+2. OCR scroll: down 3 times
+3. Assert: New content visible
+```
+
+### 5. Combine With Regular Scroll for Multi-Level Navigation
+
+```
+// Get to the section with the container
+1. Scroll: down 5 times ← Main page
+
+// Interact with container
+2. Click: Open modal
+3. Wait until: Modal visible
+
+// Scroll within container
+4. OCR scroll: down 3 times ← Modal content
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using OCR Scroll for Main Page
+
+**Problem**:
+```
+1. OCR scroll: down 10 times ← Should use regular Scroll
+```
+
+**Why it's wrong**: OCR Scroll is for containers, not main pages.
+
+**Solution**:
+```
+1. Scroll: down 10 times ← Use regular Scroll for main page
+```
+
+### Pitfall 2: Not Waiting for Container to Load
+
+**Problem**:
+```
+1. Click: Open modal
+2. OCR scroll: down 3 times ← Modal might not be ready
+```
+
+**Why it fails**: Container isn't fully loaded.
+
+**Solution**:
+```
+1. Click: Open modal
+2. Wait until: Modal content loads ← Critical wait
+3. OCR scroll: down 3 times
+```
+
+### Pitfall 3: Scrolling Too Fast
+
+**Problem**:
+```
+1. OCR scroll: down 20 times
+2. Assert: Bottom element visible ← Might not have rendered
+```
+
+**Why it fails**: Content can't keep up.
+
+**Solution**:
+```
+1. OCR scroll: down 10 times
+2. Wait: 2 seconds ← Let content load
+3. OCR scroll: down 10 times
+4. Wait: 2 seconds
+5. Assert: Bottom element visible
+```
+
+### Pitfall 4: Using in Simple Scenarios
+
+**Problem**:
+```
+// Simple page with no nested containers
+1. OCR scroll: down 5 times ← Overcomplicated
+```
+
+**Why it's wrong**: Regular scroll would be simpler.
+
+**Solution**:
+```
+1. Scroll: down 5 times ← Simpler for standard pages
+```
+
+### Pitfall 5: Container Has No Text for OCR
+
+**Problem**:
+```
+// Container with only images, no text
+1. OCR scroll: down 3 times ← OCR can't find text landmarks
+```
+
+**Why it fails**: OCR needs text to identify context.
+
+**Solution**:
+```
+// Use different approach for text-free containers
+1. Add prompt: "Scroll within the image gallery"
+Or
+1. Click specific visible image to focus, then scroll
+```
+
+### Pitfall 6: String Instead of Number for Metadata
+
+**Problem**:
+```
+OCR scroll: down "3" times ← Will cause an error
+```
+
+**Why it fails**: Metadata must be a number.
+
+**Solution**:
+```
+OCR scroll: down 3 times ← Correct
+```
+
+## When to Use OCR Scroll vs Other Scroll Interactions
+
+| Scenario | Regular Scroll | Scroll With Condition | OCR Scroll | Move Carousel |
+|----------|----------------|----------------------|------------|---------------|
+| Main page scrolling | ✓ | ✓ | | |
+| Nested container | | | ✓ | |
+| Modal dialog | | | ✓ | |
+| Sidebar panel | | | ✓ | |
+| Finding specific element | | ✓ | | |
+| Horizontal carousel | | | | ✓ |
+| iFrame content | | | ✓ | |
+| Custom dropdown | | | ✓ | |
+| Main screen fixed count | ✓ | | | |
+| Container fixed count | | | ✓ | |
+
+**General rule**: If you're scrolling anything that's not the main page/screen, consider OCR Scroll.
+
+## Combining OCR Scroll With Other Interactions
+
+### With Assert
+
+```
+1. OCR scroll: down 3 times
+2. Assert: Content within container visible
+```
+
+### With Click
+
+```
+1. OCR scroll: down 5 times
+2. Click: Element within container
+```
+
+### With Extract Information
+
+```
+1. OCR scroll: down 10 times
+2. Extract information: Data from bottom of container
+```
+
+### With Regular Scroll
+
+```
+// Navigate main page
+1. Scroll: down 5 times
+
+// Interact with container
+2. Click: Open panel
+3. Wait until: Panel visible
+
+// Scroll within container
+4. OCR scroll: down 3 times
+```
+
+### With Wait Until
+
+```
+1. OCR scroll: down 5 times
+2. Wait until: Loading spinner in container disappears
+3. Assert: Container content loaded
+```
+
+## Mobile-Specific Behavior
+
+On mobile apps, nested scrollable containers are very common:
+
+### Cards with Lists
+```
+Test: "Mobile card list navigation"
+
+1. Click: Expandable card
+2. Wait until: Card expands
+3. OCR scroll: down 5 times ← Scroll within card
+4. Assert: List items visible
+```
+
+### Sheets and Bottom Panels
+```
+Test: "Bottom sheet navigation"
+
+1. Swipe up: Open bottom sheet
+2. Wait until: Sheet visible
+3. OCR scroll: down 3 times ← Scroll within sheet
+4. Click: Sheet option
+```
+
+### Tab Content
+```
+Test: "Scroll within tab content"
+
+1. Click: "Settings" tab
+2. Wait until: Tab content loads
+3. OCR scroll: down 5 times ← Scroll within tab's content area
+4. Assert: Deep settings visible
+```
+
+## Performance Considerations
+
+OCR Scroll is more computationally intensive because it:
+
+1. **Analyzes the visual screen** for text
+2. **Identifies containers** through image recognition
+3. **Determines scroll context** from visual clues
+
+**Best practices for performance**:
+
+```
+// Give OCR time to process
+1. Click: Container
+2. Wait: 1 second ← Let container stabilize
+3. OCR scroll: down 3 times
+4. Wait: 1 second ← Let OCR re-analyze
+
+// Avoid excessive rapid scrolling
+Good: OCR scroll: down 5 times, wait, scroll 5 more
+Avoid: OCR scroll: down 50 times in one go
+```
+
+## Debugging OCR Scroll Issues
+
+If OCR Scroll isn't working as expected:
+
+### Check: Is there visible text in the container?
+```
+1. Assert: Container has visible text content
+2. OCR scroll: down 3 times
+```
+
+### Check: Is the container actually scrollable?
+```
+1. Assert: Container has overflow content
+2. OCR scroll: down 3 times
+```
+
+### Check: Did you focus/activate the container?
+```
+1. Click: Inside container ← Activate it
+2. Wait: 500ms
+3. OCR scroll: down 3 times
+```
+
+### Try: Breaking up the scrolling
+```
+Instead of:
+1. OCR scroll: down 20 times
+
+Try:
+1. OCR scroll: down 5 times
+2. Wait: 1 second
+3. OCR scroll: down 5 times
+4. Wait: 1 second
+5. OCR scroll: down 5 times
+6. Wait: 1 second
+7. OCR scroll: down 5 times
+```
+
+## Example Prompts
+
+Here are example prompts that trigger OCR Scroll:
+
+**Basic scrolling**:
+- "ocr scroll up"
+- "ocr scroll down"
+- "ocr scroll left"
+- "ocr scroll right"
+
+**Multiple scrolls**:
+- "ocr scroll down 2 times"
+- "ocr scroll up 3 times"
+- "ocr scroll left 3 times"
+- "ocr scroll right 5 times"
+
+**With context**:
+- "ocr scroll down within the modal"
+- "ocr scroll up in the sidebar"
+- "ocr scroll down the review list"
+
+## Quick Reference
+
+| Aspect | Details |
+|--------|---------|
+| **Direction** | Up, Down, Left, Right |
+| **Metadata** | Number of times to scroll (default: 1) |
+| **Platform** | Web and Mobile |
+| **Use for** | Nested containers, modals, panels, iFrames |
+| **Avoid for** | Main page scrolling (use regular Scroll) |
+| **Requires** | Text content for OCR to recognize |
+| **Best practice** | Activate container first, add waits |
+
+## Advanced Use Cases
+
+### Scrolling Multiple Containers in Sequence
+
+```
+Test: "Navigate nested scrollable areas"
+
+// Main page scroll
+1. Scroll: down 3 times
+
+// First container
+2. Click: Open sidebar
+3. OCR scroll: down 5 times
+4. Click: Item in sidebar
+
+// Second container (modal)
+5. Wait until: Modal opens
+6. OCR scroll: down 3 times
+7. Click: Option in modal
+
+// Third container (nested list in modal)
+8. OCR scroll: down 2 times
+9. Assert: Deep nested content visible
+```
+
+### Bi-Directional Container Exploration
+
+```
+Test: "Explore container fully"
+
+1. Click: Container
+2. OCR scroll: down 10 times ← Go to bottom
+3. Wait: 1 second
+4. Assert: Bottom content visible
+5. OCR scroll: up 10 times ← Return to top
+6. Wait: 1 second
+7. Assert: Top content visible again
+```
+
+## What's Next
+
+Now that you understand OCR Scroll:
+
+- **Scroll With Condition** - Learn intelligent scrolling that stops at targets
+- **Move Carousel** - Master horizontal carousel navigation
+- **Scroll (Web)** - Understand standard web page scrolling
+- **Scroll (Mobile)** - Master mobile screen scrolling
+
+---
+
+OCR Scroll is your tool for complex, nested UI. Master it, and you'll handle the most sophisticated interfaces with ease.

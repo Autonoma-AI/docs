@@ -1,0 +1,800 @@
+---
+title: "Assert"
+description: "Verify that elements, text, and conditions exist in your application—the foundation of test validation."
+---
+
+# Assert
+
+## The Foundation of Test Validation
+
+Every test needs to answer one critical question: **Did it work?**
+
+You can click buttons, fill forms, and navigate pages, but without verification, you're just performing actions blindly. You're not actually testing anything.
+
+This is where assertions come in. An assertion is your test saying: "I expect to see this. Is it there?"
+
+Consider this incomplete test:
+
+```
+Test: "Add product to cart"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Click: "Blue T-Shirt" product
+3. Click: "Add to Cart" button
+```
+
+The test performs actions but doesn't verify anything. Did the product actually get added to the cart? Did the page update? Did an error occur? **You have no idea.**
+
+Add an assertion:
+
+```
+Test: "Add product to cart"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Click: "Blue T-Shirt" product
+3. Click: "Add to Cart" button
+4. Assert: Cart badge shows "1"
+```
+
+Now your test actually validates that the action worked. **That's the power of assertions.**
+
+## What the Assert Interaction Does
+
+The `Assert` interaction verifies that elements, text, messages, or visual conditions exist in your application at a specific moment in the test.
+
+It's Autonoma's way of looking at your application and confirming: "Yes, I see what you expected to see."
+
+**Basic syntax**:
+```
+Assert: <describe what should be visible>
+```
+
+**Examples**:
+```
+Assert: "Welcome" message appears
+Assert: Logo is in the top right of the screen
+Assert: User email is displayed in the header
+Assert: "Item added to cart" confirmation shows
+Assert: Three payment options are visible
+```
+
+Autonoma's AI examines your application's visual state and determines whether the described element or condition exists. If it does, the test continues. If it doesn't, the test fails with details about what was expected versus what was found.
+
+## When to Use Assert vs Other Verification Methods
+
+Autonoma offers several ways to verify application state. Here's when to use each:
+
+### Use `Assert` when:
+- **Verifying visual elements exist** - Logos, icons, images, buttons
+- **Checking text appears** - Messages, labels, headings, confirmation text
+- **Validating UI state** - Elements are visible, positioned correctly, or present
+- **Confirming actions succeeded** - Success messages, updated counters, new content
+
+**Example scenarios**:
+```
+Assert: Profile picture appears in the navigation
+Assert: "Order confirmed" message is displayed
+Assert: Shopping cart badge shows "3 items"
+Assert: Dashboard shows welcome message with username
+```
+
+### Use `Assert URL Location` when:
+- **Verifying navigation happened** - Checking you're on the correct page
+- **Validating redirects** - Confirming the app redirected to the right URL
+- **Testing deep links** - Ensuring specific URLs load correctly
+
+**Example scenarios**:
+```
+Assert URL Location: https://example.com/dashboard
+Assert URL Location: https://example.com/checkout/confirmation
+```
+
+### Use `Wait Until` when:
+- **Waiting for elements to appear** - Content loads asynchronously
+- **Handling loading states** - Spinners disappear, data populates
+- **Giving operations time to complete** - File uploads finish, API calls return
+
+**Example scenarios**:
+```
+Wait until: Dashboard loads
+Wait until: Product grid appears
+Wait until: Loading spinner disappears
+```
+
+### The Key Difference
+
+**`Wait Until`** is patient—it keeps checking until the condition becomes true (up to a timeout). Use it for asynchronous operations.
+
+**`Assert`** is immediate—it checks right now and fails if the condition isn't met. Use it for validating that previous actions worked.
+
+Often, you'll use both together:
+
+```
+1. Click: "Submit" button
+2. Wait until: Loading spinner disappears
+3. Assert: "Success" message appears
+```
+
+The `Wait Until` handles the loading time, and the `Assert` validates the final result.
+
+## Real-World Scenarios
+
+### Scenario 1: Login Flow Verification
+
+**The test**:
+```
+Test: "User can log in successfully"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Wait until: Login form loads
+3. Type {{variable:TEST_EMAIL}} in email field
+4. Type {{variable:TEST_PASSWORD}} in password field
+5. Click: "Sign In" button
+6. Wait until: Page loads
+7. Assert: User is logged in
+8. Assert: Dashboard heading says "Welcome back"
+9. Assert: Navigation shows user profile icon
+```
+
+**Why these assertions matter**:
+- Step 7 confirms authentication succeeded
+- Step 8 validates the dashboard loaded correctly
+- Step 9 ensures the UI updated to show logged-in state
+
+Without these assertions, the test might pass even if login failed but the page still loaded.
+
+### Scenario 2: Shopping Cart Updates
+
+**The test**:
+```
+Test: "Adding products updates cart correctly"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Assert: Cart badge shows "0" or is empty
+4. Click: First product
+5. Wait until: Product page loads
+6. Click: "Add to Cart" button
+7. Wait until: Action completes
+8. Assert: Cart badge shows "1"
+9. Assert: "Item added" confirmation appears
+10. Navigate back
+11. Click: Second product
+12. Click: "Add to Cart" button
+13. Wait until: Action completes
+14. Assert: Cart badge shows "2"
+```
+
+**The progression of assertions**:
+- Step 3: Baseline check (cart starts empty)
+- Step 8: First item added successfully
+- Step 14: Second item added, count incremented
+
+Each assertion builds confidence that the cart functionality works correctly.
+
+### Scenario 3: Form Submission Success
+
+**The test**:
+```
+Test: "Contact form submits successfully"
+
+1. Navigate to {{variable:APP_URL}}/contact
+2. Wait until: Contact form loads
+3. Type {{random:first_name}} in name field
+4. Type {{random:email}} in email field
+5. Type "I have a question about your product" in message field
+6. Click: "Send Message" button
+7. Wait until: Processing completes
+8. Assert: "Thank you! We'll respond within 24 hours" message appears
+9. Assert: Form is cleared or hidden
+10. Assert: "Submit another message" button is visible
+```
+
+**Multi-faceted verification**:
+- Step 8: Success message confirms submission worked
+- Step 9: Form state changed appropriately
+- Step 10: UI adapted for next action
+
+Testing multiple aspects ensures the complete flow works correctly.
+
+### Scenario 4: Multi-Language Interface
+
+**The test**:
+```
+Test: "Language toggle changes interface text"
+
+1. Navigate to {{variable:APP_URL}}
+2. Wait until: Homepage loads
+3. Assert: Navigation shows "Login" button in English
+4. Assert: Hero heading says "Welcome to Our Platform"
+5. Click: Language selector
+6. Click: "Español" option
+7. Wait until: Page updates
+8. Assert: Navigation shows "Iniciar sesión" button in Spanish
+9. Assert: Hero heading says "Bienvenido a Nuestra Plataforma"
+```
+
+**Language-specific assertions**:
+The test validates that both the interface language changed (step 8) and content translated correctly (step 9).
+
+### Scenario 5: Access Control Verification
+
+**The test**:
+```
+Test: "Admin features visible only to admin users"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Log in as admin user
+3. Wait until: Dashboard loads
+4. Assert: "Admin Panel" link appears in navigation
+5. Assert: "User Management" section is visible
+6. Assert: "System Settings" option is present
+7. Log out
+8. Log in as regular user
+9. Wait until: Dashboard loads
+10. Assert: "Admin Panel" link does NOT appear
+11. Assert: Regular user features are visible
+```
+
+**Negative and positive assertions**:
+The test verifies both what should appear (steps 4-6) and what should NOT appear (step 10).
+
+## Platform Support
+
+The `Assert` interaction works on both platforms:
+
+**Web**: ✓ Fully supported
+**Mobile**: ✓ Fully supported
+
+The same assertion syntax works identically across web and mobile applications, making your tests portable.
+
+### Platform-Specific Considerations
+
+**Web applications**:
+```
+Assert: Dropdown menu expands with options
+Assert: Modal overlay appears
+Assert: Breadcrumb navigation shows current page
+Assert: Footer with copyright information is visible
+```
+
+**Mobile applications**:
+```
+Assert: Navigation drawer opens
+Assert: Tab bar highlights active tab
+Assert: Status bar shows correct time
+Assert: Back button appears in navigation
+```
+
+**Both platforms**:
+```
+Assert: "Login" button is visible
+Assert: User profile picture appears
+Assert: "Welcome" message displays
+Assert: List shows at least 5 items
+```
+
+## Example Prompts with Context
+
+Here are real-world assertion examples you can use in your tests:
+
+### Basic Element Assertions
+```
+Assert: Logo is in the top left corner
+Assert: "Sign Up" button is visible
+Assert: Search bar appears in the header
+Assert: Footer contains social media links
+Assert: Profile icon is displayed
+```
+
+### Text and Message Assertions
+```
+Assert: Page heading says "My Account"
+Assert: "Success!" confirmation message appears
+Assert: Error message shows "Invalid email address"
+Assert: Welcome text includes the user's name
+Assert: "Your order has been placed" is displayed
+```
+
+### Count and Quantity Assertions
+```
+Assert: Cart shows 3 items
+Assert: Notification badge displays "5"
+Assert: Product grid shows at least 12 products
+Assert: "2 items selected" message appears
+Assert: "Showing 10 of 50 results" is visible
+```
+
+### State and Condition Assertions
+```
+Assert: Form is empty after submission
+Assert: Submit button is disabled
+Assert: Loading spinner has disappeared
+Assert: Modal is closed
+Assert: Menu is expanded
+```
+
+### Content and Data Assertions
+```
+Assert: Product price shows "$29.99"
+Assert: User email displays "john@example.com"
+Assert: Order number "A7B3X9" appears in confirmation
+Assert: Balance shows "$1,234.56"
+Assert: Date shows today's date
+```
+
+### Layout and Position Assertions
+```
+Assert: Navigation menu is at the top of the screen
+Assert: "Add to Cart" button is below product image
+Assert: Sidebar appears on the left
+Assert: Footer is at the bottom of the page
+Assert: Search results appear in the main content area
+```
+
+### Multi-Element Assertions
+```
+Assert: Three payment options are visible (credit card, PayPal, Apple Pay)
+Assert: All required form fields are displayed
+Assert: Login and Sign Up buttons are both present
+Assert: Product listing shows image, title, price, and rating
+```
+
+### Conditional State Assertions
+```
+Assert: "Logged in as admin" indicator is present
+Assert: "Premium Member" badge appears on profile
+Assert: "Out of stock" message displays for product
+Assert: "Draft" label shows on unpublished post
+```
+
+## Best Practices for Effective Assertions
+
+### 1. Be Specific About What You're Asserting
+
+**Vague**:
+```
+Assert: Button is there
+```
+
+**Specific**:
+```
+Assert: "Complete Purchase" button is visible below the order summary
+```
+
+The more specific you are, the more valuable the assertion. If it fails, you'll know exactly what was missing.
+
+### 2. Assert After Every Important Action
+
+Don't perform multiple actions without verification:
+
+**Bad**:
+```
+1. Click: "Add to Cart"
+2. Click: Cart icon
+3. Click: "Checkout"
+4. Click: "Complete Order"
+5. Assert: Order confirmation appears
+```
+
+**Good**:
+```
+1. Click: "Add to Cart"
+2. Assert: Cart badge updates to "1"
+3. Click: Cart icon
+4. Assert: Cart page shows product
+5. Click: "Checkout"
+6. Assert: Checkout form loads
+7. Click: "Complete Order"
+8. Assert: Order confirmation appears
+```
+
+Each assertion validates that the previous action succeeded before continuing.
+
+### 3. Combine Waits with Assertions
+
+For asynchronous operations, wait first, then assert:
+
+```
+1. Click: "Load Data"
+2. Wait until: Loading spinner disappears
+3. Assert: Data table shows results
+```
+
+This pattern handles timing while providing clear validation.
+
+### 4. Use Multiple Assertions for Complex Validations
+
+When you need to verify multiple aspects, use multiple assertions:
+
+```
+After login:
+1. Assert: "Welcome" message appears
+2. Assert: Navigation shows user name
+3. Assert: Profile icon is visible
+4. Assert: "Log out" option is present
+```
+
+This confirms the complete logged-in state, not just one element.
+
+### 5. Assert Both Positive and Negative Cases
+
+Test what should appear AND what shouldn't:
+
+```
+As a regular user:
+1. Assert: Dashboard is accessible
+2. Assert: "My Profile" menu is visible
+3. Assert: "Admin Panel" link does NOT appear
+4. Assert: "User Settings" is available
+```
+
+### 6. Include Context in Your Assertions
+
+**Without context**:
+```
+Assert: Text shows "Error"
+```
+
+**With context**:
+```
+Assert: Error message below email field says "Invalid email format"
+```
+
+Context makes debugging failures much easier.
+
+### 7. Assert Expected Values from Variables
+
+When using extracted data or variables, assert them:
+
+```
+1. Extract information about the order number with key ORDER_ID
+2. Navigate to order history
+3. Assert: Order {{key:ORDER_ID}} appears in the list
+```
+
+This validates the complete data flow.
+
+## Common Pitfalls and How to Avoid Them
+
+### Pitfall 1: Asserting Too Early
+
+**Problem**:
+```
+1. Click: "Submit"
+2. Assert: "Success" message appears ← Fails because processing hasn't finished
+```
+
+**Solution**:
+```
+1. Click: "Submit"
+2. Wait until: Processing completes
+3. Assert: "Success" message appears
+```
+
+Always give asynchronous operations time to complete.
+
+### Pitfall 2: Overly Generic Assertions
+
+**Problem**:
+```
+Assert: Page loaded
+```
+
+**What does "page loaded" mean?** Too vague to be useful.
+
+**Solution**:
+```
+Assert: Dashboard heading "My Dashboard" is visible
+Assert: Product grid shows at least one product
+Assert: Navigation menu is present
+```
+
+Be specific about what indicates "loaded."
+
+### Pitfall 3: Asserting Implementation Details
+
+**Problem**:
+```
+Assert: Element with ID "submit-btn-primary-large" exists
+```
+
+**Why it's problematic**: You're testing HTML structure, not user experience.
+
+**Solution**:
+```
+Assert: "Submit Order" button is visible
+```
+
+Test what users see, not how it's implemented.
+
+### Pitfall 4: Not Asserting Enough
+
+**Problem**:
+```
+Test: "Complete checkout"
+1. Fill checkout form
+2. Click: "Place Order"
+3. Assert: Confirmation page loads
+```
+
+**What's missing**: You didn't verify the order details, confirmation number, or success state.
+
+**Solution**:
+```
+1. Fill checkout form
+2. Click: "Place Order"
+3. Wait until: Processing completes
+4. Assert: "Order Confirmed!" message appears
+5. Assert: Order number is displayed
+6. Assert: Order details match what was submitted
+7. Assert: "Track your order" link is present
+```
+
+### Pitfall 5: Asserting Unstable Elements
+
+**Problem**:
+```
+Assert: Loading spinner is visible
+```
+
+**Why it's problematic**: The spinner might disappear before the assertion runs.
+
+**Solution**:
+```
+Wait until: Loading spinner disappears
+Assert: Results are displayed
+```
+
+Assert the stable end state, not transient loading states.
+
+## Debugging Failed Assertions
+
+When an assertion fails, Autonoma provides details about what it expected versus what it found. Here's how to interpret and fix failures:
+
+### Understanding Failure Messages
+
+**Example failure**:
+```
+Step 8: Assert: Cart badge shows "2"
+Failed: Cart badge shows "1" instead of expected "2"
+```
+
+**What to check**:
+- Did the previous action complete? (Add Wait Until before the assertion)
+- Is the element appearing as expected? (Check the screenshot)
+- Is your assertion too specific? (Maybe "2" appears as "2 items")
+- Did a previous step fail silently? (Review earlier assertions)
+
+### Common Failure Causes
+
+**Element doesn't exist yet**:
+```
+Solution: Add a Wait Until step before the assertion
+```
+
+**Element text doesn't match exactly**:
+```
+Problem: Assert: Message says "Success!"
+Actual: Message says "Success! Your order was placed."
+Solution: Assert: Message contains "Success"
+```
+
+**Element is hidden or obscured**:
+```
+Solution: Scroll to bring element into view, or check if it's in a collapsed menu
+```
+
+## Combining Assert with Other Interactions
+
+Assertions work powerfully in combination with other interactions:
+
+### Assert + Extract Information
+
+```
+1. Complete checkout
+2. Assert: Order confirmation page loads
+3. Extract information about order number with key ORDER_ID
+4. Navigate to order history
+5. Assert: Order {{key:ORDER_ID}} appears in list
+```
+
+First assert the confirmation appeared, then extract data, then assert using that data.
+
+### Assert + API Calls
+
+```
+1. Update profile information
+2. Assert: "Profile updated" message appears
+3. Make API call: GET /api/user/profile
+4. Assert: API response shows updated information
+```
+
+Verify both the UI feedback and the backend state.
+
+### Assert + Scroll
+
+```
+1. Navigate to products page
+2. Scroll: To bottom of page
+3. Assert: Footer is visible
+4. Assert: "Load More" button appears
+```
+
+Scroll to make content visible, then assert it appeared.
+
+## Assertions in Different Testing Strategies
+
+### Smoke Tests
+
+Quick validation that core features work:
+
+```
+Test: "Homepage loads correctly"
+1. Navigate to {{variable:APP_URL}}
+2. Assert: Logo appears
+3. Assert: Navigation menu is visible
+4. Assert: Main heading displays
+5. Assert: "Sign Up" button exists
+```
+
+### Regression Tests
+
+Detailed validation that nothing broke:
+
+```
+Test: "Checkout flow unchanged"
+1. Add product to cart
+2. Assert: Cart shows correct product
+3. Assert: Price matches product page
+4. Proceed to checkout
+5. Assert: All checkout fields present
+6. Assert: Payment options unchanged
+7. Complete checkout
+8. Assert: Confirmation matches expected format
+```
+
+### Acceptance Tests
+
+Validate business requirements:
+
+```
+Test: "Premium users see premium features"
+1. Log in as premium user
+2. Assert: "Premium" badge appears on profile
+3. Assert: "Ad-Free Experience" indicator shows
+4. Assert: Advanced features menu is visible
+5. Assert: Standard features still accessible
+```
+
+## What Makes Assert Different from Traditional Testing
+
+Traditional testing frameworks require you to write code that targets specific elements:
+
+**Traditional approach** (Playwright):
+```javascript
+await expect(page.locator('[data-testid="cart-badge"]')).toHaveText('2');
+await expect(page.locator('.success-message')).toBeVisible();
+```
+
+**Autonoma approach**:
+```
+Assert: Cart badge shows "2"
+Assert: Success message appears
+```
+
+**Key differences**:
+
+1. **No selectors needed** - Describe what to look for, not how to find it
+2. **Visual understanding** - AI recognizes elements like a human would
+3. **Resilient to changes** - UI changes don't break assertions that describe intent
+4. **Natural language** - Write what you expect to see, in plain language
+5. **Context-aware** - AI understands relationships between elements
+
+## When NOT to Use Assert
+
+While assertions are fundamental to testing, sometimes they're not the right tool:
+
+**Don't assert basic HTML functionality**:
+```
+Bad: Assert: Text field accepts keyboard input
+Why: This is browser behavior, not application logic
+```
+
+**Don't assert every element exists**:
+```
+Bad: Assert: Header exists
+Bad: Assert: Footer exists
+Bad: Assert: Body exists
+Why: These are layout fundamentals, not test-worthy conditions
+```
+
+**Don't assert transient states**:
+```
+Bad: Assert: Loading spinner is spinning
+Why: Too fast to reliably catch, assert the result instead
+```
+
+**Don't assert things multiple times**:
+```
+Bad:
+1. Assert: Login button exists
+2. Click: Login button
+3. Assert: Login button was clickable
+Why: Redundant, if clicking succeeded, it was clickable
+```
+
+## Real-World Test Example: Complete Flow
+
+Here's how assertions fit into a complete, real-world test:
+
+```
+Test: "User can complete purchase from product page to confirmation"
+
+Setup and Navigate:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Assert: At least 3 products are visible
+
+Browse and Select:
+4. Click: First product
+5. Wait until: Product page loads
+6. Assert: Product title appears
+7. Assert: Product price is displayed
+8. Assert: "Add to Cart" button is visible
+
+Add to Cart:
+9. Click: "Add to Cart" button
+10. Wait until: Action completes
+11. Assert: Cart badge updates to "1"
+12. Assert: "Added to cart" confirmation appears
+
+View Cart:
+13. Click: Cart icon
+14. Wait until: Cart page loads
+15. Assert: Product appears in cart
+16. Assert: Quantity shows "1"
+17. Assert: Subtotal matches product price
+18. Assert: "Checkout" button is enabled
+
+Proceed to Checkout:
+19. Click: "Checkout" button
+20. Wait until: Checkout form loads
+21. Assert: Shipping fields are displayed
+22. Assert: Payment fields are visible
+23. Assert: Order summary shows correct product
+
+Complete Purchase:
+24. Fill shipping information
+25. Fill payment information
+26. Click: "Place Order" button
+27. Wait until: Processing completes
+28. Assert: "Thank you for your order!" message appears
+29. Assert: Order number is displayed
+30. Assert: Confirmation email note appears
+
+Extract for Future Reference:
+31. Extract information about order number with key ORDER_NUMBER
+
+Verify in Order History:
+32. Navigate to {{variable:APP_URL}}/account/orders
+33. Wait until: Order history loads
+34. Assert: Order {{key:ORDER_NUMBER}} appears in recent orders
+35. Assert: Order status shows "Processing"
+```
+
+**Notice the assertion pattern**:
+- Assert after navigation (confirms page loaded)
+- Assert before actions (confirms element exists)
+- Assert after actions (confirms action succeeded)
+- Assert final state (confirms complete flow worked)
+
+## What's Next
+
+You now understand how to use assertions to validate that your tests actually work—verifying elements exist, text appears, and your application behaves as expected.
+
+Assertions are the foundation of test validation, but sometimes you need to verify something more specific: that your application navigated to the correct URL. That's where URL assertions come in.
+
+---
+
+*Ready to validate navigation? Continue to [Assert URL Location →](/interactions-reference/assert-url-location)*

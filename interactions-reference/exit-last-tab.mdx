@@ -1,0 +1,863 @@
+---
+title: "Exit Last Tab"
+description: "Close the current browser tab and return to the previously active tab—essential for testing multi-tab workflows and cleaning up navigation flows."
+---
+
+## What is Exit Last Tab?
+
+Exit Last Tab is the interaction that closes the currently active browser tab and returns focus to the tab that was previously active. It's the digital equivalent of clicking the "X" button on a browser tab or pressing Cmd+W (Mac) / Ctrl+W (Windows) to close the current tab.
+
+Think of it as the cleanup operation for multi-tab navigation. When you use `open-url-on-new-page` to create new tabs, you use Exit Last Tab to close them and return to your original context.
+
+This interaction is essential for maintaining clean, predictable test flows. Without proper tab cleanup, you can quickly end up with multiple open tabs, making it unclear which tab is active and where your test is operating.
+
+Exit Last Tab works specifically with tabs created during your test session. It closes the current tab and automatically shifts focus to the most recently active tab before it, allowing your test to continue seamlessly in the previous context.
+
+## When to Use Exit Last Tab
+
+This interaction is designed for multi-tab navigation cleanup and context switching. Here's when it's the right choice:
+
+**Perfect for:**
+- Closing tabs opened via `open-url-on-new-page`
+- Returning to the original tab after viewing reference material
+- Cleaning up after product comparison workflows
+- Closing external links that opened in new tabs
+- Managing tab count during long test flows
+- Testing "close tab" functionality explicitly
+- Switching back to previous context after auxiliary tasks
+- Validating that closing tabs doesn't break application state
+
+**Choose an alternative when:**
+- You're navigating backward within a single tab (use `go-back-on-page`)
+- You're on mobile apps (use `go-home` for device navigation)
+- You're navigating forward to a new page (use standard navigation or clicks)
+- You haven't opened any new tabs (no tabs to close)
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not supported (mobile browsers handle tabs differently)
+
+Exit Last Tab is specifically designed for web browser testing where tab management is a core navigation pattern. Mobile applications typically don't use browser tabs in the same way, so this interaction isn't applicable there.
+
+## How It Works
+
+When you use Exit Last Tab, here's what happens:
+
+1. **Tab Identification**: Autonoma identifies the currently active tab
+2. **Tab Closure**: The current tab is closed
+3. **Focus Switch**: Browser focus automatically shifts to the previously active tab
+4. **History Preservation**: The previous tab maintains its state and history
+5. **Test Continues**: Subsequent interactions happen in the now-active previous tab
+
+The key behavior is the focus shift. When you close a tab, the browser automatically activates the tab that was previously in focus (typically the tab you were on before opening the current one). Your test seamlessly continues in that tab.
+
+## Real-World Scenarios
+
+### Scenario 1: Product Comparison with Tab Cleanup
+
+Users open multiple products in tabs to compare them, then close tabs as they eliminate options.
+
+```
+Test: "Compare products and close tabs during elimination"
+
+Navigate to Products:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Assert: Products visible
+
+Open First Product:
+4. Open URL on new page: {{variable:APP_URL}}/products/laptop-model-a
+5. Wait until: Product page loads
+6. Assert: "Laptop Model A" title appears
+7. Extract information about price with key PRODUCT_A_PRICE
+8. Extract information about rating with key PRODUCT_A_RATING
+
+Return to Product List:
+9. Exit last tab (closes Laptop Model A, returns to product grid)
+10. Wait until: Product grid visible
+11. Assert: Product listing displayed
+
+Open Second Product:
+12. Open URL on new page: {{variable:APP_URL}}/products/laptop-model-b
+13. Wait until: Product page loads
+14. Assert: "Laptop Model B" title appears
+15. Extract information about price with key PRODUCT_B_PRICE
+16. Extract information about rating with key PRODUCT_B_RATING
+
+Return to Product List:
+17. Exit last tab (closes Laptop Model B, returns to product grid)
+18. Wait until: Product grid visible
+
+Open Third Product:
+19. Open URL on new page: {{variable:APP_URL}}/products/laptop-model-c
+20. Wait until: Product page loads
+21. Assert: "Laptop Model C" title appears
+22. Extract information about price with key PRODUCT_C_PRICE
+23. Extract information about rating with key PRODUCT_C_RATING
+
+Make Decision and Add to Cart:
+24. Assert: This product has best price/rating combination
+25. Click: "Add to Cart" button
+26. Wait until: Added to cart
+27. Assert: Cart badge updates
+
+Return to Product List:
+28. Exit last tab (closes Laptop Model C, returns to product grid)
+29. Wait until: Product grid visible
+30. Assert: Back on product listing
+31. Click: Cart icon
+32. Verify: Correct product in cart
+```
+
+**Why this works**: This mirrors real shopping behavior—opening products, comparing them, closing tabs as you eliminate options, and eventually choosing one.
+
+### Scenario 2: Reference Documentation While Filling Forms
+
+Users open help documentation while filling forms, then close it when they're done.
+
+```
+Test: "Use help documentation while completing form"
+
+Navigate to Application Form:
+1. Navigate to {{variable:APP_URL}}/application
+2. Wait until: Form loads
+3. Assert: "Job Application" heading appears
+4. Assert: Form fields visible
+
+Start Filling Form:
+5. Click: "Full Name" field
+6. Type: {{random:full_name}}
+7. Click: "Email" field
+8. Type: {{random:email}}
+
+Open Help Documentation for Skills Section:
+9. Open URL on new page: {{variable:APP_URL}}/help/skills-guide
+10. Wait until: Help page loads
+11. Assert: "How to Describe Your Skills" heading appears
+12. Assert: Examples and guidance visible
+13. Extract information about recommended keywords with key SKILL_KEYWORDS
+
+Close Help and Return to Form:
+14. Exit last tab (closes help page, returns to application form)
+15. Wait until: Application form visible
+16. Assert: Previously filled fields still contain data
+
+Fill Skills Section with Guidance:
+17. Click: "Technical Skills" field
+18. Type: "JavaScript, Python, {{key:SKILL_KEYWORDS}}"
+19. Click: "Years of Experience" field
+20. Type: "5"
+
+Open Help Documentation for References Section:
+21. Open URL on new page: {{variable:APP_URL}}/help/references-guide
+22. Wait until: Help page loads
+23. Assert: "Providing References" heading appears
+24. Extract information about required reference count with key REFERENCE_COUNT
+
+Close Help and Return to Form:
+25. Exit last tab (closes help page, returns to application form)
+26. Wait until: Application form visible
+
+Complete References Section:
+27. Assert: Form data still preserved
+28. Add {{key:REFERENCE_COUNT}} references
+29. Fill remaining form fields
+
+Submit Application:
+30. Click: "Submit Application" button
+31. Wait until: Confirmation appears
+32. Assert: "Application submitted successfully" message displays
+```
+
+**Why this works**: Users frequently reference documentation while filling forms. This test validates that workflow with proper tab management.
+
+### Scenario 3: External Link Verification with Cleanup
+
+Testing that external links work correctly, then cleaning up the tabs.
+
+```
+Test: "Verify external links and clean up tabs"
+
+Navigate to About Page:
+1. Navigate to {{variable:APP_URL}}/about
+2. Wait until: About page loads
+3. Assert: "About Our Company" heading appears
+4. Assert: Social media links visible
+
+Test Twitter Link:
+5. Open URL on new page: https://twitter.com/company
+6. Wait until: Twitter page loads
+7. Assert URL Location: https://twitter.com/company
+8. Assert: Company Twitter profile visible
+9. Assert: Company name displayed
+
+Close Twitter and Return:
+10. Exit last tab (closes Twitter, returns to about page)
+11. Wait until: About page visible
+12. Assert: "About Our Company" heading appears
+13. Assert: On company website, not Twitter
+
+Test LinkedIn Link:
+14. Open URL on new page: https://linkedin.com/company/yourcompany
+15. Wait until: LinkedIn page loads
+16. Assert URL Location: https://linkedin.com/company/yourcompany
+17. Assert: Company LinkedIn profile visible
+
+Close LinkedIn and Return:
+18. Exit last tab (closes LinkedIn, returns to about page)
+19. Wait until: About page visible
+20. Assert: Back on company about page
+
+Test GitHub Link:
+21. Open URL on new page: https://github.com/yourcompany
+22. Wait until: GitHub page loads
+23. Assert URL Location: https://github.com/yourcompany
+24. Assert: Company GitHub organization visible
+
+Close GitHub and Return:
+25. Exit last tab (closes GitHub, returns to about page)
+26. Wait until: About page visible
+27. Assert: All external links verified
+28. Assert: Back on original about page with no extra tabs
+```
+
+**Why this works**: External link testing requires opening new tabs. Proper cleanup prevents tab accumulation and keeps tests predictable.
+
+### Scenario 4: Dashboard Reports in Multiple Tabs
+
+Business users open multiple reports, analyze them, and close them as they finish.
+
+```
+Test: "Analyze multiple reports with tab management"
+
+Navigate to Dashboard:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Dashboard loads
+3. Assert: "Analytics Dashboard" heading appears
+4. Assert: Report links visible
+
+Open Sales Report:
+5. Click: "View Sales Report" link (opens in new tab)
+6. Wait until: Sales report loads
+7. Assert: "Monthly Sales Report" heading appears
+8. Assert: Sales chart visible
+9. Extract information about total sales with key SALES_TOTAL
+10. Extract information about top product with key TOP_PRODUCT
+
+Analyze and Close Sales Report:
+11. Assert: Sales data looks reasonable
+12. Exit last tab (closes sales report, returns to dashboard)
+13. Wait until: Dashboard visible
+14. Assert: Back on main dashboard
+
+Open Traffic Report:
+15. Click: "View Traffic Report" link (opens in new tab)
+16. Wait until: Traffic report loads
+17. Assert: "Website Traffic Report" heading appears
+18. Assert: Traffic chart visible
+19. Extract information about total visitors with key VISITOR_COUNT
+20. Extract information about top source with key TOP_SOURCE
+
+Analyze and Close Traffic Report:
+21. Assert: Traffic data captured
+22. Exit last tab (closes traffic report, returns to dashboard)
+23. Wait until: Dashboard visible
+
+Open Conversion Report:
+24. Click: "View Conversion Report" link (opens in new tab)
+25. Wait until: Conversion report loads
+26. Assert: "Conversion Funnel Report" heading appears
+27. Assert: Funnel chart visible
+28. Extract information about conversion rate with key CONVERSION_RATE
+
+Analyze and Close Conversion Report:
+29. Assert: Conversion data captured
+30. Exit last tab (closes conversion report, returns to dashboard)
+31. Wait until: Dashboard visible
+32. Assert: All reports analyzed
+33. Assert: Back on main dashboard with no extra tabs
+
+Generate Summary:
+34. Assert: Have sales total: {{key:SALES_TOTAL}}
+35. Assert: Have visitor count: {{key:VISITOR_COUNT}}
+36. Assert: Have conversion rate: {{key:CONVERSION_RATE}}
+37. Add prompt: "Summary captured from all reports"
+```
+
+**Why this works**: Analysts open reports, extract insights, and close them. This test validates the workflow with proper tab management.
+
+### Scenario 5: Shopping Cart Modification During Checkout
+
+Users sometimes open their cart in a new tab during checkout to verify or modify items.
+
+```
+Test: "Modify cart during checkout using new tab"
+
+Add Products to Cart:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Click: First product
+4. Wait until: Product page loads
+5. Click: "Add to Cart" button
+6. Wait until: Added confirmation
+7. Assert: Cart badge shows "1"
+8. Navigate back to products
+9. Click: Second product
+10. Click: "Add to Cart" button
+11. Assert: Cart badge shows "2"
+
+Start Checkout:
+12. Click: Cart icon
+13. Wait until: Cart page loads
+14. Assert: 2 items in cart
+15. Extract information about cart total with key INITIAL_TOTAL
+16. Click: "Checkout" button
+17. Wait until: Checkout form loads
+
+Realize Need to Check Cart:
+18. Assert: "Shipping Information" form visible
+19. Fill: Name and address fields
+
+Open Cart in New Tab to Review:
+20. Open URL on new page: {{variable:APP_URL}}/cart
+21. Wait until: Cart page loads in new tab
+22. Assert: 2 items visible in cart
+23. Assert: Cart total is {{key:INITIAL_TOTAL}}
+
+Decide to Remove Item:
+24. Click: "Remove" button on second item
+25. Wait until: Cart updates
+26. Assert: Cart now shows 1 item
+27. Extract information about new total with key NEW_TOTAL
+28. Assert: {{key:NEW_TOTAL}} is less than {{key:INITIAL_TOTAL}}
+
+Close Cart Tab and Return to Checkout:
+29. Exit last tab (closes cart tab, returns to checkout)
+30. Wait until: Checkout form visible
+31. Assert: Back on checkout page
+
+Verify Checkout Updates:
+32. Wait until: Order summary reflects cart change
+33. Assert: Order summary shows 1 item (not 2)
+34. Assert: Order total matches {{key:NEW_TOTAL}}
+
+Complete Checkout:
+35. Continue filling checkout form
+36. Submit order
+37. Assert: Order confirmation appears
+```
+
+**Why this works**: Users sometimes modify their cart during checkout. This tests that scenario with proper tab management.
+
+## Example Prompts
+
+Here are effective ways to use Exit Last Tab:
+
+**Basic usage:**
+```
+exit last tab
+close the last tab
+close current tab
+close this tab
+```
+
+**With context:**
+```
+(After viewing help) exit last tab to return to form
+(After comparing product) close the last tab
+(After external link) exit last tab and return to main site
+```
+
+**In test flows:**
+```
+Step 15: Exit last tab (returns to product list)
+Step 22: Close the last tab to return to dashboard
+Step 30: Exit last tab and continue checkout
+```
+
+## Best Practices
+
+### 1. Always Pair with Open URL On New Page
+
+Every time you open a new tab, plan to close it.
+
+**Good:**
+```
+1. (On main page)
+2. Open URL on new page: Reference page
+3. Extract needed information
+4. Exit last tab (returns to main page)
+5. Use extracted information
+```
+
+**Messy:**
+```
+1. (On main page)
+2. Open URL on new page: Page A
+3. Open URL on new page: Page B
+4. Open URL on new page: Page C
+← Now you have 4 tabs open, unclear which is active
+```
+
+**Why**: Clean tab management keeps tests predictable and maintainable.
+
+### 2. Wait After Closing Tab
+
+The previous tab needs time to regain focus and reload if necessary.
+
+**Good:**
+```
+1. Exit last tab
+2. Wait until: Previous page visible
+3. Assert: Expected page loaded
+4. Continue test
+```
+
+**Risky:**
+```
+1. Exit last tab
+2. Click: Element  ← May fail if previous tab not ready
+```
+
+**Why**: Focus switching and page reactivation take time. Always wait before next action.
+
+### 3. Verify Context After Tab Closure
+
+After closing a tab, confirm you're on the expected page.
+
+**Good:**
+```
+1. Exit last tab
+2. Wait until: Page loads
+3. Assert: "Product List" heading visible
+4. Assert URL Location: {{variable:APP_URL}}/products
+5. Continue test
+```
+
+**Risky:**
+```
+1. Exit last tab
+2. Click: "Add to Cart" button  ← What if you're not on product page?
+```
+
+**Why**: Tab closure might not always go where you expect. Verify your context.
+
+### 4. Keep Tab Count Low
+
+Try to minimize the number of simultaneously open tabs.
+
+**Good pattern:**
+```
+1. On main page
+2. Open URL on new page: Page A
+3. Work with Page A
+4. Exit last tab (back to main)
+5. Open URL on new page: Page B
+6. Work with Page B
+7. Exit last tab (back to main)
+← Maximum 2 tabs at any time
+```
+
+**Problematic:**
+```
+1. On main page
+2. Open URL on new page: Page A
+3. Open URL on new page: Page B
+4. Open URL on new page: Page C
+5. Open URL on new page: Page D
+← 5 tabs open, hard to track
+```
+
+**Why**: Fewer simultaneous tabs reduce complexity and memory usage.
+
+### 5. Document Your Tab Management Strategy
+
+Make your tab opening/closing explicit in test documentation.
+
+**Good:**
+```
+Step 10: Open product details in new tab (Main → Product)
+Step 15: Extract product information
+Step 16: Exit last tab to return to main page (Product → Main)
+Step 17: Continue browsing
+```
+
+**Why**: Explicit documentation makes tab management clear for anyone reading the test.
+
+### 6. Handle Tab Closure Failures
+
+Sometimes tab closure might fail or behave unexpectedly. Handle it.
+
+**Good:**
+```
+1. Exit last tab
+2. Wait until: Expected previous page loads
+3. If not on expected page: Add error handling or retry logic
+4. Assert: Context is correct
+5. Continue test
+```
+
+**Why**: Browser behavior can be unpredictable. Verify successful closure.
+
+## Common Pitfalls
+
+### Pitfall 1: Closing Tab Without Verifying Previous Context
+
+**Problem:**
+```
+1. Open URL on new page: Page A
+2. Do some work
+3. Exit last tab
+4. Click: Element  ← What page are we on now?
+```
+
+**Solution:**
+```
+1. Open URL on new page: Page A
+2. Do some work
+3. Exit last tab
+4. Wait until: Expected page loads
+5. Assert: On correct page
+6. Click: Element
+```
+
+**Why**: Tab closure returns to previous tab, but you need to verify which one.
+
+### Pitfall 2: Closing Tabs You Didn't Open
+
+**Problem:**
+```
+Test starts:
+1. Navigate to page (base tab)
+2. Exit last tab  ← Closes the base tab, no tabs left!
+```
+
+**Solution:**
+```
+Only use Exit Last Tab on tabs you explicitly opened
+Don't close your base tab unless intentionally ending the session
+```
+
+**Why**: Closing all tabs can end your test session unexpectedly.
+
+### Pitfall 3: Not Waiting After Tab Closure
+
+**Problem:**
+```
+1. Exit last tab
+2. Immediately click: Element  ← Previous tab might not be ready
+```
+
+**Solution:**
+```
+1. Exit last tab
+2. Wait until: Previous page visible and interactive
+3. Assert: Page loaded
+4. Click: Element
+```
+
+**Why**: Tab switching and page reactivation take time.
+
+### Pitfall 4: Losing Track of Tab Count
+
+**Problem:**
+```
+Test opens many tabs but loses track of which tab is active
+Multiple exit-last-tab calls but unclear where you'll end up
+```
+
+**Solution:**
+```
+Keep mental model of tab stack:
+- Start: Main page (tab 1)
+- Open: Page A (tab 2, now active)
+- Exit: Back to main (tab 1)
+- Open: Page B (tab 2, now active)
+- Exit: Back to main (tab 1)
+
+Document tab transitions in test
+```
+
+**Why**: Complex tab management needs careful tracking.
+
+### Pitfall 5: Using Exit Last Tab on Mobile
+
+**Problem:**
+```
+Mobile test:
+1. Launch mobile app
+2. Open something
+3. Exit last tab  ← Not supported on mobile
+```
+
+**Solution:**
+```
+For mobile: Use appropriate mobile navigation
+Exit Last Tab is web-only
+```
+
+**Why**: Mobile platforms handle navigation differently.
+
+### Pitfall 6: Expecting Closed Tab to Reopen
+
+**Problem:**
+```
+1. Open URL on new page: Product A
+2. Extract product A details
+3. Exit last tab (closes Product A)
+4. Try to interact with Product A  ← Tab is closed!
+```
+
+**Solution:**
+```
+1. Open URL on new page: Product A
+2. Extract ALL needed data from Product A
+3. Exit last tab (closes Product A)
+4. Use extracted data (don't try to interact with closed tab)
+```
+
+**Why**: Once a tab is closed, you can't interact with it anymore.
+
+## Comparison with Similar Interactions
+
+### Exit Last Tab vs Go Back On Page
+
+**Exit Last Tab:**
+- Action: Closes current tab
+- Tab count: Decreases by 1
+- Returns to: Previous tab (different context)
+- History: No history navigation
+- Best for: Multi-tab workflows
+
+**Go Back On Page:**
+- Action: Navigate backward in history
+- Tab count: No change
+- Returns to: Previous page in same tab
+- History: Moves back one step
+- Best for: Single-tab backward navigation
+
+**When to switch**: Use Exit Last Tab when you opened a new tab and want to close it. Use Go Back On Page when navigating within a single tab's history.
+
+### Exit Last Tab vs Open URL On New Page
+
+**Exit Last Tab:**
+- Action: Closes tab
+- Tab count: Decreases
+- Purpose: Cleanup, returning to previous context
+- When: After finishing work in new tab
+
+**Open URL On New Page:**
+- Action: Opens new tab
+- Tab count: Increases
+- Purpose: Branching to new context
+- When: Need to view additional page
+
+**Relationship**: These are complementary. Open creates tabs, Exit closes them. Use together for clean tab management.
+
+### Exit Last Tab vs Navigate to URL
+
+**Exit Last Tab:**
+- Action: Close current tab, return to previous
+- Tab count: Decreases
+- Best for: Closing auxiliary tabs
+- Result: Previous tab becomes active
+
+**Navigate to URL:**
+- Action: Load URL in current tab
+- Tab count: No change
+- Best for: Standard navigation
+- Result: Current tab loads new page
+
+**When to switch**: Use Exit Last Tab to close tabs and return to previous context. Use Navigate to URL to navigate within the current tab.
+
+## Interaction Patterns
+
+### Pattern 1: Open, Extract, Close
+
+The most common pattern: open tab for information, close when done.
+
+```
+1. (On main page)
+2. Open URL on new page: Reference page
+3. Wait until: Reference page loads
+4. Extract needed information
+5. Exit last tab
+6. Wait until: Main page visible
+7. Use extracted information
+```
+
+### Pattern 2: Comparison Loop
+
+Open multiple items sequentially, closing each before opening next.
+
+```
+1. (On list page)
+For each item:
+  2. Open URL on new page: Item details
+  3. Extract item information
+  4. Exit last tab (return to list)
+  5. Compare with previous items
+```
+
+### Pattern 3: External Link Validation
+
+Open external link, verify, close, continue.
+
+```
+1. On page with external links
+2. Open URL on new page: External link
+3. Verify external site loaded
+4. Exit last tab (return to original site)
+5. Test next external link
+```
+
+### Pattern 4: Parallel Task Completion
+
+Open new tab for auxiliary task, close when done.
+
+```
+1. In main workflow
+2. Open URL on new page: Auxiliary task (e.g., help, settings)
+3. Complete auxiliary task
+4. Exit last tab (return to main workflow)
+5. Continue main workflow with task completed
+```
+
+## Advanced Usage
+
+### Managing Multiple Sequential Tabs
+
+```
+Current state: Main page
+
+Open and close first tab:
+1. Open URL on new page: Page A (Main → A)
+2. Work in Page A
+3. Exit last tab (A → Main)
+
+Open and close second tab:
+4. Open URL on new page: Page B (Main → B)
+5. Work in Page B
+6. Exit last tab (B → Main)
+
+Open and close third tab:
+7. Open URL on new page: Page C (Main → C)
+8. Work in Page C
+9. Exit last tab (C → Main)
+
+Result: Back on main page, all auxiliary tabs closed
+```
+
+### Nested Tab Management
+
+```
+Current state: Main page
+
+Open first level:
+1. Open URL on new page: Page A (Main → A)
+2. Work in Page A
+
+Open second level from Page A:
+3. Open URL on new page: Page B (Main, A → B)
+4. Work in Page B
+
+Close second level:
+5. Exit last tab (B → A)
+6. Back on Page A
+
+Close first level:
+7. Exit last tab (A → Main)
+8. Back on Main
+```
+
+### Conditional Tab Cleanup
+
+```
+Test: "Close tabs conditionally based on findings"
+
+1. Open URL on new page: Product A
+2. If product A out of stock:
+   3. Exit last tab (close Product A)
+   4. Open URL on new page: Product B
+   5. If product B in stock:
+      6. Add to cart
+      7. Exit last tab (close Product B)
+```
+
+## Testing Edge Cases
+
+### Closing Last Remaining Tab
+
+```
+Test: "Handle closing last tab"
+
+1. Navigate to page (1 tab open)
+2. Open URL on new page: Page A (2 tabs open)
+3. Exit last tab (1 tab open, back to original)
+4. Exit last tab (0 tabs open)
+5. Verify: Test session ends OR new tab opens (browser-dependent)
+```
+
+### Tab Closure During Page Load
+
+```
+Test: "Close tab while page still loading"
+
+1. Open URL on new page: Slow-loading page
+2. Wait: 1 second (page starts loading but not finished)
+3. Exit last tab (close while loading)
+4. Verify: Previous tab not affected by interrupted load
+```
+
+### Closing Tab with Unsaved Changes
+
+```
+Test: "Close tab with unsaved form data"
+
+1. Open URL on new page: Form page
+2. Fill form partially (don't submit)
+3. Exit last tab (close with unsaved changes)
+4. Verify: Browser may show "Are you sure?" prompt OR closes silently
+5. Handle confirmation if appears
+```
+
+## Browser-Specific Behavior
+
+Different browsers may handle tab closure slightly differently:
+
+**Chrome:**
+- Closing last tab in window keeps window open with new blank tab
+- Fast tab switching
+
+**Firefox:**
+- Similar to Chrome
+- May prompt when closing tabs with forms
+
+**Safari:**
+- Closing last tab may close window
+- Slightly different focus behavior
+
+**Test across browsers** to ensure consistent behavior.
+
+## Key Takeaways
+
+1. **Closes current tab** - Removes active tab and returns to previous one
+2. **Essential for cleanup** - Every opened tab should eventually be closed
+3. **Focus returns to previous** - Automatically switches to the tab that was active before
+4. **Wait after closing** - Previous tab needs time to become fully active
+5. **Verify context** - Always confirm you're on the expected page after closure
+6. **Keep count low** - Minimize number of simultaneously open tabs
+7. **Web only** - Not supported on mobile platforms
+8. **Pair with Open URL** - Use together for clean multi-tab workflows
+9. **Document tab flow** - Make opening/closing explicit in test documentation
+10. **Test edge cases** - Handle closure failures, slow loads, unsaved changes
+
+## What's Next
+
+Now that you understand tab management with Exit Last Tab, explore these related interactions:
+
+- **Open URL On New Page**: Learn how to open new tabs (the counterpart to closing them)
+- **Go Back On Page**: Understand backward navigation within a single tab
+- **Assert URL Location**: Verify you're on the expected page after tab operations
+- **Click**: Explore navigation via clicking links (some open new tabs automatically)

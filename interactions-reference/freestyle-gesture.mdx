@@ -1,0 +1,645 @@
+---
+title: "Freestyle Gesture"
+description: "Perform custom drag gestures from one location to another. Perfect for swipe actions, drag-to-refresh, custom navigation gestures, and freeform dragging interactions."
+---
+
+## What is Freestyle Gesture?
+
+Freestyle Gesture is a flexible interaction that allows you to drag from one location to another on the screen. Unlike structured drag-and-drop or specific swipe directions, Freestyle Gesture lets you specify any two points and create a custom drag path between them.
+
+Think of it like drawing a line on the screen with your finger—you specify where to start and where to end, and Autonoma creates the drag gesture between those points. This makes it perfect for custom swipe gestures, drag-to-refresh actions, unlocking patterns, navigation swipes, and any interaction that requires moving from point A to point B.
+
+Freestyle Gesture is particularly powerful on mobile where swipe gestures are common, but it can also be used on web for drag-based interactions.
+
+## When to Use Freestyle Gesture
+
+Freestyle Gesture is designed for drag-based interactions with specific start and end points.
+
+**Use Freestyle Gesture when:**
+- Swiping from one edge to another (e.g., swipe from left edge to open menu)
+- Drag-to-refresh gestures (drag from top downward)
+- Custom swipe navigation (swipe from right to left to go to next screen)
+- Unlock patterns or swipe-to-unlock gestures
+- Dismissing items by dragging (swipe item left to delete)
+- Page turning gestures (drag corner to turn page)
+- Drawing or tracing interactions
+- Any gesture requiring specific start and end coordinates
+
+**Don't use Freestyle Gesture when:**
+- Standard click or tap works (use Click)
+- Structured drag-and-drop between elements (use drag-and-drop interaction)
+- Scrolling (use scroll interaction)
+- Pinch-to-zoom (use zoom interaction)
+- You need complex multi-touch gestures
+- Single-point interactions are sufficient
+
+## How It Works
+
+Freestyle Gesture creates a drag path between two points:
+
+1. **Start Point Detection**: Identifies the starting location
+2. **End Point Detection**: Identifies the ending location
+3. **Path Calculation**: Determines the drag path between points
+4. **Touch Down**: Initiates contact at start point
+5. **Drag Motion**: Moves along calculated path
+6. **Touch Up**: Releases at end point
+7. **Gesture Recognition**: UI responds to the gesture
+
+The system handles the smooth motion between your specified start and end points, creating a natural drag gesture.
+
+## Platform Support
+
+- **Web**: Not mentioned (primarily for advanced interactions)
+- **Mobile**: Full support
+
+Freestyle Gesture is primarily designed for mobile touch interactions, though it may work on web for drag-based interfaces.
+
+## Example Scenarios
+
+### Scenario 1: Swipe Menu Open
+
+You're testing a mobile app with a hidden side menu that opens by swiping from the left edge.
+
+```
+Test: "Open side navigation menu"
+
+1. Navigate to home screen
+2. Wait until: Screen loads
+3. Add prompt: "drag from the left edge to the center"
+4. Wait until: Menu slides in
+5. Verify: Navigation menu is visible
+6. Click menu item
+7. Verify: Navigation works
+```
+
+**Why Freestyle Gesture works here**: The menu opens via a swipe gesture from left edge to center—a specific drag from one point to another.
+
+### Scenario 2: Drag to Refresh
+
+You're testing a feed that refreshes when you drag from the top downward.
+
+```
+Test: "Refresh content"
+
+1. Navigate to feed
+2. Wait until: Initial content loads
+3. Add prompt: "drag from the top of the screen downward"
+4. Wait until: Refresh animation appears
+5. Wait until: New content loads
+6. Verify: Content has been refreshed
+7. Verify: Timestamp shows recent time
+```
+
+**Why Freestyle Gesture works here**: Drag-to-refresh requires dragging from the top area downward—a vertical drag gesture.
+
+### Scenario 3: Swipe Between Screens
+
+You're testing a carousel or multi-screen interface that advances via horizontal swipes.
+
+```
+Test: "Navigate between screens"
+
+1. Navigate to onboarding
+2. Wait until: First screen displays
+3. Add prompt: "drag from right to left"
+4. Wait until: Second screen slides in
+5. Verify: Second screen is visible
+6. Add prompt: "drag from right to left"
+7. Wait until: Third screen appears
+8. Verify: Third screen content displays
+```
+
+**Why Freestyle Gesture works here**: Screen navigation via swipe requires dragging horizontally from right to left.
+
+### Scenario 4: Swipe to Dismiss
+
+You're testing a list where items can be dismissed by swiping left.
+
+```
+Test: "Dismiss notification"
+
+1. Navigate to notifications
+2. Wait until: Notification list loads
+3. Add prompt: "drag the first notification from left to right"
+4. Wait until: Delete button appears
+5. Click "Delete" button
+6. Wait until: Notification is removed
+7. Verify: Notification no longer in list
+```
+
+**Why Freestyle Gesture works here**: Swipe-to-dismiss requires dragging an item horizontally to reveal actions.
+
+### Scenario 5: Carousel Navigation
+
+You're testing an image carousel that advances by swiping on the carousel area.
+
+```
+Test: "Browse carousel images"
+
+1. Navigate to product page
+2. Wait until: Product carousel loads
+3. Add prompt: "drag from the right of the carousel to the left"
+4. Wait until: Next image appears
+5. Verify: Image 2 is displayed
+6. Add prompt: "drag from the right of the carousel to the left"
+7. Wait until: Next image appears
+8. Verify: Image 3 is displayed
+```
+
+**Why Freestyle Gesture works here**: Carousel swipe requires dragging across the carousel area to advance images.
+
+## Example Prompts
+
+Freestyle Gesture uses "drag from... to..." language:
+
+**Edge to center:**
+```
+drag from the left edge to the center
+drag from the top left corner to the bottom right corner
+drag from the right edge to the middle
+```
+
+**Directional drags:**
+```
+drag from the top of the screen downward
+drag from right to left
+drag from bottom to top
+```
+
+**Element-based drags:**
+```
+drag from the whatsapp icon to the top right corner
+drag from the first item to the left
+drag the notification from left to right
+```
+
+**Carousel/component drags:**
+```
+drag from the left of the carousel to the right of the carousel
+drag from the bottom of the list to the top
+drag from the profile icon to the settings area
+```
+
+**Important**: Must specify two locations—start (from) and end (to). The prompt needs both points.
+
+## Best Practices
+
+### 1. Always Specify Two Locations
+
+Freestyle Gesture requires both start and end points.
+
+**Good:**
+```
+drag from the left edge to the center
+drag from the top of the screen to the middle
+drag from the icon to the trash
+```
+
+**Incomplete:**
+```
+drag from the left  ← Missing end point
+swipe down  ← Need specific start and end
+```
+
+### 2. Use Clear Positional References
+
+Help the system identify exactly where to start and end.
+
+**Good:**
+```
+drag from the top left corner to the bottom right corner
+drag from the left edge of the screen to the center
+drag from the notification to the right side
+```
+
+**Vague:**
+```
+drag from here to there
+swipe over
+move it
+```
+
+### 3. Consider Gesture Direction and Distance
+
+Think about what the gesture needs to accomplish.
+
+**For swipe navigation:**
+```
+drag from right to left  ← Moves content to the left, showing what's on the right
+```
+
+**For pull-to-refresh:**
+```
+drag from the top downward  ← Pulls content down to trigger refresh
+```
+
+**For menu reveal:**
+```
+drag from the left edge to the center  ← Opens left-side menu
+```
+
+### 4. Wait for Gesture Results
+
+Allow time for animations and responses.
+
+**Good:**
+```
+1. drag from left edge to center
+2. Wait until: Menu animation completes
+3. Verify: Menu is visible
+4. Interact with menu
+```
+
+**Risky:**
+```
+1. drag from left edge to center
+2. Immediately click menu item  ← Menu might still be animating
+```
+
+### 5. Verify Gesture Succeeded
+
+Confirm the gesture produced the expected result.
+
+**Good:**
+```
+1. drag from top downward for refresh
+2. Wait until: Refresh indicator appears
+3. Wait until: Content reloads
+4. Verify: New content is present
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Specifying Both Points
+
+**Problem:**
+```
+drag from the left
+# Missing endpoint—where should it drag to?
+```
+
+**Solution:**
+```
+drag from the left edge to the center of the screen
+# Clear start and end points
+```
+
+### Pitfall 2: Using for Non-Drag Interactions
+
+**Problem:**
+```
+Using Freestyle Gesture for standard button clicks
+```
+
+**Solution:**
+```
+Use Click for taps and clicks
+Use Freestyle Gesture only for actual drag movements
+```
+
+### Pitfall 3: Vague Position References
+
+**Problem:**
+```
+drag from there to over there
+# System can't determine locations
+```
+
+**Solution:**
+```
+drag from the top left corner to the bottom right corner
+# Specific, identifiable positions
+```
+
+### Pitfall 4: Not Accounting for Gesture Distance
+
+**Problem:**
+```
+drag from top to almost top
+# Distance too short to trigger gesture
+```
+
+**Solution:**
+```
+Ensure drag distance is sufficient
+Test that gesture distance meets UI threshold
+Drag far enough to trigger the action
+```
+
+### Pitfall 5: Ignoring Animation Timing
+
+**Problem:**
+```
+1. drag to open menu
+2. Click menu item  ← Menu might still be sliding in
+```
+
+**Solution:**
+```
+1. drag to open menu
+2. Wait until: Menu fully opens
+3. Click menu item
+```
+
+## Comparison with Similar Interactions
+
+### Freestyle Gesture vs Click
+
+**Click:**
+- Action: Single tap at point
+- Movement: None
+- Best for: Activating elements
+- Use case: 95% of interactions
+
+**Freestyle Gesture:**
+- Action: Drag from point A to point B
+- Movement: Path between two points
+- Best for: Swipe gestures, custom drags
+- Use case: Gesture-based navigation
+
+**Decision rule**: Use Click for taps. Use Freestyle Gesture for drag movements.
+
+### Freestyle Gesture vs Scroll
+
+**Freestyle Gesture:**
+- Purpose: Specific gesture interaction
+- Control: Precise start and end points
+- Best for: Swipes, reveals, custom gestures
+- Example: Swipe to open menu
+
+**Scroll:**
+- Purpose: Content navigation
+- Control: Scroll direction and amount
+- Best for: Viewing content beyond viewport
+- Example: Scroll down to see more items
+
+**Different purposes**: Freestyle Gesture is for gesture interactions. Scroll is for content navigation.
+
+### Freestyle Gesture vs Drag-and-Drop
+
+**Freestyle Gesture:**
+- Level: Coordinate-based
+- Specification: Start and end positions
+- Best for: Gesture interactions, swipes
+- Example: Drag from left edge to center
+
+**Drag-and-Drop:**
+- Level: Element-based
+- Specification: Source and target elements
+- Best for: Moving items between containers
+- Example: Drag file to folder
+
+**Different abstractions**: Freestyle Gesture uses positions. Drag-and-drop uses elements.
+
+## Interaction Patterns
+
+### Pattern 1: Reveal Hidden Menu
+
+Swipe from edge to reveal menu:
+
+```
+Test: "Access side menu"
+
+1. Navigate to screen
+2. Wait until: Content loads
+3. Add prompt: "drag from the left edge to the center"
+4. Wait until: Menu slides in
+5. Verify: Menu is fully visible
+6. Click menu option
+7. Verify: Navigation occurs
+```
+
+### Pattern 2: Swipe Navigation
+
+Navigate between screens with horizontal swipes:
+
+```
+Test: "Complete onboarding flow"
+
+1. Wait until: First onboarding screen displays
+2. Verify: Welcome message shown
+3. Add prompt: "drag from right to left"
+4. Wait until: Second screen appears
+5. Verify: Features screen shown
+6. Add prompt: "drag from right to left"
+7. Wait until: Third screen appears
+8. Verify: Final screen shown
+9. Click "Get Started"
+```
+
+### Pattern 3: Pull to Refresh
+
+Drag downward to refresh content:
+
+```
+Test: "Refresh feed content"
+
+1. Navigate to feed
+2. Wait until: Initial posts load
+3. Note current top post
+4. Add prompt: "drag from the top of the screen downward"
+5. Wait until: Refresh spinner appears
+6. Wait until: Spinner disappears
+7. Verify: New content loaded
+8. Verify: Top post changed
+```
+
+### Pattern 4: Swipe to Delete
+
+Reveal delete action via swipe:
+
+```
+Test: "Delete item via swipe"
+
+1. Navigate to list
+2. Wait until: Items load
+3. Count initial items
+4. Add prompt: "drag the first item from left to right"
+5. Wait until: Delete button appears
+6. Click "Delete"
+7. Wait until: Item disappears
+8. Verify: Item count decreased by 1
+```
+
+## Advanced Usage
+
+### Chaining Multiple Gestures
+
+Perform multiple gestures in sequence:
+
+```
+Test: "Navigate through carousel"
+
+1. Navigate to gallery
+2. Wait until: Gallery loads
+3. Add prompt: "drag from right to left"
+4. Wait until: Image 2 appears
+5. Add prompt: "drag from right to left"
+6. Wait until: Image 3 appears
+7. Add prompt: "drag from left to right"
+8. Wait until: Image 2 reappears (went back)
+```
+
+### Combining with Other Interactions
+
+Mix gestures with other interactions:
+
+```
+Test: "Use swipe and tap together"
+
+1. Navigate to screen
+2. Add prompt: "drag from left edge to center"  ← Freestyle Gesture
+3. Wait until: Menu appears
+4. Click "Settings"  ← Standard Click
+5. Wait until: Settings screen loads
+6. Toggle switch  ← Standard interaction
+7. Add prompt: "drag from right edge to center"  ← Close menu
+```
+
+### Context-Aware Gestures
+
+Same gesture in different contexts:
+
+```
+Test: "Contextual swipe behavior"
+
+On main screen:
+1. drag from left edge to center
+2. Result: Opens navigation menu
+
+On detail screen:
+3. drag from left edge to center
+4. Result: Goes back to previous screen
+
+Same gesture, different behavior based on context
+```
+
+## Mobile-Specific Considerations
+
+Freestyle Gesture is particularly powerful on mobile:
+
+### Mobile Navigation Patterns
+
+```
+Test: "Standard mobile gestures"
+
+Back gesture:
+- drag from left edge to right  ← Go back
+
+Menu reveal:
+- drag from left edge to center  ← Open menu
+
+Screen transition:
+- drag from right to left  ← Next screen
+- drag from left to right  ← Previous screen
+
+Pull to refresh:
+- drag from top downward  ← Refresh content
+```
+
+### Swipe Threshold
+
+Mobile gestures often have distance thresholds:
+
+```
+Understanding:
+- Short swipe might not trigger action
+- Gesture needs sufficient distance
+- Test to determine minimum drag distance
+
+In tests:
+- Use adequate drag distances
+- "from edge to center" usually sufficient
+- "from right to left" across substantial area
+```
+
+### Gesture Speed
+
+Some gestures are speed-sensitive:
+
+```
+Fast swipe (flick):
+- May scroll further or trigger different action
+- Freestyle Gesture performs standard-speed drag
+
+Slow drag:
+- More controlled
+- May trigger different features (like peek)
+
+Most cases: Standard drag speed works
+```
+
+## Real-World Example: Social Media Feed
+
+Here's a complete test using Freestyle Gesture appropriately:
+
+```
+Test: "Navigate and interact with social media app"
+
+Context: Testing mobile social media application
+Users swipe between tabs and pull to refresh
+
+Step 1: Open side menu
+1. Launch app
+2. Wait until: Feed screen loads
+3. Add prompt: "drag from the left edge to the center"
+4. Wait until: Side menu slides in
+5. Verify: Menu is fully visible
+6. Verify: Profile information shown
+
+Step 2: Navigate via menu
+7. Click "Messages" in menu
+8. Wait until: Messages screen loads
+9. Verify: Message list appears
+
+Step 3: Return to feed and refresh
+10. Click back button
+11. Wait until: Feed screen reappears
+12. Add prompt: "drag from the top of the screen downward"
+13. Wait until: Refresh indicator appears
+14. Wait until: New posts load
+15. Verify: Feed content updated
+
+Step 4: Swipe between tabs
+16. Add prompt: "drag from right to left"
+17. Wait until: Discover tab appears
+18. Verify: Discover content shown
+19. Add prompt: "drag from right to left"
+20. Wait until: Notifications tab appears
+21. Verify: Notifications list shown
+
+Step 5: Dismiss notification
+22. Add prompt: "drag the first notification from left to right"
+23. Wait until: Notification slides out
+24. Verify: Notification removed from list
+
+Why this works:
+- Used Freestyle Gesture for swipe interactions (steps 3, 12, 16, 18, 22)
+- Used standard Click for button presses (steps 7, 10)
+- Specified clear start and end points for each gesture
+- Waited for animations to complete
+- Mixed gesture and tap interactions naturally
+- Verified each action's result
+```
+
+## Key Takeaways
+
+1. **Freestyle Gesture is for drags** - From one point to another
+2. **Two locations required** - Must specify start (from) and end (to)
+3. **Mobile primary** - Designed for mobile touch gestures
+4. **Clear positions** - Use specific location references
+5. **Various uses** - Swipes, reveals, navigation, refresh
+6. **Wait for animations** - Allow gestures to complete
+7. **Verify results** - Confirm gesture achieved goal
+8. **Direction matters** - Left-to-right vs right-to-left have different meanings
+9. **Sufficient distance** - Drag far enough to trigger action
+10. **Not for scrolling** - Use scroll interaction for content navigation
+
+## What's Next
+
+Now that you understand Freestyle Gesture for custom drag interactions, explore these related interactions:
+
+- **Click**: Master the standard tap interaction
+- **Long Press**: Learn about press-and-hold gestures
+- **Double Tap**: Discover double-tap interactions
+- **Scroll**: Understand content navigation through scrolling

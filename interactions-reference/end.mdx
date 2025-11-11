@@ -1,0 +1,767 @@
+---
+title: "End"
+description: "Signal that test execution should stop because the intended action has been completed successfully—used to terminate tests early when objectives are met."
+---
+
+## What is End?
+
+The End interaction explicitly signals that test execution should stop because the action or workflow being tested has been completed successfully. It's like telling Autonoma "we're done here—the test accomplished what it set out to do, no need to continue."
+
+Unlike a test failure (where something went wrong), End represents successful completion. The test achieved its objective, verified what it needed to verify, and can now stop without executing remaining steps.
+
+Think of End as the difference between:
+- **Letting a test run to completion**: Executing every step in the test script
+- **Ending when done**: Stopping as soon as the goal is achieved
+
+This is particularly useful for:
+- Tests with conditional paths where not all branches need to execute
+- Workflows that may complete earlier than expected
+- Tests that find what they're looking for mid-execution
+- Validation that can stop as soon as success is confirmed
+- Tests with multiple exit points based on conditions
+
+## The Test Completion Challenge
+
+Traditional testing frameworks execute every step in a test:
+
+**Linear Execution Problem**
+```
+Test has 20 steps
+Objective achieved at step 12
+Steps 13-20 still execute unnecessarily
+Wastes time and resources
+```
+
+**Conditional Testing Challenge**
+```
+Test: "Find product in search results"
+
+Search for "laptop"
+Check if product appears on page 1 ← Found it!
+If not found, click "Next Page"
+Check if product appears on page 2
+If not found, click "Next Page"
+...continue checking all pages...
+```
+
+Without End, you'd need to write logic for all pages even though you found the product on page 1.
+
+**With End interaction:**
+```
+Test: "Find product in search results"
+
+Search for "laptop"
+Check if product appears on page 1
+If found: End ← Stop here, we're done!
+If not found: Continue to page 2
+...
+```
+
+**End solves these problems** by providing an explicit way to signal successful completion and terminate execution.
+
+## When to Use End
+
+### Use End when:
+
+**Test objective is achieved early**
+```
+Searching for content and finding it before checking all pages
+Validation succeeds before all checks complete
+Required condition is met mid-test
+```
+
+**Conditional workflow completes**
+```
+Test: If feature available, test it; if not, skip
+Feature is available → Test it → End
+Feature not available → End (nothing to test)
+```
+
+**Multiple success paths exist**
+```
+Test can succeed via multiple routes
+Whichever route completes first can End
+No need to execute other paths
+```
+
+**Early exit saves significant time**
+```
+Test has many remaining steps that become unnecessary
+Found what you're looking for
+No value in continuing execution
+```
+
+**Verification confirms success**
+```
+Checked critical condition
+Condition is satisfied
+Further steps are redundant
+```
+
+### Don't use End when:
+
+**Test should execute all steps**
+```
+Comprehensive workflow testing
+Every step validates different aspect
+All steps provide value
+```
+
+**You're avoiding proper assertions**
+```
+Don't use End to skip verifications
+Complete the test properly
+Verify all expected outcomes
+```
+
+**Failure should be reported**
+```
+If test is failing, don't use End
+Let it fail with proper error
+End is for success, not failure
+```
+
+**Test is already at final step**
+```
+If test naturally completes next
+No need for explicit End
+Let it finish normally
+```
+
+## How It Works
+
+When you use End:
+
+1. **Signal Processing**: Autonoma receives the End signal
+2. **Execution Halt**: Test execution stops immediately
+3. **Status Recording**: Test is marked as successfully completed
+4. **Cleanup**: Any necessary cleanup operations occur
+5. **Result Reporting**: Test results show successful completion
+
+The test doesn't fail—it successfully completes early because its objective was met.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+End works identically across all platforms as it's a test execution control, not a platform-specific interaction.
+
+## Real-World Scenarios
+
+### Scenario 1: Early Success in Search Results
+
+You're testing product search, and you only need to verify the product appears somewhere in results—you don't need to check every page.
+
+```
+Test: "Product appears in search results"
+
+Perform Search:
+1. Navigate to {{variable:APP_URL}}/search
+2. Input text: "laptop" in search field
+3. Click "Search" button
+4. Wait until: Results load
+
+Check Page 1:
+5. Assert: Results are displayed
+6. If "Dell XPS 13" appears on page:
+7.   Extract product position with key PRODUCT_POSITION
+8.   Assert: Product found on page 1
+9.   End ← Objective achieved!
+
+Check Page 2 (only if not found on page 1):
+10. Click "Next Page" button
+11. Wait until: Page 2 loads
+12. If "Dell XPS 13" appears on page:
+13.   Extract product position with key PRODUCT_POSITION
+14.   Assert: Product found on page 2
+15.   End ← Objective achieved!
+
+Continue checking additional pages...
+```
+
+**Why End is valuable**: Once you find the product, there's no value in checking remaining pages. End saves time and makes the test intent clear.
+
+### Scenario 2: Conditional Feature Testing
+
+You're testing a feature that may or may not be available based on user account type.
+
+```
+Test: "Test premium feature if available"
+
+Check Account Status:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Dashboard loads
+3. Extract user account type with key ACCOUNT_TYPE
+
+Test Premium Feature if Available:
+4. If {{key:ACCOUNT_TYPE}} equals "Free":
+5.   Assert: Premium features section shows "Upgrade to Premium"
+6.   Assert: Premium badge is displayed with upgrade CTA
+7.   End ← No premium features to test, we're done
+
+8. If {{key:ACCOUNT_TYPE}} equals "Premium":
+9.   Assert: Premium features section is accessible
+10.   Click "Advanced Analytics" (premium feature)
+11.   Wait until: Analytics dashboard loads
+12.   Assert: Advanced charts are displayed
+13.   Assert: Export functionality is available
+14.   Test premium-specific features
+15.   End ← Premium testing complete
+
+Note: Test succeeds in both paths
+```
+
+**Why End is valuable**: The test has two valid completion points. Using End makes each path's completion explicit and avoids unnecessary conditional logic.
+
+### Scenario 3: Multi-Step Verification with Early Success
+
+You're testing form validation that should trigger on the first error found.
+
+```
+Test: "Form validation triggers on first error"
+
+Submit Invalid Form:
+1. Navigate to {{variable:APP_URL}}/signup
+2. Leave all fields empty
+3. Click "Submit" button
+4. Wait until: Validation runs
+
+Check for Errors:
+5. If "Email is required" error appears:
+6.   Assert: Error message is displayed prominently
+7.   Assert: Form did not submit
+8.   Assert: Email field is focused
+9.   End ← Validation working correctly!
+
+If no email error (unexpected):
+10. If "Password is required" error appears:
+11.   Assert: Password error shows (but email error should have appeared first)
+12.   Assert: Form did not submit
+13.   Document: Email validation may not be working
+14.   End ← Found validation, but possibly wrong order
+
+If no errors at all:
+15. Assert: Form should not have submitted with empty fields
+16. Test fails (don't use End here—this is actual failure)
+```
+
+**Why End is valuable**: You're testing that validation triggers, not testing every single validation error. Once confirmed working, test can End.
+
+### Scenario 4: Resource Availability Check
+
+You're testing a booking system where you need to find any available slot—you don't care which one.
+
+```
+Test: "Find and book available appointment slot"
+
+Navigate to Booking:
+1. Navigate to {{variable:APP_URL}}/appointments
+2. Wait until: Calendar loads
+3. Select date: Tomorrow
+
+Check Morning Slots:
+4. If any morning slot shows "Available":
+5.   Extract first available slot time with key SLOT_TIME
+6.   Click on {{key:SLOT_TIME}} slot
+7.   Wait until: Booking form appears
+8.   Complete booking form
+9.   Click "Confirm Booking" button
+10.   Wait until: Confirmation appears
+11.   Assert: Booking confirmed for {{key:SLOT_TIME}}
+12.   End ← Successfully booked!
+
+Check Afternoon Slots (only if no morning slots):
+13. Scroll to afternoon section
+14. If any afternoon slot shows "Available":
+15.   Extract first available slot time with key SLOT_TIME
+16.   Click on {{key:SLOT_TIME}} slot
+17.   Complete booking
+18.   Assert: Booking confirmed
+19.   End ← Successfully booked!
+
+Check Evening Slots (only if no afternoon slots):
+20. Continue checking evening slots...
+```
+
+**Why End is valuable**: You only need to book one slot. Once booked, the test objective is met—no need to check remaining time slots.
+
+### Scenario 5: Progressive Content Loading
+
+You're testing infinite scroll where you need to confirm content loads, but don't need to scroll through everything.
+
+```
+Test: "Infinite scroll loads additional content"
+
+Initial Load:
+1. Navigate to {{variable:APP_URL}}/feed
+2. Wait until: Initial posts load
+3. Count visible posts with key INITIAL_COUNT
+4. Assert: At least 10 posts visible
+
+Scroll Once:
+5. Scroll to bottom of page
+6. Wait 2 seconds for content to load
+7. Count visible posts with key AFTER_FIRST_SCROLL
+8. If {{key:AFTER_FIRST_SCROLL}} > {{key:INITIAL_COUNT}}:
+9.   Assert: Additional posts loaded successfully
+10.   Assert: Infinite scroll is working
+11.   End ← Confirmed infinite scroll works!
+
+Scroll Again (only if first scroll didn't trigger loading):
+12. Scroll to bottom again
+13. Wait 2 seconds
+14. Count visible posts with key AFTER_SECOND_SCROLL
+15. If {{key:AFTER_SECOND_SCROLL}} > {{key:AFTER_FIRST_SCROLL}}:
+16.   Assert: Posts eventually loaded
+17.   End ← Infinite scroll works, just slower
+
+Continue testing if still no additional content...
+```
+
+**Why End is valuable**: Once you confirm infinite scroll works, there's no value in scrolling through 1000s of posts. End confirms success early.
+
+### Scenario 6: Redundant Step Elimination
+
+You're testing checkout but want to stop if payment fails—no need to test order confirmation if payment didn't work.
+
+```
+Test: "Complete checkout successfully"
+
+Add Item to Cart:
+1. Navigate to products
+2. Add product to cart
+3. Proceed to checkout
+
+Fill Shipping Info:
+4. Enter shipping address
+5. Select shipping method
+6. Click "Continue to Payment"
+
+Process Payment:
+7. Enter test credit card details
+8. Click "Place Order" button
+9. Wait until: Payment processing completes
+
+10. If "Payment Failed" message appears:
+11.   Assert: Payment failure message is clear
+12.   Assert: Error explains reason
+13.   Assert: User can retry payment
+14.   End ← Payment failed (expected in test environment)
+    Note: This is successful test completion—we tested payment failure handling
+
+15. If payment succeeds:
+16.   Wait until: Order confirmation appears
+17.   Extract order number with key ORDER_NUMBER
+18.   Assert: Confirmation shows order {{key:ORDER_NUMBER}}
+19.   Assert: Confirmation email sent
+20.   End ← Checkout successful!
+```
+
+**Why End is valuable**: If payment fails (which might be expected in test environment), there's no order confirmation to verify. End allows the test to complete successfully at either outcome.
+
+## Example Prompts
+
+Here's the effective way to phrase End commands:
+
+**Basic end:**
+```
+end
+```
+
+That's it. The End interaction is simple—just signal that execution should stop.
+
+**With context (in comments/documentation):**
+```
+# Test objective achieved - ending test
+end
+
+# Found target product - no need to continue
+end
+
+# Validation confirmed - test complete
+end
+```
+
+The interaction itself is just "end", but you can document why you're ending in test comments or step descriptions.
+
+## Best Practices
+
+### 1. Use End for Success, Not Failure
+
+End is for successful completion:
+
+**Correct use:**
+```
+1. Search for product
+2. If product found on page 1:
+3.   Assert: Product is displayed
+4.   End ← Success!
+```
+
+**Incorrect use:**
+```
+1. Search for product
+2. If product NOT found:
+3.   End ← Wrong! This should fail, not end
+```
+
+### 2. Document Why You're Ending
+
+Make it clear why execution stops:
+
+```
+1. Verify feature availability
+2. If feature available:
+3.   Test feature completely
+4.   End ← Feature tested successfully
+
+5. If feature not available:
+6.   Assert: Feature is properly hidden
+7.   End ← No feature to test, but confirmed proper behavior
+```
+
+### 3. Assert Before Ending
+
+Confirm success before ending:
+
+**Good:**
+```
+1. Find target element
+2. Assert: Element is visible
+3. Assert: Element contains correct data
+4. End ← Verified and ending
+```
+
+**Bad:**
+```
+1. Find target element
+2. End ← Did you verify it's correct?
+```
+
+### 4. Use End to Avoid Redundant Steps
+
+If remaining steps add no value:
+
+```
+1. Submit form
+2. If validation error appears:
+3.   Assert: Error message is appropriate
+4.   End ← No need to test post-submission steps
+
+5. If form submits successfully:
+6.   Continue with post-submission testing...
+```
+
+### 5. Consider Test Clarity
+
+Sometimes running all steps is clearer:
+
+**With End (efficient but less thorough):**
+```
+1. Check if feature exists
+2. If exists: End ← Quick but doesn't test feature
+```
+
+**Without End (more thorough):**
+```
+1. Check if feature exists
+2. Assert: Feature is accessible
+3. Test feature functionality
+4. Verify feature works correctly
+```
+
+Choose based on test objectives.
+
+### 6. Use End in Conditional Paths
+
+When test has multiple success paths:
+
+```
+Path A:
+1. Try approach A
+2. If successful: End
+
+Path B (only if A fails):
+3. Try approach B
+4. If successful: End
+
+Path C (only if A and B fail):
+5. Try approach C
+6. Verify one approach worked
+```
+
+### 7. Don't Overuse End
+
+Not every test needs End:
+
+**Unnecessary End:**
+```
+1. Fill form
+2. Submit form
+3. Verify confirmation
+4. End ← Test would end naturally anyway
+```
+
+**Valuable End:**
+```
+1. Search 100 pages for item
+2. If found on page 3:
+3.   Verify item
+4.   End ← Saves checking 97 more pages
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using End to Hide Failures
+
+**Problem:**
+```
+1. Try to click button
+2. If button not found:
+3.   End ← Wrong! This is failure, not success
+```
+
+**Solution:**
+```
+1. Try to click button
+2. If button not found:
+3.   Assert: Button should exist ← Let it fail properly
+```
+
+### Pitfall 2: Ending Without Verification
+
+**Problem:**
+```
+1. Search for product
+2. Product appears to be on page
+3. End ← Did you verify it's the right product?
+```
+
+**Solution:**
+```
+1. Search for product
+2. Product appears on page
+3. Assert: Product name matches search
+4. Assert: Product is clickable
+5. End ← Now we've verified it
+```
+
+### Pitfall 3: Ending in Middle of Transaction
+
+**Problem:**
+```
+1. Submit payment
+2. Payment appears to process
+3. End ← Payment might still be processing!
+```
+
+**Solution:**
+```
+1. Submit payment
+2. Wait until: Payment completes
+3. Assert: Payment successful or failed
+4. End ← Now payment is in known state
+```
+
+### Pitfall 4: Using End Instead of Proper Control Flow
+
+**Problem:**
+```
+Using End everywhere instead of if/else logic
+Makes test flow confusing
+```
+
+**Solution:**
+```
+Use proper conditional logic
+Use End only when truly completing early
+Keep test flow clear and logical
+```
+
+### Pitfall 5: Not Documenting End Reason
+
+**Problem:**
+```
+Step 15: End
+```
+
+Why? What was accomplished?
+
+**Solution:**
+```
+Step 15: End
+Reason: Product found on page 1, search validation complete
+Alternative: Could check all pages, but one is sufficient
+```
+
+## Advanced Patterns
+
+### Pattern 1: Progressive Search with Early Exit
+
+```
+Test: "Find product in multi-page search results"
+
+Search:
+1. Search for "laptop"
+
+Check Each Page:
+2. For page_num in 1 to 10:
+3.   Wait until: Page loads
+4.   If target product found:
+5.     Verify product details
+6.     Extract page number with key FOUND_ON_PAGE
+7.     End ← Found it, no need to check more pages
+8.   Otherwise:
+9.     Click "Next Page"
+
+10. If reached here (10 pages checked):
+11.   Assert: Product should have been found
+    Test fails (didn't use End, so product wasn't found)
+```
+
+### Pattern 2: Multiple Valid Outcomes
+
+```
+Test: "Payment processing handles all scenarios"
+
+Submit Payment:
+1. Complete payment form
+2. Click "Pay Now"
+3. Wait until: Result appears
+
+Handle Results:
+4. If "Payment Successful":
+5.   Verify order created
+6.   End ← Success path complete
+
+7. If "Payment Declined":
+8.   Verify error handling
+9.   Verify retry option available
+10.   End ← Failure handling verified
+
+11. If "Payment Pending":
+12.   Verify pending status shown
+13.   Verify notification sent
+14.   End ← Pending handling verified
+
+All three outcomes are valid test completions
+```
+
+### Pattern 3: Tiered Validation
+
+```
+Test: "Progressive validation from critical to optional"
+
+Critical Validation:
+1. Verify core feature loads
+2. If core feature missing:
+3.   Assert: Core feature should exist
+    Test fails (don't use End for failures)
+
+4. If core feature present:
+5.   Test core functionality
+6.   Assert: Core works correctly
+
+Optional Feature Check:
+7. If optional feature A available:
+8.   Test optional feature A
+9.   End ← Core + Optional tested
+
+10. If optional feature A not available:
+11.   Assert: Core still works without optional
+12.   End ← Core tested, optional gracefully absent
+
+Both paths succeed
+```
+
+### Pattern 4: Time-Limited Search
+
+```
+Test: "Find element within reasonable time"
+
+Timed Search:
+1. Start timer
+2. Begin searching for element
+
+3. Check every 1 second:
+4.   If element found:
+5.     Verify element
+6.     End ← Found within acceptable time
+
+7.   If timer > 30 seconds:
+8.     Assert: Element should appear within 30 seconds
+      Test fails (element took too long or doesn't exist)
+
+9.   Continue checking...
+```
+
+## When Not to Use End
+
+### Complete Workflows Need Full Execution
+
+```
+Test: "Complete user registration flow"
+
+Should NOT use End because:
+1. Every step validates different aspect
+2. Full flow proves integration works
+3. Each verification provides value
+4. Ending early skips important checks
+
+Complete all steps:
+1. Fill registration form
+2. Submit form
+3. Verify account created
+4. Verify confirmation email sent
+5. Verify user can login
+6. Verify profile data persisted
+← All steps important, no early End
+```
+
+### Data Collection Tests
+
+```
+Test: "Collect performance metrics across flow"
+
+Should NOT use End because:
+- Need to collect timing at each step
+- Each step provides metric data
+- Full execution creates complete dataset
+
+Run all steps to gather complete metrics
+```
+
+### Regression Testing
+
+```
+Test: "Comprehensive regression check"
+
+Should NOT use End because:
+- Testing that everything still works
+- Each step confirms no regression
+- Ending early might miss regressions
+
+Execute all steps to verify nothing broke
+```
+
+## What's Next
+
+Now that you understand End, you can:
+- Create more efficient tests that stop when objectives are met
+- Handle conditional testing paths with multiple valid endings
+- Avoid executing redundant steps after success is confirmed
+- Make test intentions clear through explicit completion points
+- Optimize test execution time by ending early when appropriate
+
+End is a control flow interaction that makes test execution more efficient and test intentions more explicit.
+
+Explore related interactions:
+- **Assert**: Verify conditions before ending
+- **Wait Until**: Wait for conditions before deciding to end
+- **Conditional Click**: Make decisions that might lead to ending
+- **Extract Information**: Capture data before ending test
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

@@ -1,0 +1,792 @@
+---
+title: "Unset Camera Image"
+description: "Clear previously set camera images from memory, enabling clean slate testing for sequential photo captures and preventing image reuse in multi-step mobile tests."
+---
+
+## What is Unset Camera Image?
+
+Unset Camera Image is the cleanup companion to Set Camera Image. It removes any previously loaded camera image from Autonoma's memory, ensuring that subsequent camera interactions start with a clean slate.
+
+Think of it as the "reset" button for camera testing. When you've used Set Camera Image to provide a test photo and that photo has served its purpose, Unset Camera Image clears it out so the next camera interaction doesn't accidentally reuse the same image.
+
+What makes this interaction important is its role in test reliability and clarity. Without proper cleanup between camera captures, tests that involve multiple photos can become confusing—you might intend to capture a new photo but inadvertently use the previous test image. Unset Camera Image prevents this ambiguity by explicitly clearing the loaded image.
+
+## When to Use Unset Camera Image
+
+Unset Camera Image should be used whenever you need to ensure a clean camera state in your mobile app tests. Here's when it's the right tool:
+
+**Perfect for:**
+- Between multiple photo captures in the same test
+- After completing a photo upload to prepare for the next one
+- When testing "cancel camera" workflows (user backs out without capturing)
+- Cleaning up test state before the next test step
+- Preventing accidental image reuse in complex multi-photo flows
+- Resetting camera state after photo rejection or retake
+- End of test cleanup for better test isolation
+
+**Required when:**
+- Your test captures multiple different photos sequentially
+- You want explicit control over when images are cleared
+- Testing scenarios where users might cancel or retry photo capture
+- You need to verify "no image set" states in your app
+- Building test suites with multiple camera-dependent tests
+
+**Optional when:**
+- Your test only captures one photo (cleanup happens automatically at test end)
+- Each test is completely isolated (no image persistence between tests)
+- You immediately set a new camera image (overwrites the previous one)
+
+**Not needed when:**
+- Testing web applications (not applicable to web)
+- Using Set File to Upload instead of camera features
+- Your test has completed and no further camera interactions occur
+
+## How It Works
+
+When you use Unset Camera Image in Autonoma, here's what happens:
+
+1. **Memory Check**: Autonoma verifies if a camera image is currently set
+2. **Image Removal**: The stored image reference is cleared from memory
+3. **State Reset**: Camera interaction state returns to "no image set"
+4. **Cleanup Confirmation**: The operation completes, ready for next interaction
+5. **Memory Release**: Associated image data is released (garbage collected)
+
+From this point forward, any camera interactions will not have a pre-loaded image unless you explicitly set a new one with Set Camera Image.
+
+## Platform Support
+
+- **Web**: Not applicable (camera image setting is mobile-only)
+- **Mobile**: Full support (Android and iOS)
+
+Unset Camera Image is exclusively for mobile application testing where camera functionality is involved.
+
+## Real-World Scenarios
+
+### Scenario 1: Multiple Product Photos for Marketplace Listing
+
+You're testing a marketplace app where sellers add multiple photos of an item they're selling.
+
+```
+Test: "Create listing with 3 product photos"
+
+1. Navigate to "Sell Item" screen
+2. Type "Vintage Camera" in product name field
+3. Type "299.99" in price field
+4. Click "Category" dropdown
+5. Click "Electronics" option
+
+# First photo: Front view
+6. Set camera image: https://example.com/product-front.jpg
+7. Click "Add Photo" button
+8. Wait until: First photo thumbnail appears
+9. Verify: Photo 1 is visible in gallery
+10. Unset camera image ← Clear after successful capture
+
+# Second photo: Side view
+11. Set camera image: https://example.com/product-side.jpg
+12. Click "Add Photo" button
+13. Wait until: Second photo thumbnail appears
+14. Verify: Photo 2 is visible in gallery
+15. Unset camera image ← Clear after successful capture
+
+# Third photo: Details/close-up
+16. Set camera image: https://example.com/product-detail.jpg
+17. Click "Add Photo" button
+18. Wait until: Third photo thumbnail appears
+19. Verify: Photo 3 is visible in gallery
+20. Unset camera image ← Final cleanup
+
+21. Click "Publish Listing" button
+22. Wait until: "Listing published" message appears
+```
+
+**Why this approach works**: By unsetting the camera image after each photo, you ensure each capture is independent and intentional. There's no risk of accidentally reusing a previous photo if the test logic changes.
+
+**Pattern**: Set → Capture → Verify → Unset → Repeat
+
+### Scenario 2: Photo Retake Workflow
+
+You're testing a profile picture feature where users can retake photos if they're not satisfied.
+
+```
+Test: "Retake profile picture if unsatisfied"
+
+1. Navigate to profile setup screen
+2. Wait until: "Add Profile Picture" screen loads
+
+# First attempt: User takes photo but doesn't like it
+3. Set camera image: https://example.com/profile-first-attempt.jpg
+4. Click "Take Photo" button
+5. Wait until: Photo preview appears
+6. Verify: Preview shows captured photo
+7. Click "Retake" button ← User decides to try again
+8. Wait until: Preview closes
+9. Unset camera image ← Clear the rejected photo
+
+# Second attempt: User takes new photo and accepts it
+10. Set camera image: https://example.com/profile-second-attempt.jpg
+11. Click "Take Photo" button
+12. Wait until: Photo preview appears
+13. Verify: Preview shows different photo
+14. Click "Use This Photo" button
+15. Wait until: Profile picture saved
+16. Verify: New profile picture appears in header
+17. Unset camera image ← Final cleanup
+```
+
+**Why this approach works**: The "Retake" workflow requires clearing the first photo before capturing the second. Unset Camera Image explicitly models this user behavior.
+
+**Real-world parallel**: Just like a user retaking a selfie, the test discards the first attempt and captures a fresh one.
+
+### Scenario 3: Testing Camera Cancelation
+
+You're testing what happens when users open the camera but cancel without taking a photo.
+
+```
+Test: "Cancel photo capture and return to form"
+
+1. Navigate to job application form
+2. Type "John Smith" in name field
+3. Type "john@example.com" in email field
+4. Click "Add Resume Photo" button
+5. Wait until: Camera screen opens
+
+# User changes mind and cancels
+6. Click "Cancel" button (or back button)
+7. Wait until: Form screen returns
+8. Verify: No photo is attached
+9. Verify: "Add Resume Photo" button still visible
+
+# Test that we can still capture photo after canceling
+10. Set camera image: https://example.com/resume-photo.jpg
+11. Click "Add Resume Photo" button
+12. Wait until: Camera captures photo
+13. Wait until: Photo thumbnail appears
+14. Verify: Photo is now attached
+15. Unset camera image
+```
+
+**Why this approach works**: By not setting a camera image before the first "Add Resume Photo" click, you test the true cancelation flow. Then you set an image for the successful capture that follows.
+
+**Edge case covered**: This ensures your app properly handles camera cancelation without crashing or getting stuck.
+
+### Scenario 4: Document Scanning with Multiple Pages
+
+You're testing a document scanner app that captures multiple pages of a document.
+
+```
+Test: "Scan multi-page document"
+
+1. Navigate to document scanner
+2. Click "New Document" button
+3. Wait until: Scanner screen appears
+
+# Page 1
+4. Set camera image: https://example.com/document-page-1.jpg
+5. Click "Capture Page" button
+6. Wait until: "Page 1 added" confirmation appears
+7. Verify: Page count shows "1 page"
+8. Unset camera image ← Clear after page 1
+
+# Page 2
+9. Click "Add Another Page" button
+10. Set camera image: https://example.com/document-page-2.jpg
+11. Click "Capture Page" button
+12. Wait until: "Page 2 added" confirmation appears
+13. Verify: Page count shows "2 pages"
+14. Unset camera image ← Clear after page 2
+
+# Page 3
+15. Click "Add Another Page" button
+16. Set camera image: https://example.com/document-page-3.jpg
+17. Click "Capture Page" button
+18. Wait until: "Page 3 added" confirmation appears
+19. Verify: Page count shows "3 pages"
+20. Unset camera image ← Clear after page 3
+
+21. Click "Save Document" button
+22. Wait until: "Document saved" message appears
+23. Verify: 3-page document appears in document list
+```
+
+**Why this approach works**: Each page capture is a complete, independent operation. Unsetting between pages ensures clean separation and prevents any possibility of page confusion.
+
+**Document scanning pattern**: Set → Capture page → Unset → Repeat for each page
+
+### Scenario 5: Before and After Photos
+
+You're testing a home improvement app where users take "before" and "after" photos of their projects.
+
+```
+Test: "Document home project with before/after photos"
+
+1. Navigate to "New Project" screen
+2. Type "Kitchen Renovation" in project name field
+3. Click "Start Date" field
+4. Select today's date
+5. Type "Updating cabinets and countertops" in description
+
+# Before photo
+6. Click "Add Before Photo" button
+7. Wait until: Camera selection screen appears
+8. Set camera image: https://example.com/kitchen-before.jpg
+9. Click "Take Photo" option
+10. Wait until: Before photo captured
+11. Verify: "Before photo" thumbnail appears
+12. Unset camera image ← Clear before photo
+
+# After photo (taken later in project timeline)
+13. Click "Add After Photo" button
+14. Wait until: Camera selection screen appears
+15. Set camera image: https://example.com/kitchen-after.jpg
+16. Click "Take Photo" option
+17. Wait until: After photo captured
+18. Verify: "After photo" thumbnail appears
+19. Verify: Both thumbnails are visible
+20. Unset camera image ← Clear after photo
+
+21. Click "Save Project" button
+22. Wait until: Project saved confirmation appears
+```
+
+**Why this approach works**: The explicit unset between "before" and "after" photos creates clear separation, making the test more readable and maintainable.
+
+**User story alignment**: This mirrors how users capture photos at different times during their project.
+
+### Scenario 6: Receipt Scanning with Rejection
+
+You're testing an expense app that rejects blurry or low-quality receipt photos.
+
+```
+Test: "Handle rejected receipt and capture new one"
+
+1. Navigate to new expense screen
+2. Type "Client Dinner" in description field
+3. Type "85.50" in amount field
+
+# First attempt: Low quality receipt (rejected)
+4. Set camera image: https://example.com/receipt-blurry.jpg
+5. Click "Scan Receipt" button
+6. Wait until: Receipt processing occurs
+7. Wait until: "Receipt quality too low" error appears
+8. Verify: Error message is visible
+9. Click "Try Again" button
+10. Unset camera image ← Clear rejected receipt
+
+# Second attempt: High quality receipt (accepted)
+11. Set camera image: https://example.com/receipt-clear.jpg
+12. Click "Scan Receipt" button
+13. Wait until: Receipt processing occurs
+14. Wait until: "Receipt verified" message appears
+15. Verify: Receipt thumbnail appears
+16. Verify: OCR extracted amount "85.50"
+17. Unset camera image ← Clear after success
+
+18. Click "Submit Expense" button
+19. Wait until: Expense submitted confirmation appears
+```
+
+**Why this approach works**: Testing both rejection and acceptance scenarios requires clean separation between attempts. Unset Camera Image ensures the second capture is clearly a new attempt.
+
+**Quality validation pattern**: Set low-quality → Rejected → Unset → Set high-quality → Accepted → Unset
+
+## Example Prompts
+
+Here are effective ways to phrase Unset Camera Image interactions:
+
+**Basic unset:**
+```
+unset camera image
+clear camera image
+remove camera image
+```
+
+**With context:**
+```
+unset the camera image after capture
+clear the camera image before next photo
+remove the set camera image
+```
+
+**Natural language:**
+```
+clear the test photo from camera
+remove the camera image from memory
+unset camera image for next capture
+```
+
+**After completion:**
+```
+unset camera image after successful upload
+clear camera image after photo accepted
+```
+
+## Best Practices
+
+### 1. Unset After Each Successful Capture
+
+In multi-photo tests, unset after each successful photo to maintain clarity.
+
+**Good:**
+```
+# Photo 1
+1. Set camera image: photo1.jpg
+2. Capture photo
+3. Verify capture
+4. Unset camera image ← Clean up
+
+# Photo 2
+5. Set camera image: photo2.jpg
+6. Capture photo
+7. Verify capture
+8. Unset camera image ← Clean up again
+```
+
+**Less clear:**
+```
+# Photo 1
+1. Set camera image: photo1.jpg
+2. Capture photo
+
+# Photo 2
+3. Set camera image: photo2.jpg ← Overwrites, but less explicit
+4. Capture photo
+```
+
+### 2. Unset Before Setting a New Image
+
+For extra clarity, unset before setting a new camera image in complex flows.
+
+**Extra clear:**
+```
+1. Set camera image: photo1.jpg
+2. Capture photo
+3. Verify success
+4. Unset camera image ← Explicit clear
+5. Set camera image: photo2.jpg ← Fresh start
+6. Capture photo
+```
+
+**Also works:**
+```
+1. Set camera image: photo1.jpg
+2. Capture photo
+3. Set camera image: photo2.jpg ← Implicitly replaces
+4. Capture photo
+```
+
+The first approach is more explicit and easier to understand.
+
+### 3. Unset After Rejection or Cancelation
+
+When users cancel or their photo is rejected, unset before the next attempt.
+
+**Good:**
+```
+1. Set camera image: blurry-photo.jpg
+2. Capture photo
+3. Wait until: "Quality too low" error
+4. Unset camera image ← Clear rejected photo
+5. Set camera image: clear-photo.jpg ← New attempt
+6. Capture photo
+7. Verify: Success
+```
+
+### 4. Use Comments to Explain Unset Timing
+
+Add comments in your tests to clarify why you're unsetting at specific moments.
+
+**Good:**
+```
+1. Set camera image: profile.jpg
+2. Click "Take Photo" button
+3. Wait until: Photo captured
+4. Unset camera image ← Clear after successful capture
+5. Navigate to next screen
+```
+
+### 5. Unset at End of Camera Workflows
+
+Even if optional, unset at the end of camera workflows for cleaner test state.
+
+**Good hygiene:**
+```
+Test: "Upload profile picture"
+
+1. Set camera image: photo.jpg
+2. Click "Take Photo" button
+3. Wait until: Upload completes
+4. Verify: Profile picture visible
+5. Unset camera image ← Clean up at end
+
+# Next test starts with clean state
+```
+
+### 6. Don't Unset Before First Set
+
+You don't need to unset before the first Set Camera Image of a test.
+
+**Unnecessary:**
+```
+1. Unset camera image ← Not needed (nothing is set yet)
+2. Set camera image: photo.jpg
+3. Capture photo
+```
+
+**Better:**
+```
+1. Set camera image: photo.jpg
+2. Capture photo
+```
+
+Tests start with a clean state automatically.
+
+### 7. Consider Test Isolation
+
+In test suites with multiple camera tests, each test should start fresh. Unset at the end helps, but Autonoma typically handles this automatically.
+
+**Optional but good practice:**
+```
+Test 1: "Upload profile picture"
+  - Set camera image
+  - Capture and upload
+  - Unset camera image ← Clean up
+
+Test 2: "Upload product photo"
+  - Set camera image ← Starts fresh anyway
+  - Capture and upload
+  - Unset camera image ← Clean up
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Unsetting Before Using Set Image
+
+**Problem:**
+```
+1. Set camera image: photo.jpg
+2. Unset camera image ← Removes it immediately
+3. Click "Take Photo" button ← No image available
+```
+
+You unset the image before actually using it for capture.
+
+**Solution:**
+```
+1. Set camera image: photo.jpg
+2. Click "Take Photo" button ← Use it first
+3. Wait until: Photo captured
+4. Unset camera image ← Then clean up
+```
+
+### Pitfall 2: Forgetting to Unset in Long Tests
+
+**Problem:**
+```
+Test: "Complete profile with photos"
+
+1. Set camera image: photo1.jpg
+2. Capture profile picture
+# ... 50 more test steps ...
+53. Set camera image: photo2.jpg ← Forgot to unset photo1
+54. Capture cover photo
+```
+
+Long tests might have multiple camera captures far apart, and forgetting to unset can cause confusion.
+
+**Solution:**
+Unset immediately after each capture:
+```
+1. Set camera image: photo1.jpg
+2. Capture profile picture
+3. Unset camera image ← Clean up immediately
+# ... other steps ...
+50. Set camera image: photo2.jpg
+51. Capture cover photo
+52. Unset camera image ← Clean up immediately
+```
+
+### Pitfall 3: Unsetting After Image Already Cleared
+
+**Problem:**
+```
+1. Set camera image: photo.jpg
+2. Click "Take Photo" button
+3. Test ends ← Image automatically cleared
+4. Unset camera image ← Already cleared, unnecessary
+```
+
+Autonoma typically clears images at test end automatically, so final unset might be redundant.
+
+**Solution:**
+This isn't really a problem—unsetting when nothing is set is harmless. But you can skip the final unset if you prefer:
+```
+1. Set camera image: photo.jpg
+2. Click "Take Photo" button
+3. Wait until: Capture complete
+# Test ends, image auto-cleared
+```
+
+### Pitfall 4: Assuming Unset Deletes the Image File
+
+**Problem:**
+Thinking unset deletes the actual image file from the server.
+
+**Reality:**
+Unset only clears Autonoma's memory reference to the image. The hosted image file itself is not deleted or modified.
+
+**Understanding:**
+```
+Set camera image: https://example.com/photo.jpg
+  ↳ Autonoma loads reference to this URL
+
+Unset camera image
+  ↳ Autonoma clears the reference
+  ↳ The file at https://example.com/photo.jpg still exists unchanged
+```
+
+### Pitfall 5: Over-Unsetting in Simple Tests
+
+**Problem:**
+Adding unset calls everywhere even when not needed:
+```
+Test: "Upload single profile picture"
+
+1. Unset camera image ← Unnecessary (nothing set yet)
+2. Set camera image: photo.jpg
+3. Click "Take Photo" button
+4. Wait until: Upload complete
+5. Unset camera image ← Unnecessary (test is ending)
+```
+
+**Solution:**
+Only unset when it adds value:
+```
+Test: "Upload single profile picture"
+
+1. Set camera image: photo.jpg
+2. Click "Take Photo" button
+3. Wait until: Upload complete
+# Test ends naturally, no unset needed
+```
+
+## Advanced Use Cases
+
+### Conditional Photo Capture with Cleanup
+
+Testing flows where photo capture is optional:
+
+```
+Test: "Submit support ticket with optional screenshot"
+
+1. Type "Login issue" in subject
+2. Type "Cannot access my account" in description
+
+# Optionally add screenshot (testing with screenshot)
+3. Set camera image: https://example.com/error-screenshot.jpg
+4. Click "Add Screenshot" button
+5. Wait until: Screenshot attached
+6. Verify: Screenshot thumbnail visible
+7. Unset camera image ← Clear after optional action
+
+8. Click "Submit Ticket" button
+9. Wait until: Ticket submitted
+```
+
+Then test without screenshot:
+```
+Test: "Submit support ticket without screenshot"
+
+1. Type "Feature request" in subject
+2. Type "Please add dark mode" in description
+# No screenshot attached
+3. Click "Submit Ticket" button
+4. Wait until: Ticket submitted
+```
+
+### Testing Photo Deletion After Upload
+
+When users can delete uploaded photos:
+
+```
+Test: "Upload photo then delete it"
+
+1. Navigate to profile screen
+2. Set camera image: https://example.com/profile.jpg
+3. Click "Take Photo" button
+4. Wait until: Photo uploaded
+5. Verify: Profile picture visible
+6. Unset camera image ← Clear after upload
+
+# Now delete the uploaded photo
+7. Click profile picture
+8. Click "Delete Photo" button
+9. Click "Confirm Delete" on dialog
+10. Wait until: Photo removed
+11. Verify: Default placeholder appears
+12. Verify: "Add Photo" button visible again
+```
+
+### Multiple Camera Features in One Test
+
+Testing app with multiple camera features:
+
+```
+Test: "Complete profile with multiple photos"
+
+# Profile picture
+1. Navigate to profile setup
+2. Set camera image: https://example.com/profile-pic.jpg
+3. Click "Add Profile Picture" button
+4. Wait until: Profile picture uploaded
+5. Verify: Profile picture visible
+6. Unset camera image ← Clear after profile pic
+
+# Cover photo
+7. Click "Add Cover Photo" button
+8. Set camera image: https://example.com/cover-photo.jpg
+9. Click "Take Photo" button
+10. Wait until: Cover photo uploaded
+11. Verify: Cover photo visible
+12. Unset camera image ← Clear after cover photo
+
+# Photo album
+13. Click "Add to Photo Album" button
+14. Set camera image: https://example.com/album-photo-1.jpg
+15. Click "Take Photo" button
+16. Wait until: Album photo uploaded
+17. Unset camera image ← Clear after album photo
+
+18. Click "Save Profile" button
+19. Wait until: Profile saved
+```
+
+### Testing Photo Replacement
+
+When users replace existing photos with new ones:
+
+```
+Test: "Replace profile picture with new photo"
+
+# Initial photo
+1. Navigate to profile
+2. Set camera image: https://example.com/old-profile.jpg
+3. Click "Change Picture" button
+4. Wait until: Photo uploaded
+5. Verify: Old profile picture visible
+6. Unset camera image ← Clear old photo
+
+# Replace with new photo
+7. Click "Change Picture" button again
+8. Set camera image: https://example.com/new-profile.jpg
+9. Click "Take Photo" button
+10. Wait until: New photo uploaded
+11. Verify: New profile picture visible (different from old one)
+12. Unset camera image ← Clear new photo
+
+13. Verify: Only one profile picture is visible (not both)
+```
+
+## Comparison with Set Camera Image
+
+### Set Camera Image
+
+**Purpose:** Load a test image for camera capture
+**When to use:** Before opening camera functionality
+**Effect:** Next camera interaction uses this image
+**Required:** Yes, to simulate camera capture
+
+### Unset Camera Image
+
+**Purpose:** Clear the loaded test image
+**When to use:** After camera capture completes
+**Effect:** Removes image from memory
+**Required:** No (optional cleanup for clarity)
+
+### Usage Pattern
+
+```
+Set Camera Image ← Load image
+  ↓
+Camera Interaction ← Use image
+  ↓
+Unset Camera Image ← Clear image (optional but recommended)
+  ↓
+Set Camera Image (next) ← Load new image for next capture
+```
+
+## When Unset is Truly Necessary
+
+### Scenario 1: Testing "No Photo" State
+
+If you need to explicitly test the state where no camera image is set:
+
+```
+Test: "Verify camera button is disabled when no image ready"
+
+1. Navigate to camera screen
+2. Unset camera image ← Ensure no image is set
+3. Verify: "Take Photo" button is enabled
+4. Click "Take Photo" button
+5. Verify: Camera opens (no image auto-provided)
+6. Click "Cancel" button
+7. Verify: Returns to previous screen
+```
+
+### Scenario 2: Between Test Steps with Different Expectations
+
+When test logic depends on whether an image is set:
+
+```
+Test: "Camera behavior with and without preset image"
+
+# Part 1: With image
+1. Set camera image: https://example.com/photo.jpg
+2. Click "Take Photo" button
+3. Verify: Photo immediately captured (no delay)
+
+# Part 2: Without image
+4. Unset camera image ← Ensure clean state
+5. Click "Take Photo" button
+6. Verify: Camera waits for user action (manual mode)
+```
+
+### Scenario 3: Preventing Test Interference
+
+In test suites where tests might run in unpredictable order:
+
+```
+Test A: "Upload profile picture"
+1. Set camera image: profileA.jpg
+2. Complete upload
+3. Unset camera image ← Clean up for next test
+
+Test B: "Upload product picture"
+1. Set camera image: productB.jpg ← Starts fresh regardless of test order
+2. Complete upload
+3. Unset camera image ← Clean up
+```
+
+## Key Takeaways
+
+1. **Cleanup companion** - Unset Camera Image is the cleanup counterpart to Set Camera Image
+2. **Mobile-only** - Like Set Camera Image, it's exclusively for mobile testing
+3. **Optional but recommended** - Not required, but improves test clarity
+4. **Use after captures** - Unset after each successful photo capture in multi-photo tests
+5. **Use after rejection** - Clear rejected photos before retrying capture
+6. **Pattern: Set → Use → Unset** - Follow this pattern for clean, readable tests
+7. **Not a file delete** - Unset clears memory reference, doesn't delete image files
+8. **Automatic cleanup** - Tests auto-clear at end, but explicit unset is clearer
+9. **Improves readability** - Makes multi-capture tests easier to understand
+10. **Prevents confusion** - Eliminates ambiguity about which image is active
+
+## What's Next
+
+Now that you understand how to clean up camera images in mobile tests, explore these related interactions:
+
+- **Set Camera Image**: Learn how to load images for camera capture
+- **Set File to Upload**: Understand file uploads for web applications
+- **Click**: Master triggering camera buttons and confirming captures
+- **Wait Until**: Properly wait for camera capture and image processing
+
+You can also explore comprehensive mobile testing patterns in the [Mobile Testing Features](/mobile-testing-features) guide.

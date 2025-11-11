@@ -1,0 +1,767 @@
+---
+title: "Go Home"
+description: "Navigate to the device's home screen from within a mobile app—essential for testing app backgrounding, home button behavior, and multi-app workflows."
+---
+
+## What is Go Home?
+
+Go Home is the mobile-specific interaction that navigates from your current app to the device's home screen. It simulates what happens when a user presses the home button (or swipes up on devices without physical buttons) to exit the app and return to their home screen.
+
+This is fundamentally different from closing an app or navigating backward—it backgrounds the app (leaving it running in memory) while taking you to the home screen where you can launch other apps, check widgets, or perform device-level actions.
+
+Think of it as the mobile equivalent of minimizing a desktop application. The app doesn't close or terminate; it simply moves to the background, and the device shows its home screen with all the app icons, widgets, and system UI elements.
+
+Go Home is essential for testing scenarios where users temporarily leave your app—checking messages, answering calls, switching to another app, or pausing their activity—and then return later.
+
+## When to Use Go Home
+
+This interaction is designed for mobile device navigation and app backgrounding scenarios. Here's when it's the right choice:
+
+**Perfect for:**
+- Testing app backgrounding and foregrounding behavior
+- Verifying that app state persists when users leave and return
+- Testing push notification handling (go home, trigger notification, tap notification)
+- Checking that timers or media continue playing in background
+- Testing multi-app workflows (use App A, go home, open App B, go home, return to App A)
+- Validating that forms or partially completed tasks save when app backgrounds
+- Testing app lifecycle events (onPause, onResume, etc.)
+- Verifying that authentication sessions persist across backgrounding
+- Testing that location tracking continues when app is backgrounded
+
+**Choose an alternative when:**
+- You're testing web applications (use `go-back-on-page` or standard navigation)
+- You want to navigate backward within the app (use app-specific back navigation)
+- You want to close a browser tab (use `exit-last-tab` on web)
+- You're navigating forward to a new URL (use `open-url-on-new-page` or navigation)
+
+## Platform Support
+
+- **Web**: Not supported (home screen concept doesn't exist in web browsers)
+- **Mobile**: Full support (Android and iOS)
+
+Go Home is exclusively a mobile interaction. It leverages the mobile device's home button functionality, which is a core pattern on smartphones and tablets but doesn't have an equivalent on web browsers.
+
+## How It Works
+
+When you use Go Home, here's what happens on the device:
+
+1. **Home Action Triggered**: Autonoma simulates pressing the device home button
+2. **App Backgrounds**: Your app receives background lifecycle events (onPause, onStop on Android; applicationDidEnterBackground on iOS)
+3. **Home Screen Displays**: The device home screen appears with app icons and widgets
+4. **App Remains in Memory**: The app continues running in background (unless OS terminates it for memory)
+5. **Test Can Continue**: Your test can now perform home screen actions or relaunch apps
+
+The critical behavior is that the app remains running in the background. This is different from force-closing or killing the app. The app's state, memory, and background processes persist (within OS limits).
+
+## Real-World Scenarios
+
+### Scenario 1: Testing App State Persistence
+
+Users frequently leave apps mid-task to handle interruptions. Your app should preserve their progress.
+
+```
+Test: "App preserves form data when backgrounded"
+
+Launch App and Navigate to Form:
+1. Launch mobile app {{variable:APP_PACKAGE_NAME}}
+2. Wait until: App loads
+3. Assert: Home screen visible
+4. Click: "Create Account" button
+5. Wait until: Registration form loads
+6. Assert: "Registration" heading appears
+
+Fill Form Partially:
+7. Click: "First Name" field
+8. Type: {{random:first_name}}
+9. Extract information about first name with key USER_FIRST_NAME
+10. Click: "Last Name" field
+11. Type: {{random:last_name}}
+12. Extract information about last name with key USER_LAST_NAME
+13. Click: "Email" field
+14. Type: {{random:email}}
+15. Extract information about email with key USER_EMAIL
+16. Assert: Three fields filled
+
+Background the App:
+17. Go home
+18. Wait until: Home screen appears
+19. Assert: Device home screen visible
+20. Assert: App icons present
+
+Simulate User Doing Other Things:
+21. Wait: 3 seconds (simulating user checking messages)
+
+Return to App:
+22. Launch mobile app {{variable:APP_PACKAGE_NAME}}
+23. Wait until: App returns to foreground
+24. Wait until: Registration form reappears
+
+Verify Data Persisted:
+25. Assert: "Registration" heading still visible
+26. Assert: First name field contains {{key:USER_FIRST_NAME}}
+27. Assert: Last name field contains {{key:USER_LAST_NAME}}
+28. Assert: Email field contains {{key:USER_EMAIL}}
+
+Complete Registration:
+29. Continue filling remaining fields
+30. Click: "Submit" button
+31. Wait until: Confirmation appears
+32. Assert: "Account created" message displays
+```
+
+**Why this works**: Real users get interrupted constantly. This test validates your app doesn't lose their work when backgrounded.
+
+### Scenario 2: Push Notification Flow
+
+Push notifications are a critical engagement tool. Test that users can receive and act on notifications.
+
+```
+Test: "User receives push notification and returns to app"
+
+Setup Notification Trigger:
+1. Launch mobile app {{variable:APP_PACKAGE_NAME}}
+2. Wait until: App loads
+3. Log in to test account
+4. Navigate to settings
+5. Assert: Notifications enabled
+6. Trigger test notification via API or test action
+7. Extract information about notification ID with key NOTIFICATION_ID
+
+Background App to Receive Notification:
+8. Go home
+9. Wait until: Home screen appears
+10. Wait: 5 seconds (allow notification to arrive)
+
+Verify Notification Appeared:
+11. Assert: Notification banner visible in notification area
+12. Assert: Notification shows expected text
+13. Add prompt: "Verify notification displays correct message"
+
+Interact with Notification:
+14. Click: Notification banner
+15. Wait until: App launches and opens notification content
+16. Assert: App opened to correct screen
+17. Assert: Notification content {{key:NOTIFICATION_ID}} displayed
+
+Verify Deep Link Worked:
+18. Assert: Relevant content for notification is shown
+19. Assert: User can interact with notification content
+```
+
+**Why this works**: Push notifications are a primary re-engagement channel. This test ensures the complete notification flow works.
+
+### Scenario 3: Multi-App Workflow
+
+Users often switch between multiple apps to complete tasks (e.g., copy text from one app, paste into another).
+
+```
+Test: "Copy information from one app, use in another"
+
+Use First App:
+1. Launch mobile app {{variable:SOURCE_APP}}
+2. Wait until: App loads
+3. Navigate to account information
+4. Extract information about account number with key ACCOUNT_NUMBER
+5. Long press: Account number text
+6. Wait until: Context menu appears
+7. Click: "Copy" option
+8. Assert: "Copied" confirmation appears
+
+Switch to Home Screen:
+9. Go home
+10. Wait until: Home screen appears
+11. Assert: Device home screen visible
+
+Launch Second App:
+12. Launch mobile app {{variable:DESTINATION_APP}}
+13. Wait until: App loads
+14. Assert: App home screen visible
+
+Use Copied Information:
+15. Navigate to account linking form
+16. Click: "Account Number" field
+17. Long press: Text field
+18. Wait until: Context menu appears
+19. Click: "Paste" option
+20. Assert: Account number field contains {{key:ACCOUNT_NUMBER}}
+
+Complete Linking:
+21. Fill remaining fields
+22. Click: "Link Account" button
+23. Wait until: Confirmation appears
+24. Assert: "Account linked successfully" message
+
+Return to First App:
+25. Go home
+26. Wait until: Home screen appears
+27. Launch mobile app {{variable:SOURCE_APP}}
+28. Wait until: App loads
+29. Assert: App returns to previous state
+```
+
+**Why this works**: Users frequently switch apps to complete workflows. This tests that app switching and clipboard sharing work correctly.
+
+### Scenario 4: Background Media Playback
+
+Music, podcast, and video apps need to continue playback when users navigate away.
+
+```
+Test: "Audio continues playing when app backgrounded"
+
+Start Playback:
+1. Launch mobile app {{variable:MEDIA_APP}}
+2. Wait until: App loads
+3. Navigate to media library
+4. Click: First podcast episode
+5. Wait until: Player screen loads
+6. Assert: Episode title visible
+7. Extract information about episode title with key EPISODE_TITLE
+
+Begin Playing:
+8. Click: Play button
+9. Wait until: Playback begins
+10. Assert: Play button changes to pause button
+11. Assert: Progress bar advancing
+12. Wait: 3 seconds (ensure playback stable)
+
+Background the App:
+13. Go home
+14. Wait until: Home screen appears
+15. Assert: Device home screen visible
+
+Verify Playback Continues:
+16. Wait: 5 seconds
+17. Assert: Audio still playing (listen for playback)
+18. Assert: Lock screen shows media controls
+19. Assert: Media notification shows {{key:EPISODE_TITLE}}
+
+Control from Home Screen:
+20. Swipe down: Notification area
+21. Assert: Media controls visible
+22. Assert: Episode {{key:EPISODE_TITLE}} shown
+23. Click: Pause button in notification
+24. Wait: 1 second
+25. Assert: Playback paused
+
+Return to App:
+26. Launch mobile app {{variable:MEDIA_APP}}
+27. Wait until: Player screen appears
+28. Assert: Playback paused at expected position
+29. Assert: Can resume playback
+```
+
+**Why this works**: Background media playback is a core feature. This test validates the complete background experience.
+
+### Scenario 5: Location Services While Backgrounded
+
+Navigation and fitness apps track location in the background. Test that functionality continues.
+
+```
+Test: "Location tracking continues when app backgrounded"
+
+Start Activity Tracking:
+1. Launch mobile app {{variable:FITNESS_APP}}
+2. Wait until: App loads
+3. Click: "Start Workout" button
+4. Wait until: Workout screen loads
+5. Select: "Running" workout type
+6. Click: "Begin" button
+7. Wait until: Tracking starts
+8. Assert: "Tracking active" indicator visible
+9. Assert: Distance shows "0.00 km"
+10. Extract information about start time with key START_TIME
+
+Background During Workout:
+11. Go home
+12. Wait until: Home screen appears
+13. Wait: 10 seconds (simulate user checking messages during run)
+
+Check Background Tracking Indicator:
+14. Assert: Status bar shows location tracking icon
+15. Assert: Notification shows "Workout in progress"
+
+Return to App:
+16. Launch mobile app {{variable:FITNESS_APP}}
+17. Wait until: Workout screen appears
+
+Verify Tracking Continued:
+18. Assert: "Tracking active" indicator still visible
+19. Assert: Distance increased from "0.00 km"
+20. Assert: Time elapsed since {{key:START_TIME}}
+21. Extract information about distance traveled with key DISTANCE
+
+Stop Workout:
+22. Click: "Stop Workout" button
+23. Wait until: Summary screen appears
+24. Assert: Workout summary shows {{key:DISTANCE}} km traveled
+```
+
+**Why this works**: Background location tracking is critical for fitness and navigation apps. This validates it works correctly.
+
+## Example Prompts
+
+Here are effective ways to use Go Home:
+
+**Basic usage:**
+```
+go home
+go back home
+go to the home screen
+go back to the home screen of the device
+navigate to home screen
+```
+
+**With context:**
+```
+(After starting a process) go home to test backgrounding
+(During form filling) go to home screen to simulate interruption
+(While playing media) go home to verify background playback
+```
+
+**In test flows:**
+```
+Step 10: Go home (background the app)
+Step 15: Return to home screen
+Step 20: Navigate to device home screen to trigger notification
+```
+
+## Best Practices
+
+### 1. Wait After Going Home
+
+The home screen takes time to appear and apps need time to background.
+
+**Good:**
+```
+1. Go home
+2. Wait until: Home screen appears
+3. Assert: Device home screen visible
+4. Continue test
+```
+
+**Risky:**
+```
+1. Go home
+2. Click: Another app icon  ← May fail if home screen not fully loaded
+```
+
+**Why**: Backgrounding and home screen animation take time. Always wait before next action.
+
+### 2. Verify App Backgrounded Successfully
+
+After going home, confirm the app actually backgrounded.
+
+**Good:**
+```
+1. (In app, form partially filled)
+2. Go home
+3. Wait until: Home screen appears
+4. Assert: App icons visible
+5. Assert: Not in app anymore
+```
+
+**Why**: Confirming successful backgrounding ensures your test state is correct.
+
+### 3. Test Return to App After Backgrounding
+
+Always test that users can successfully return to your app.
+
+**Good test pattern:**
+```
+1. Perform actions in app
+2. Go home (background app)
+3. Wait
+4. Launch app again
+5. Assert: App state preserved
+6. Continue workflow
+```
+
+**Why**: The complete cycle (background + return) is what users experience. Test both parts.
+
+### 4. Test Various Background Durations
+
+Apps may behave differently based on how long they're backgrounded.
+
+**Test short backgrounding:**
+```
+1. Go home
+2. Wait: 2 seconds
+3. Return to app
+4. Verify state preserved
+```
+
+**Test long backgrounding:**
+```
+1. Go home
+2. Wait: 60 seconds (simulating extended interruption)
+3. Return to app
+4. Verify app handles potential memory pressure
+```
+
+**Why**: OS may treat short vs long backgrounding differently. Test both.
+
+### 5. Verify Background Permissions Work
+
+Test that permissions like location, notifications, and media work while backgrounded.
+
+**Good:**
+```
+Test: "Background location permission"
+1. Enable location tracking
+2. Go home
+3. Assert: Location icon shows in status bar
+4. Wait: 10 seconds
+5. Return to app
+6. Assert: Location data collected while backgrounded
+```
+
+**Why**: Background permissions are critical for many app features. Explicitly test them.
+
+### 6. Test Notification Handling from Home Screen
+
+Go Home is essential for testing notification workflows.
+
+**Good:**
+```
+1. Trigger notification in app
+2. Go home
+3. Wait until: Notification appears
+4. Assert: Notification visible
+5. Click: Notification
+6. Assert: App opens to correct screen
+```
+
+**Why**: Notifications primarily appear when apps are backgrounded. Test the real flow.
+
+## Common Pitfalls
+
+### Pitfall 1: Assuming App State Always Persists
+
+**Problem:**
+```
+1. Fill complex form
+2. Go home
+3. Wait: 10 minutes (OS may kill app for memory)
+4. Return to app
+5. Expect: Form data still there  ← May fail, app might have been killed
+```
+
+**Solution:**
+```
+Test different backgrounding durations
+Verify app properly saves/restores state
+Handle both memory preservation and cold start scenarios
+```
+
+**Why**: OS can terminate backgrounded apps. Your app needs to handle state restoration.
+
+### Pitfall 2: Not Waiting for Home Screen to Appear
+
+**Problem:**
+```
+1. Go home
+2. Click: Another app  ← May fail if home screen animation not complete
+```
+
+**Solution:**
+```
+1. Go home
+2. Wait until: Home screen fully loaded
+3. Assert: Home screen visible
+4. Click: Another app
+```
+
+**Why**: Home screen animation and app backgrounding take time.
+
+### Pitfall 3: Using Go Home on Web Tests
+
+**Problem:**
+```
+Test for web application:
+1. Navigate to website
+2. Go home  ← Not supported, will fail
+```
+
+**Solution:**
+```
+Go Home is mobile-only
+For web, use appropriate web navigation (go-back-on-page, exit-last-tab)
+```
+
+**Why**: Web browsers don't have a device home screen concept.
+
+### Pitfall 4: Not Testing Return to App
+
+**Problem:**
+```
+Test: "Background app"
+1. Use app
+2. Go home  ← Test ends here, doesn't verify return works
+```
+
+**Solution:**
+```
+Test: "Background and return to app"
+1. Use app
+2. Go home
+3. Wait
+4. Launch app again
+5. Verify app state
+6. Continue using app
+```
+
+**Why**: The complete user experience includes backgrounding AND returning. Test both.
+
+### Pitfall 5: Ignoring Background Process Interruptions
+
+**Problem:**
+```
+Test: "Long-running process"
+1. Start upload/download
+2. Go home
+3. Wait: 30 seconds
+4. Return
+5. Assume: Process completed  ← Process might have paused while backgrounded
+```
+
+**Solution:**
+```
+1. Start upload/download
+2. Go home
+3. Wait: 30 seconds
+4. Return
+5. Check: Process status (completed, paused, or failed)
+6. Handle each case appropriately
+```
+
+**Why**: Background processes may pause, throttle, or fail. Test actual behavior.
+
+### Pitfall 6: Not Testing Permission Changes
+
+**Problem:**
+```
+1. App has location permission
+2. Go home
+3. User revokes location permission (not tested)
+4. Return to app
+5. Assume: Location still working  ← Fails because permission revoked
+```
+
+**Solution:**
+```
+Test permission changes while backgrounded:
+1. App has permission
+2. Go home
+3. Change permission via settings
+4. Return to app
+5. Verify: App handles permission change correctly
+```
+
+**Why**: Users can change permissions while app is backgrounded. Apps should handle this.
+
+## Comparison with Similar Interactions
+
+### Go Home vs Go Back On Page
+
+**Go Home:**
+- Platform: Mobile only
+- Action: Go to device home screen
+- Result: App backgrounds, home screen appears
+- App state: App remains in memory
+- Best for: Mobile device navigation
+
+**Go Back On Page:**
+- Platform: Web only
+- Action: Navigate backward in browser history
+- Result: Previous page loads in browser
+- App state: N/A (browser context)
+- Best for: Web browser history navigation
+
+**Relationship**: These are platform-specific equivalents. Go Home for mobile, Go Back for web.
+
+### Go Home vs Exit Last Tab
+
+**Go Home:**
+- Platform: Mobile
+- Action: Background app to home screen
+- Tab concept: Not applicable (mobile apps)
+- App state: App remains running
+- Best for: Mobile app backgrounding
+
+**Exit Last Tab:**
+- Platform: Web
+- Action: Close browser tab
+- Tab concept: Closes current tab
+- App state: Tab closes, previous tab becomes active
+- Best for: Web multi-tab navigation
+
+**Relationship**: Different concepts for different platforms. Not interchangeable.
+
+### Go Home vs Killing/Closing App
+
+**Go Home:**
+- Action: Background the app
+- App process: Continues running
+- Memory: Preserved (until OS reclaims)
+- State: Maintained
+- Return: Fast (app already in memory)
+
+**Kill/Close App:**
+- Action: Terminate the app
+- App process: Stops completely
+- Memory: Released
+- State: Cleared (unless saved)
+- Return: Slower (cold start)
+
+**When to switch**: Go Home tests normal backgrounding. App killing tests cold start recovery.
+
+## Interaction Patterns
+
+### Pattern 1: Background and Return
+
+The most common pattern: leave app temporarily, then return.
+
+```
+1. Perform actions in app
+2. Go home
+3. Wait: Short duration
+4. Launch app again
+5. Verify: State preserved
+6. Continue workflow
+```
+
+### Pattern 2: Notification Testing
+
+Trigger notification, receive it while backgrounded, interact with it.
+
+```
+1. Trigger notification in app
+2. Go home
+3. Wait until: Notification appears
+4. Verify: Notification visible
+5. Click: Notification
+6. Verify: App opens correctly
+```
+
+### Pattern 3: Multi-App Workflow
+
+Switch between multiple apps.
+
+```
+1. Use App A
+2. Go home
+3. Launch App B
+4. Use App B
+5. Go home
+6. Launch App A again
+7. Verify: App A state preserved
+```
+
+### Pattern 4: Background Process Validation
+
+Start process, background, verify continuation.
+
+```
+1. Start background process (upload, download, tracking)
+2. Go home
+3. Wait: Process duration
+4. Launch app again
+5. Verify: Process completed or progressed
+```
+
+## Testing Edge Cases
+
+### OS Memory Pressure
+
+Test app behavior when OS reclaims memory:
+
+```
+Test: "App handles being killed by OS"
+1. Fill form partially
+2. Go home
+3. Launch many other apps (create memory pressure)
+4. Wait: Extended time
+5. Return to original app
+6. Verify: Either (a) state restored or (b) app gracefully handles cold start
+```
+
+### Permission Changes While Backgrounded
+
+```
+Test: "App handles permission revocation"
+1. App using camera permission
+2. Go home
+3. Revoke camera permission via device settings
+4. Launch app again
+5. Verify: App detects permission loss and handles gracefully
+```
+
+### Network Changes While Backgrounded
+
+```
+Test: "App handles connectivity changes"
+1. Start online operation
+2. Go home
+3. Disable device WiFi/data
+4. Launch app again
+5. Verify: App detects offline state and handles appropriately
+```
+
+### Rapid Backgrounding and Foregrounding
+
+```
+Test: "App handles rapid background/foreground cycles"
+1. Launch app
+2. Go home
+3. Immediately launch app again
+4. Go home
+5. Immediately launch app again
+6. Verify: App remains stable, no crashes
+```
+
+## Platform-Specific Considerations
+
+### Android
+
+**Back Button vs Home Button:**
+- Back button: May close activity or navigate within app
+- Home button (Go Home): Always backgrounds entire app
+
+**Recent Apps:**
+After going home, users can access recent apps menu to switch apps.
+
+**Background Restrictions:**
+Android may restrict background activity for battery optimization. Test behavior under these conditions.
+
+### iOS
+
+**Swipe Up Gesture:**
+On devices without physical home button, swipe up gesture goes home. Go Home simulates this.
+
+**App Switcher:**
+After going home, users can open app switcher to see recent apps.
+
+**Background App Refresh:**
+iOS may limit background refresh. Test that your app handles this correctly.
+
+## Key Takeaways
+
+1. **Mobile-only interaction** - Works exclusively on Android and iOS, not web
+2. **Backgrounds the app** - App remains running in memory (doesn't close)
+3. **Tests real interruptions** - Simulates users leaving app temporarily
+4. **Essential for notifications** - Required for testing push notification flows
+5. **State persistence critical** - Apps should preserve user progress when backgrounded
+6. **Always test return** - Background + return is the complete cycle
+7. **Wait after going home** - Allow time for home screen to appear
+8. **Test various durations** - Short vs long backgrounding may behave differently
+9. **Verify background processes** - Location, media, uploads should continue
+10. **Handle OS behavior** - OS may kill app for memory; test state restoration
+
+## What's Next
+
+Now that you understand device-level navigation with Go Home, explore these related interactions:
+
+- **Exit Last Tab**: Learn about web browser tab management
+- **Go Back On Page**: Understand web browser backward navigation
+- **Click**: Explore in-app navigation and interaction
+- **Wait Until**: Learn to handle async operations after returning to app

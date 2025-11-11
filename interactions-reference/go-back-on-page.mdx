@@ -1,0 +1,882 @@
+---
+title: "Go Back On Page"
+description: "Navigate backward through browser history within the current tab—essential for testing back button functionality and browsing flows where users navigate to previous pages."
+---
+
+## What is Go Back On Page?
+
+Go Back On Page is the interaction that navigates backward through your browser's history stack, simulating what happens when a user clicks the browser's back button or swipes to go back. It's the digital equivalent of saying "take me to the page I was just on."
+
+This interaction operates within the current tab—it doesn't close tabs or switch between them. It simply moves backward one step in the navigation history of the active tab, just like the browser's back button.
+
+Think of browser history as a stack of pages: every time you navigate forward, a new page gets added to the stack. Go Back On Page pops the current page off that stack and returns you to the previous page.
+
+This is fundamental to testing realistic user behavior. Users don't always navigate forward through perfectly linear paths. They browse, go back, try different options, compare pages, and retrace their steps. Go Back On Page lets you test these natural browsing patterns.
+
+## When to Use Go Back On Page
+
+This interaction is designed for testing backward navigation flows. Here's when it's the right choice:
+
+**Perfect for:**
+- Testing browser back button functionality
+- Verifying that back navigation preserves page state
+- Testing "browse and return" user flows (view product, go back, view another)
+- Checking that forms retain data after navigating back
+- Validating breadcrumb navigation accuracy
+- Testing history-based navigation in single-page applications (SPAs)
+- Verifying that users can return to search results after viewing details
+- Testing checkout flows where users go back to modify selections
+
+**Choose an alternative when:**
+- You need to close a tab and return to a previous tab (use `exit-last-tab`)
+- You're testing forward navigation (use standard navigation or clicks)
+- You want to go to a specific URL (use Navigate or `open-url-on-new-page`)
+- You're on mobile and need to go to the device home screen (use `go-home`)
+- You need to navigate backward multiple steps (use multiple go-back actions sequentially)
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not currently supported (will be added in future releases)
+
+Go Back On Page is specifically designed for web browser testing where browser history and the back button are core navigation patterns. Mobile support is planned for future releases to test back navigation in mobile browsers.
+
+## How It Works
+
+When you use Go Back On Page, here's what happens:
+
+1. **History Check**: The browser checks if there's a previous page in the history stack
+2. **Navigation Trigger**: The browser navigates backward one step in history
+3. **Page Load**: The previous page loads (may come from cache or reload)
+4. **State Restoration**: The browser attempts to restore the previous page state
+5. **Test Continues**: Your test now interacts with the previous page
+
+The key behavior is that this uses the browser's actual back button mechanism, which means:
+- Page state might be restored from cache (forms may retain values)
+- Dynamic content might need to reload
+- Single-page applications (SPAs) handle this via their routing logic
+- The URL changes to the previous page's URL
+
+## Real-World Scenarios
+
+### Scenario 1: E-commerce Product Browsing
+
+Users frequently browse products, view details, go back to results, and view more products. This is one of the most common patterns on shopping sites.
+
+```
+Test: "Browse multiple products from search results"
+
+Search for Products:
+1. Navigate to {{variable:APP_URL}}
+2. Wait until: Homepage loads
+3. Click: Search bar
+4. Type: "wireless headphones"
+5. Click: Search button
+6. Wait until: Search results load
+7. Assert: At least 5 products appear in results
+8. Extract information about result count with key RESULT_COUNT
+
+View First Product:
+9. Click: First product in results
+10. Wait until: Product page loads
+11. Assert: Product title contains "wireless headphones"
+12. Assert: Product image is visible
+13. Assert: Price is displayed
+14. Assert: "Add to Cart" button exists
+15. Extract information about product name with key PRODUCT_1_NAME
+
+Return to Results:
+16. Go back on page
+17. Wait until: Search results reappear
+18. Assert: Search results still show {{key:RESULT_COUNT}} products
+19. Assert: Previous product {{key:PRODUCT_1_NAME}} is in the list
+
+View Second Product:
+20. Click: Second product in results
+21. Wait until: Product page loads
+22. Assert: Different product loaded
+23. Assert: Product details visible
+24. Extract information about product name with key PRODUCT_2_NAME
+
+Return to Results Again:
+25. Go back on page
+26. Wait until: Search results reappear
+27. Assert: Search results unchanged
+28. Assert: Both viewed products visible in list
+
+Verify Search Preserved:
+29. Assert: Search term "wireless headphones" still in search box
+30. Assert: Filters or sort options preserved
+```
+
+**Why this works**: This mirrors exactly how users shop online—searching, browsing results, viewing details, going back, comparing options. Your test validates this critical flow.
+
+### Scenario 2: Form Multi-Step Wizard with Backward Navigation
+
+Many forms allow users to go back to previous steps to review or modify information.
+
+```
+Test: "Complete multi-step form with back navigation"
+
+Start Application:
+1. Navigate to {{variable:APP_URL}}/loan-application
+2. Wait until: Form loads
+3. Assert: "Step 1 of 3: Personal Information" appears
+
+Fill Step 1:
+4. Click: "First Name" field
+5. Type: {{random:first_name}}
+6. Click: "Last Name" field
+7. Type: {{random:last_name}}
+8. Click: "Email" field
+9. Type: {{random:email}}
+10. Extract information about the email with key USER_EMAIL
+11. Click: "Next" button
+
+Verify Step 2:
+12. Wait until: Step 2 loads
+13. Assert: "Step 2 of 3: Employment Information" appears
+14. Assert: Progress indicator shows step 2
+
+Go Back to Review Step 1:
+15. Go back on page
+16. Wait until: Step 1 reappears
+17. Assert: "Step 1 of 3: Personal Information" appears
+
+Verify Data Preserved:
+18. Assert: Email field contains {{key:USER_EMAIL}}
+19. Assert: First name field has value
+20. Assert: Last name field has value
+
+Continue Forward:
+21. Click: "Next" button
+22. Wait until: Step 2 loads
+23. Assert: "Step 2 of 3: Employment Information" appears
+
+Fill Step 2:
+24. Click: "Employer" field
+25. Type: "Acme Corporation"
+26. Click: "Job Title" field
+27. Type: "Senior Developer"
+28. Click: "Years Employed" field
+29. Type: "5"
+30. Click: "Next" button
+
+Verify Step 3:
+31. Wait until: Step 3 loads
+32. Assert: "Step 3 of 3: Financial Information" appears
+
+Go Back to Modify Step 2:
+33. Go back on page
+34. Wait until: Step 2 reappears
+35. Assert: Employer field shows "Acme Corporation"
+
+Modify and Continue:
+36. Click: "Annual Income" field
+37. Type: "95000"
+38. Click: "Next" button
+39. Wait until: Step 3 loads
+
+Complete Application:
+40. Fill financial information
+41. Click: "Submit Application" button
+42. Wait until: Confirmation appears
+43. Assert: "Application submitted successfully" message
+```
+
+**Why this works**: Users often go back in forms to review or change information. This test ensures that workflow doesn't lose data.
+
+### Scenario 3: Article Browsing with Back Navigation
+
+Users read articles, follow links, then return to continue reading or find more articles.
+
+```
+Test: "Read articles with back navigation between links"
+
+Navigate to Blog:
+1. Navigate to {{variable:APP_URL}}/blog
+2. Wait until: Blog page loads
+3. Assert: "Latest Articles" heading appears
+4. Assert: At least 3 article cards visible
+
+Read First Article:
+5. Click: First article card
+6. Wait until: Article page loads
+7. Assert: Article title appears
+8. Assert: Article content is visible
+9. Extract information about article title with key ARTICLE_1_TITLE
+10. Scroll: To middle of article
+
+Click Related Article Link:
+11. Click: First related article link in content
+12. Wait until: Related article loads
+13. Assert: Different article title appears
+14. Extract information about article title with key ARTICLE_2_TITLE
+
+Go Back to First Article:
+15. Go back on page
+16. Wait until: First article reappears
+17. Assert: Article title is {{key:ARTICLE_1_TITLE}}
+
+Verify Scroll Position:
+18. Assert: Page scrolled to where we were (browser restored position)
+19. Add prompt: "Check if scroll position maintained"
+
+Return to Blog List:
+20. Go back on page
+21. Wait until: Blog list reappears
+22. Assert: "Latest Articles" heading appears
+23. Assert: Article cards visible
+
+Verify List State:
+24. Assert: Article {{key:ARTICLE_1_TITLE}} appears in list
+25. Assert: Article {{key:ARTICLE_2_TITLE}} appears in list
+```
+
+**Why this works**: Users follow links in articles, then return to finish reading or find more content. Testing this ensures smooth navigation.
+
+### Scenario 4: Search, Filter, View Details Flow
+
+E-commerce and listing sites let users search, apply filters, view items, then return to refine search.
+
+```
+Test: "Search, filter, and browse with back navigation"
+
+Perform Initial Search:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product page loads
+3. Click: Search box
+4. Type: "running shoes"
+5. Click: Search button
+6. Wait until: Search results load
+7. Assert: Results show "running shoes"
+8. Extract information about result count with key INITIAL_COUNT
+
+Apply Filters:
+9. Click: "Brand" filter dropdown
+10. Click: "Nike" option
+11. Wait until: Results filter
+12. Assert: Results updated
+13. Extract information about filtered count with key FILTERED_COUNT
+14. Assert: {{key:FILTERED_COUNT}} is less than {{key:INITIAL_COUNT}}
+
+View Product Details:
+15. Click: First product
+16. Wait until: Product page loads
+17. Assert: Product title contains "Nike"
+18. Assert: Product title contains "running"
+19. Extract information about product name with key PRODUCT_NAME
+
+Return to Filtered Results:
+20. Go back on page
+21. Wait until: Search results reappear
+
+Verify Filter Preserved:
+22. Assert: Nike filter still active
+23. Assert: Results count is {{key:FILTERED_COUNT}}
+24. Assert: All visible products are Nike brand
+25. Assert: Search term "running shoes" still in search box
+
+Modify Filter:
+26. Click: "Price" filter
+27. Select: "Under $100" option
+28. Wait until: Results update
+29. Extract information about new count with key PRICE_FILTERED_COUNT
+
+View Another Product:
+30. Click: Second product
+31. Wait until: Product page loads
+32. Assert: Product loaded
+
+Return and Verify:
+33. Go back on page
+34. Wait until: Results reappear
+35. Assert: Both filters still active (Nike + Under $100)
+36. Assert: Result count is {{key:PRICE_FILTERED_COUNT}}
+```
+
+**Why this works**: Users iteratively refine searches and browse results. Going back should preserve their filter selections.
+
+### Scenario 5: Checkout Flow with Back Navigation
+
+Users often go back during checkout to modify cart contents or shipping information.
+
+```
+Test: "Navigate backward during checkout to modify order"
+
+Add Products to Cart:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Click: First product
+4. Wait until: Product page loads
+5. Click: "Add to Cart" button
+6. Wait until: Added confirmation appears
+7. Assert: Cart badge shows "1"
+
+Begin Checkout:
+8. Click: Cart icon
+9. Wait until: Cart page loads
+10. Assert: Product appears in cart
+11. Extract information about cart total with key CART_TOTAL
+12. Click: "Checkout" button
+
+Fill Shipping Information:
+13. Wait until: Checkout page loads
+14. Assert: "Shipping Information" section visible
+15. Fill shipping form fields
+16. Click: "Continue to Payment" button
+
+Review Payment Page:
+17. Wait until: Payment page loads
+18. Assert: "Payment Method" section visible
+19. Assert: Order summary shows {{key:CART_TOTAL}}
+
+Go Back to Modify Shipping:
+20. Go back on page
+21. Wait until: Shipping page reappears
+22. Assert: Shipping form visible
+
+Verify Form Data Preserved:
+23. Assert: Previously entered address still filled
+24. Assert: Name fields contain values
+
+Modify Information:
+25. Click: "Phone number" field
+26. Clear field
+27. Type: "555-0123"
+28. Click: "Continue to Payment" button
+
+Proceed to Payment Again:
+29. Wait until: Payment page loads
+30. Assert: Order summary unchanged
+
+Go Back to Cart:
+31. Go back on page
+32. Go back on page (two steps back)
+33. Wait until: Cart page reappears
+
+Modify Cart:
+34. Assert: Product in cart
+35. Click: Quantity dropdown
+36. Select: "2" quantity
+37. Wait until: Cart updates
+38. Extract information about new total with key NEW_CART_TOTAL
+39. Assert: {{key:NEW_CART_TOTAL}} is greater than {{key:CART_TOTAL}}
+
+Continue to Checkout:
+40. Click: "Checkout" button
+41. Wait until: Checkout loads
+42. Assert: Previous shipping information still present
+43. Complete checkout with updated cart
+```
+
+**Why this works**: Users regularly go back during checkout to modify their order. This test validates the complete backward navigation flow.
+
+## Example Prompts
+
+Here are effective ways to use Go Back On Page:
+
+**Basic usage:**
+```
+go back
+go back on page
+go to the previous page
+navigate back
+```
+
+**With context:**
+```
+go back to the product list
+go back to search results
+return to the previous page
+navigate back to the form
+```
+
+**In test flows:**
+```
+(After viewing product details) go back to continue browsing
+(After reading article) go back to the blog list
+(In checkout) go back to modify cart
+(After filtering) go back to see all results
+```
+
+## Best Practices
+
+### 1. Always Wait After Going Back
+
+Pages need time to load or restore after back navigation.
+
+**Good:**
+```
+1. Go back on page
+2. Wait until: Previous page loads
+3. Assert: Expected content visible
+4. Continue test
+```
+
+**Risky:**
+```
+1. Go back on page
+2. Click: Element  ← May fail if page not loaded yet
+```
+
+**Why**: Back navigation triggers a page load (even if from cache). Always wait before interacting.
+
+### 2. Verify You're on the Expected Page
+
+After going back, confirm the correct page loaded.
+
+**Good:**
+```
+1. Go back on page
+2. Wait until: Page loads
+3. Assert URL Location: {{variable:APP_URL}}/products
+4. Assert: "Products" heading appears
+5. Continue test
+```
+
+**Risky:**
+```
+1. Go back on page
+2. Click: Element  ← What if back navigation failed or went to wrong page?
+```
+
+**Why**: Back navigation might fail, redirect, or go to an unexpected page. Verify first.
+
+### 3. Test State Preservation
+
+When going back, test whether forms, filters, or scroll position preserved correctly.
+
+**Good test coverage:**
+```
+Fill form:
+1. Enter data in form fields
+2. Extract information about entered values
+
+Navigate away:
+3. Click: Next button
+4. Wait until: Next page loads
+
+Navigate back:
+5. Go back on page
+6. Wait until: Form reappears
+
+Verify preservation:
+7. Assert: Form fields still contain entered values
+8. Assert: No data lost
+```
+
+**Why**: State preservation is a critical user experience aspect. Test it explicitly.
+
+### 4. Use Multiple Back Steps Sequentially
+
+To go back multiple pages, use multiple go-back interactions.
+
+**Good:**
+```
+Current: Page D
+1. Go back on page  (now on Page C)
+2. Wait until: Page C loads
+3. Assert: On Page C
+
+4. Go back on page  (now on Page B)
+5. Wait until: Page B loads
+6. Assert: On Page B
+```
+
+**Why**: Each back step moves one page backward. Multiple steps require multiple interactions.
+
+### 5. Test SPA (Single Page Application) Back Behavior
+
+SPAs handle back navigation differently from traditional multi-page apps. Test both.
+
+**For SPAs:**
+```
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Click: "Settings" (SPA route change)
+3. Wait until: Settings view loads
+4. Assert URL Location: {{variable:APP_URL}}/dashboard/settings
+
+5. Go back on page
+6. Wait until: Dashboard view loads
+7. Assert URL Location: {{variable:APP_URL}}/dashboard
+8. Assert: Dashboard content visible
+```
+
+**Why**: SPAs use client-side routing. Verify their back button handling works correctly.
+
+### 6. Combine with Assertions to Track Navigation
+
+Track your navigation path with assertions.
+
+**Good pattern:**
+```
+Start: Homepage
+1. Assert: On homepage
+
+Navigate to products:
+2. Click: Products link
+3. Assert: On products page
+
+View product:
+4. Click: First product
+5. Assert: On product detail page
+
+Go back:
+6. Go back on page
+7. Assert: Back on products page
+
+Go back again:
+8. Go back on page
+9. Assert: Back on homepage
+```
+
+**Why**: Explicit assertions make your navigation path clear and catch unexpected behavior.
+
+## Common Pitfalls
+
+### Pitfall 1: Going Back When There's No History
+
+**Problem:**
+```
+1. Navigate to {{variable:APP_URL}}  (first page, no history)
+2. Go back on page  ← No previous page, behavior undefined
+```
+
+**Solution:**
+```
+Only use go back when you know there's a previous page
+Ensure you've navigated forward at least once before going back
+```
+
+**Why**: Going back without history might fail or behave unexpectedly.
+
+### Pitfall 2: Not Waiting for Page Restoration
+
+**Problem:**
+```
+1. Go back on page
+2. Click: Element  ← Fails if page not loaded yet
+```
+
+**Solution:**
+```
+1. Go back on page
+2. Wait until: Page loads
+3. Wait until: Specific element appears
+4. Click: Element
+```
+
+**Why**: Back navigation needs time to restore the page.
+
+### Pitfall 3: Assuming State is Always Preserved
+
+**Problem:**
+```
+1. Fill form with data
+2. Navigate away
+3. Go back on page
+4. Submit form  ← Assumes form still filled, but might be cleared
+```
+
+**Solution:**
+```
+1. Fill form with data
+2. Extract information about filled values
+3. Navigate away
+4. Go back on page
+5. Wait until: Form loads
+6. Assert: Form fields still contain values
+7. If not preserved, refill form
+8. Submit form
+```
+
+**Why**: Some sites clear forms on back navigation. Test and handle both cases.
+
+### Pitfall 4: Using Back Instead of Exit Last Tab
+
+**Problem:**
+```
+1. On Page A
+2. Open URL on new page: Page B (now in new tab)
+3. Go back on page  ← Goes back in Page B's history, not to Page A
+```
+
+**Solution:**
+```
+1. On Page A
+2. Open URL on new page: Page B (now in new tab)
+3. Exit last tab  ← Closes Page B tab, returns to Page A
+```
+
+**Why**: Back navigation works within a tab's history. To switch tabs, use exit-last-tab.
+
+### Pitfall 5: Expecting Dynamically Generated URLs to Work
+
+**Problem:**
+```
+1. Generate dynamic URL with timestamp or session ID
+2. Navigate to that URL
+3. Do something
+4. Go back on page
+5. Expect to be on dynamic URL  ← URL might have expired or changed
+```
+
+**Solution:**
+```
+Store the URL you navigated from if you need to verify it after going back
+Or assert on page content instead of exact URL
+```
+
+**Why**: Dynamic URLs might not be stable across back navigation.
+
+### Pitfall 6: Going Back in Iframe or Modal Contexts
+
+**Problem:**
+```
+1. Open modal dialog
+2. Navigate within modal
+3. Go back on page  ← Goes back in main page, not modal
+```
+
+**Solution:**
+```
+Use modal-specific navigation (close modal, modal back button)
+Or test that back button behavior in modals works as designed
+```
+
+**Why**: Back navigation typically applies to the main page, not embedded contexts.
+
+## Comparison with Similar Interactions
+
+### Go Back On Page vs Exit Last Tab
+
+**Go Back On Page:**
+- Behavior: Navigates backward in current tab's history
+- Tab count: No change
+- Result: Previous page in same tab
+- History: Moves back one step
+- Best for: Single-tab backward navigation
+
+**Exit Last Tab:**
+- Behavior: Closes current tab
+- Tab count: Decreases by 1
+- Result: Returns to previous tab
+- History: No history navigation
+- Best for: Multi-tab workflows
+
+**When to switch**: Use Exit Last Tab when working with multiple tabs. Use Go Back On Page for history navigation within a single tab.
+
+### Go Back On Page vs Navigate to URL
+
+**Go Back On Page:**
+- Method: Uses browser history
+- Destination: Previous page (determined by history)
+- State: May preserve page state
+- Speed: Fast (may use cache)
+- Best for: Returning to previous page
+
+**Navigate to URL:**
+- Method: Direct URL navigation
+- Destination: Specific URL you specify
+- State: Fresh page load
+- Speed: Regular page load
+- Best for: Going to known specific page
+
+**When to switch**: Use Navigate to URL when you know exactly where you want to go. Use Go Back On Page to simulate natural backward browsing.
+
+### Go Back On Page vs Click Back Button
+
+**Go Back On Page:**
+- Method: Programmatic back navigation
+- Reliability: Direct control
+- Works: Always (if history exists)
+
+**Click Back Button:**
+- Method: Clicking browser's back button element
+- Reliability: Depends on page styling
+- Works: Only if back button visible/clickable
+
+**When to switch**: Go Back On Page is generally more reliable. Click the back button only if you're specifically testing custom back button UI elements.
+
+## Interaction Patterns
+
+### Pattern 1: Browse and Return
+
+The most common pattern: view details, then return to list.
+
+```
+1. On list/grid page
+2. Click: Item
+3. Wait until: Detail page loads
+4. View/interact with details
+5. Go back on page
+6. Wait until: List page reappears
+7. Continue browsing
+```
+
+### Pattern 2: Progressive Refinement
+
+Search, filter, refine, check results, go back, refine more.
+
+```
+1. Search for items
+2. Apply filter
+3. View results
+4. Go back on page (remove last filter)
+5. Apply different filter
+6. Compare results
+```
+
+### Pattern 3: Multi-Level Backward Navigation
+
+Going back through multiple pages in sequence.
+
+```
+1. On Page A
+2. Navigate to Page B
+3. Navigate to Page C
+4. Navigate to Page D
+5. Go back on page (to C)
+6. Go back on page (to B)
+7. Go back on page (to A)
+```
+
+### Pattern 4: Form Review and Edit
+
+Fill form, review, go back to edit, continue.
+
+```
+1. Fill form step 1
+2. Click: Next
+3. Review step 2
+4. Go back on page
+5. Edit step 1 data
+6. Click: Next
+7. Complete step 2
+```
+
+## Testing Edge Cases
+
+### Single Page Applications (SPAs)
+
+SPAs use client-side routing. Test their back button handling:
+
+```
+Test: "SPA back button navigation"
+1. Navigate to SPA {{variable:APP_URL}}
+2. Click: Route to /dashboard
+3. Assert URL Location: {{variable:APP_URL}}/dashboard
+4. Click: Route to /settings
+5. Assert URL Location: {{variable:APP_URL}}/settings
+6. Go back on page
+7. Assert URL Location: {{variable:APP_URL}}/dashboard
+8. Assert: Dashboard content loaded (not full page refresh)
+```
+
+### Form State Preservation
+
+Test whether forms remember data after back navigation:
+
+```
+Test: "Form preserves data after back navigation"
+1. Navigate to form
+2. Fill all fields
+3. Extract information about filled values
+4. Navigate to next page
+5. Go back on page
+6. Assert: All fields still contain values
+```
+
+### Deep Linking
+
+Test that back button works with deep links:
+
+```
+Test: "Back button from deep link"
+1. Navigate directly to deep URL: {{variable:APP_URL}}/products/category/electronics/item/12345
+2. Wait until: Product page loads
+3. Go back on page
+4. Assert: Either previous page loads OR no navigation (since no history)
+```
+
+### Scroll Position Restoration
+
+Test whether scroll position preserves on back navigation:
+
+```
+Test: "Scroll position preserved after back"
+1. Navigate to long page
+2. Scroll: To bottom
+3. Click: Link at bottom
+4. Wait until: New page loads
+5. Go back on page
+6. Wait until: Previous page loads
+7. Assert: Page scrolled to bottom (position preserved)
+```
+
+## Advanced Usage
+
+### Going Back Multiple Times
+
+```
+Navigation path: Home → Products → Category → Item
+
+Return to home:
+1. (Currently on Item page)
+2. Go back on page (now on Category)
+3. Wait until: Category page loads
+4. Go back on page (now on Products)
+5. Wait until: Products page loads
+6. Go back on page (now on Home)
+7. Wait until: Home page loads
+8. Assert: On homepage
+```
+
+### Testing Back Button After External Link
+
+```
+Test: "Back button after external link return"
+1. On your site
+2. Open URL on new page: External site
+3. Navigate on external site
+4. Close external tab (exit last tab)
+5. Wait until: Back on your site
+6. Go back on page
+7. Assert: Previous page on your site loads
+```
+
+### Combining Back with Form Submission
+
+```
+Test: "Submit, view confirmation, go back, form cleared"
+1. Fill form
+2. Submit form
+3. Wait until: Confirmation page loads
+4. Assert: Submission successful
+5. Go back on page
+6. Wait until: Form page reloads
+7. Assert: Form is cleared OR form shows previous values (depends on implementation)
+```
+
+## Key Takeaways
+
+1. **Simulates back button** - Mimics user clicking browser back button
+2. **Single tab navigation** - Works within current tab's history
+3. **State may be preserved** - Forms and scroll position might restore
+4. **Always wait after** - Page needs time to load after going back
+5. **Verify the page** - Confirm you're on expected page after navigation
+6. **Sequential for multiple steps** - Use multiple go-back interactions to go back several pages
+7. **Test state preservation** - Explicitly verify forms/filters/state preserved or cleared
+8. **Web only currently** - Mobile support coming in future releases
+9. **Different from closing tabs** - Use exit-last-tab for multi-tab scenarios
+10. **Essential for realistic flows** - Users regularly go back; test it thoroughly
+
+## What's Next
+
+Now that you understand backward navigation with Go Back On Page, explore these related interactions:
+
+- **Exit Last Tab**: Learn how to close tabs and return to previous tabs (multi-tab navigation)
+- **Open URL On New Page**: Discover how to open URLs in new tabs
+- **Assert URL Location**: Verify you're on the expected page after navigation
+- **Click**: Understand forward navigation via clicking links and buttons

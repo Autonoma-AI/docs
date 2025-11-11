@@ -1,0 +1,855 @@
+---
+title: "Login Google Account"
+description: "Authenticate with Google Workspace accounts in your web tests. This interaction handles the complete Google OAuth flow, from credential entry to account selection."
+---
+
+## What is Login Google Account?
+
+Login Google Account is a specialized interaction designed specifically for authenticating with Google Workspace accounts during web testing. When your application uses Google as an identity provider—whether through "Sign in with Google" buttons, Google OAuth, or Google Workspace SSO—this interaction automates the entire authentication flow.
+
+Think of it as a specialized automation that knows exactly how to navigate Google's authentication pages, handle the various screens that appear, and complete the login process. Instead of manually scripting each step of the Google login flow (entering email, clicking next, entering password, handling 2FA prompts, selecting the right account), this single interaction handles it all.
+
+This is particularly powerful for testing applications that use Google as their primary authentication method or for testing Google Workspace integrations where users need to authenticate with their corporate Google accounts.
+
+## When to Use Login Google Account
+
+This interaction is specifically designed for Google authentication scenarios. Use it when:
+
+**Perfect for:**
+- Applications with "Sign in with Google" buttons
+- Google OAuth 2.0 authentication flows
+- Google Workspace SSO integrations
+- Testing applications that require Google account access
+- Multi-tenant applications using Google as IdP
+- Applications accessing Google APIs on behalf of users
+- Testing different Google account types (personal, workspace, education)
+
+**Choose an alternative when:**
+- Authenticating with non-Google identity providers (use specific interactions for those)
+- Using email/password authentication that's not Google-based
+- Testing native mobile apps with Google Sign-In (different flow)
+- Your application has a custom authentication system
+
+## How It Works
+
+When you invoke Login Google Account, here's what happens behind the scenes:
+
+1. **Account Detection**: Autonoma identifies which Google account to use based on the credentials you've configured
+2. **Navigation Handling**: It navigates through Google's authentication pages intelligently
+3. **Email Entry**: Enters the Google account email address
+4. **Password Entry**: Inputs the password on the password screen
+5. **Account Selection**: If multiple accounts are signed in, selects the correct one
+6. **Consent Handling**: Accepts consent screens if this is the first login for the app
+7. **2FA Handling**: Can handle two-factor authentication if configured
+8. **Redirect Completion**: Waits for the OAuth callback and redirect to complete
+9. **Session Verification**: Confirms the user is authenticated in your application
+
+This comprehensive flow means you don't need to script each individual step—the interaction handles the complexity of Google's authentication flow.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not supported (use mobile-specific authentication flows)
+
+This interaction is specifically designed for web-based Google OAuth flows. Mobile applications typically use native Google Sign-In SDKs which require different automation approaches.
+
+## Understanding Google Authentication Flows
+
+Before using this interaction, it's helpful to understand the different types of Google authentication your application might use:
+
+### OAuth 2.0 Authorization Code Flow
+
+The most common flow for web applications:
+
+1. User clicks "Sign in with Google"
+2. App redirects to Google's authorization server
+3. User authenticates and grants permissions
+4. Google redirects back with an authorization code
+5. App exchanges code for access tokens
+6. User is authenticated
+
+**Login Google Account handles steps 2-5 automatically.**
+
+### Google Workspace SSO
+
+For organizations using Google Workspace:
+
+1. User enters their corporate email
+2. App detects the domain uses Google Workspace
+3. Redirects to Google for authentication
+4. Google validates the user is part of the workspace
+5. Returns authentication token
+6. User gains access with workspace permissions
+
+**Login Google Account handles the entire Workspace authentication flow.**
+
+### One Tap Sign-In
+
+Google's newer streamlined sign-in experience:
+
+1. Google One Tap prompt appears
+2. User selects an account
+3. Immediate authentication without navigation away
+4. Quick authentication completion
+
+**Login Google Account can handle One Tap, though the visual flow differs.**
+
+## Example Scenarios
+
+### Scenario 1: First-Time Google OAuth Login
+
+You're testing a SaaS application where new users sign up using Google authentication.
+
+```
+Test: "New user signs up with Google account"
+
+1. Navigate to: https://app.example.com/signup
+2. Wait until: Sign up page loads
+3. Click "Sign up with Google" button
+4. Wait until: Google login page appears
+5. Add prompt: login-google-account
+6. Wait until: User is redirected back to app
+7. Wait until: Dashboard loads
+8. Verify: User sees welcome message
+9. Verify: User email is displayed in profile
+```
+
+**What happens**:
+- User clicks the Google sign-up button
+- Gets redirected to accounts.google.com
+- Login Google Account handles authentication
+- User is redirected back with OAuth tokens
+- Application creates new user account
+- Test verifies successful registration
+
+**Why this works**: The interaction handles all the complexity of Google's OAuth flow, including the consent screen that appears for first-time users.
+
+### Scenario 2: Returning User Login
+
+Testing the login experience for a user who has previously authenticated.
+
+```
+Test: "Returning user logs in with Google"
+
+1. Navigate to: https://app.example.com/login
+2. Wait until: Login page loads
+3. Click "Sign in with Google" button
+4. Add prompt: login-google-account
+5. Wait until: User is redirected to dashboard
+6. Verify: User sees their saved data
+7. Verify: Session is active
+```
+
+**What happens**:
+- User clicks sign-in button
+- Gets redirected to Google
+- Since user previously authenticated, might skip consent screen
+- Login Google Account enters credentials if needed
+- Quick redirect back to application
+- User sees their existing account
+
+**Why this works**: For returning users, Google's flow is faster, and the interaction adapts to this shortened flow automatically.
+
+### Scenario 3: Google Workspace Corporate Login
+
+Testing an enterprise application where employees use their company Google accounts.
+
+```
+Test: "Employee logs in with Workspace account"
+
+1. Navigate to: https://company-portal.example.com
+2. Wait until: SSO login page loads
+3. Add prompt: input employee@company.com on the email field
+4. Click "Continue" button
+5. Wait until: Redirected to Google Workspace login
+6. Add prompt: login-google-account
+7. Wait until: User returns to portal
+8. Verify: Employee dashboard loads
+9. Verify: Company branding is visible
+10. Verify: User role is "Employee"
+```
+
+**What happens**:
+- Application detects the email domain
+- Redirects to Google Workspace for authentication
+- Workspace validates the user belongs to the organization
+- Login Google Account handles the authentication
+- Additional workspace policies may be enforced
+- User gains access with workspace-specific permissions
+
+**Why this works**: Google Workspace authentication includes additional steps like domain validation and policy enforcement, which the interaction handles automatically.
+
+### Scenario 4: Multi-Account Selection
+
+Testing when a user has multiple Google accounts signed in to their browser.
+
+```
+Test: "User selects correct account from multiple options"
+
+1. Navigate to: https://app.example.com/login
+2. Wait until: Login page loads
+3. Click "Sign in with Google" button
+4. Wait until: Account selection screen appears
+5. Add prompt: login-google-account
+6. Wait until: Correct account is selected and authenticated
+7. Wait until: Dashboard loads
+8. Verify: Correct user profile is shown
+```
+
+**What happens**:
+- User clicks sign-in button
+- Google shows account picker with multiple accounts
+- Login Google Account identifies the correct account from configuration
+- Selects and authenticates with the right account
+- User sees their specific account data
+
+**Why this works**: The interaction knows which account to select based on your test configuration, preventing authentication with the wrong account.
+
+### Scenario 5: Testing OAuth Scopes and Permissions
+
+Verifying your application requests the correct Google API permissions.
+
+```
+Test: "Verify correct OAuth scopes are requested"
+
+1. Navigate to: https://app.example.com/login
+2. Click "Sign in with Google" button
+3. Wait until: Google consent screen appears
+4. Verify: Screen shows "will access: Email, Profile, Google Drive"
+5. Add prompt: login-google-account
+6. Wait until: User is authenticated
+7. Verify: Application can access Google Drive
+8. Navigate to: Settings page
+9. Verify: Connected Google services shows Drive access
+```
+
+**What happens**:
+- Application initiates OAuth with specific scopes
+- Google consent screen displays requested permissions
+- Test verifies the correct permissions are requested
+- User grants access
+- Application receives tokens with correct scope
+- Test confirms the integration works
+
+**Why this works**: By verifying the consent screen before authenticating, you ensure your OAuth configuration is correct.
+
+## Example Prompts
+
+The Login Google Account interaction uses a simple prompt structure:
+
+### Basic Usage
+
+```
+login-google-account
+```
+
+This is the standard prompt. It tells Autonoma to perform the complete Google authentication flow.
+
+### Alternative Phrasings
+
+```
+login google account
+sign in with google account
+authenticate with google
+use google login
+```
+
+All of these variations trigger the same interaction. Use whichever feels most natural in your test narrative.
+
+## Configuration Requirements
+
+To use Login Google Account effectively, you need to configure the test account credentials in Autonoma.
+
+### Setting Up Test Accounts
+
+**In your Autonoma configuration:**
+
+1. Navigate to your application settings
+2. Go to Authentication configuration
+3. Add Google account credentials:
+   - Email: `test-user@example.com`
+   - Password: `secure-test-password`
+   - (Optional) 2FA method if enabled
+
+### Using Environment Variables
+
+For security and flexibility:
+
+```yaml
+# In your test configuration
+authentication:
+  google:
+    email: ${GOOGLE_TEST_EMAIL}
+    password: ${GOOGLE_TEST_PASSWORD}
+```
+
+Then set environment variables:
+```bash
+export GOOGLE_TEST_EMAIL="test-user@example.com"
+export GOOGLE_TEST_PASSWORD="secure-test-password"
+```
+
+### Multiple Test Accounts
+
+For testing different account types:
+
+```yaml
+authentication:
+  google:
+    primary:
+      email: "regular-user@gmail.com"
+      password: "password1"
+    workspace:
+      email: "employee@company.com"
+      password: "password2"
+    admin:
+      email: "admin@company.com"
+      password: "password3"
+```
+
+Specify which account to use in your test:
+```
+Add prompt: login-google-account using primary account
+Add prompt: login-google-account using workspace account
+```
+
+## Best Practices
+
+### 1. Use Dedicated Test Accounts
+
+Never use real user accounts for testing.
+
+**Good**:
+- Create dedicated Google accounts for testing
+- Use obvious test identifiers: `qa-test-1@example.com`
+- Keep credentials in secure configuration
+- Rotate test account passwords regularly
+
+**Bad**:
+- Using personal Google accounts
+- Using production user credentials
+- Hardcoding passwords in test scripts
+- Sharing test accounts across teams without coordination
+
+### 2. Handle Post-Authentication State
+
+Always verify authentication succeeded before continuing.
+
+**Good**:
+```
+1. Add prompt: login-google-account
+2. Wait until: Dashboard loads
+3. Verify: User menu shows logged in state
+4. Proceed with test actions
+```
+
+**Risky**:
+```
+1. Add prompt: login-google-account
+2. Click something ← Might fail if auth didn't complete
+```
+
+### 3. Test Both First-Time and Returning User Flows
+
+The Google OAuth flow differs between new and returning users.
+
+**Comprehensive testing**:
+```
+Test 1: "First-time user with consent screen"
+- Use never-before-authenticated account
+- Verify consent screen appears
+- Verify all requested permissions shown
+- Complete authentication
+
+Test 2: "Returning user with existing consent"
+- Use previously authenticated account
+- Verify faster authentication (no consent screen)
+- Verify existing permissions maintained
+```
+
+### 4. Clear Sessions Between Tests
+
+Prevent test interference from previous authentication.
+
+**At test start**:
+```
+1. Navigate to: https://accounts.google.com/Logout
+2. Wait until: Logged out
+3. Clear browser cookies
+4. Navigate to: Your application
+5. Proceed with login test
+```
+
+Or use Autonoma's session management:
+```
+Test configuration:
+  clear_session: true
+  clear_cookies: true
+```
+
+### 5. Wait for Redirects to Complete
+
+OAuth involves multiple redirects—wait for them.
+
+**Good**:
+```
+1. Click "Sign in with Google"
+2. Wait until: Google login page loads
+3. Add prompt: login-google-account
+4. Wait until: Redirected back to application
+5. Wait until: Dashboard fully loads
+```
+
+**Problematic**:
+```
+1. Click "Sign in with Google"
+2. Add prompt: login-google-account
+3. Click something ← May fail if redirect not complete
+```
+
+### 6. Test Different Google Account Types
+
+Different account types may behave differently.
+
+**Account types to test**:
+- Personal Gmail accounts (`@gmail.com`)
+- Google Workspace accounts (`@company.com`)
+- Google Workspace with MFA enabled
+- Google Workspace with advanced security policies
+- Legacy G Suite accounts
+- Google for Education accounts
+
+### 7. Handle Consent Screen Changes
+
+Google occasionally updates their consent screen UI.
+
+**Robust approach**:
+```
+1. Add prompt: login-google-account
+2. Wait until: Either dashboard loads OR consent screen appears
+3. If consent screen: Accept and continue
+4. Wait until: Dashboard loads
+```
+
+The interaction handles this automatically, but be aware of the variability.
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting for OAuth Redirects
+
+**Problem**:
+```
+1. Click "Sign in with Google"
+2. Add prompt: login-google-account
+3. Click "Create Project" button ← Fails because redirect not complete
+```
+
+**Solution**:
+```
+1. Click "Sign in with Google"
+2. Wait until: Google login page appears
+3. Add prompt: login-google-account
+4. Wait until: Fully redirected and authenticated
+5. Wait until: UI elements are interactive
+6. Click "Create Project" button
+```
+
+### Pitfall 2: Using Accounts with 2FA Not Configured in Tests
+
+**Problem**: Test account has 2FA enabled but no 2FA method configured in Autonoma.
+
+**Result**: Test hangs at 2FA prompt.
+
+**Solution**:
+- Use test accounts without 2FA for simpler tests
+- Or configure 2FA handling in Autonoma (TOTP, SMS, etc.)
+- Or use Google's App Passwords for testing
+
+### Pitfall 3: Hardcoding Credentials in Test Scripts
+
+**Problem**:
+```
+// DON'T DO THIS
+Test: "Login test"
+1. Use account: test@example.com / password123
+2. Add prompt: login-google-account
+```
+
+**Security risk**: Credentials in code repository.
+
+**Solution**:
+```
+// Configure credentials in Autonoma settings
+Test: "Login test"
+1. Add prompt: login-google-account
+// Credentials come from secure configuration
+```
+
+### Pitfall 4: Not Testing Logout and Re-Login
+
+**Problem**: Only testing the initial login, not the complete auth lifecycle.
+
+**Result**: Missing bugs in logout, session expiry, or re-authentication flows.
+
+**Solution**:
+```
+Test: "Complete authentication lifecycle"
+
+1. Add prompt: login-google-account
+2. Verify: User is logged in
+3. Perform some actions
+4. Click "Logout" button
+5. Wait until: Logged out
+6. Click "Sign in with Google" again
+7. Add prompt: login-google-account
+8. Verify: User is logged in again
+```
+
+### Pitfall 5: Assuming Instant Authentication
+
+**Problem**: Expecting Google OAuth to complete instantly.
+
+**Reality**: OAuth involves multiple network calls and redirects.
+
+**Solution**: Add appropriate wait conditions:
+```
+1. Add prompt: login-google-account
+2. Wait until: URL contains your application domain
+3. Wait until: User profile data loads
+4. Wait until: Authenticated UI state is visible
+```
+
+### Pitfall 6: Testing in Production with Test Accounts
+
+**Problem**: Running authentication tests against production using test accounts.
+
+**Risks**:
+- Creating fake user data in production
+- Triggering security alerts
+- Polluting analytics
+- Consuming production resources
+
+**Solution**:
+- Use staging/QA environments for authentication testing
+- If production testing is required, use clearly marked test accounts
+- Clean up test data after runs
+- Monitor and exclude test accounts from analytics
+
+### Pitfall 7: Not Handling Google's Security Challenges
+
+**Problem**: Google may present security challenges for unusual activity.
+
+**Examples**:
+- "Unusual activity detected" warnings
+- CAPTCHA challenges
+- Device verification requests
+- Location verification
+
+**Solution**:
+- Use well-established test accounts with history
+- Run tests from consistent IP addresses
+- Mark test accounts as "less secure app access allowed" if needed
+- Consider Google's testing best practices for automated systems
+
+## Security Considerations
+
+### Credential Storage
+
+**Best practices for storing test credentials:**
+
+1. **Use secure vaults**: Store credentials in Autonoma's encrypted configuration or external vaults (AWS Secrets Manager, HashiCorp Vault)
+2. **Environment variables**: Never commit credentials to version control
+3. **Access control**: Limit who can view/modify test credentials
+4. **Rotation**: Regularly update test account passwords
+5. **Monitoring**: Watch for unauthorized access to test accounts
+
+### OAuth Security Testing
+
+Use Login Google Account to test security aspects:
+
+**Test OAuth flows properly handle:**
+```
+Test: "Verify secure OAuth implementation"
+
+1. Intercept OAuth state parameter
+2. Verify: State parameter is unique per request
+3. Verify: State parameter is validated on callback
+4. Complete authentication: login-google-account
+5. Verify: Tokens are properly secured
+6. Verify: No tokens in URL after redirect
+7. Verify: No tokens in browser history
+```
+
+### Testing Authorization vs Authentication
+
+Remember: Login Google Account handles **authentication** (who you are), not **authorization** (what you can access).
+
+**After authentication, test authorization:**
+```
+1. Add prompt: login-google-account
+2. Verify: User is authenticated
+3. Navigate to: Admin-only page
+4. Verify: Access is denied (assuming non-admin user)
+5. Verify: Proper error message shown
+```
+
+### PKCE for Mobile and SPAs
+
+If your application uses PKCE (Proof Key for Code Exchange):
+
+**Verify PKCE implementation:**
+```
+Test: "Verify PKCE flow"
+
+1. Monitor network requests
+2. Click "Sign in with Google"
+3. Verify: code_challenge is sent in authorization request
+4. Add prompt: login-google-account
+5. Verify: code_verifier is sent in token exchange
+6. Verify: Tokens are received
+```
+
+Login Google Account works with PKCE-enabled flows automatically.
+
+## Advanced Patterns
+
+### Pattern 1: Testing Account Linking
+
+When your application allows linking multiple Google accounts:
+
+```
+Test: "Link additional Google account"
+
+1. Add prompt: login-google-account using primary account
+2. Wait until: Dashboard loads
+3. Navigate to: Account settings
+4. Click "Link another Google account" button
+5. Wait until: Google login page opens
+6. Add prompt: login-google-account using secondary account
+7. Wait until: Returned to settings
+8. Verify: Both accounts are listed
+9. Verify: Can switch between accounts
+```
+
+### Pattern 2: Testing Workspace Domain Restrictions
+
+For applications that only allow specific Google Workspace domains:
+
+```
+Test: "Verify domain restrictions"
+
+1. Click "Sign in with Google"
+2. Add prompt: login-google-account using consumer gmail account
+3. Wait until: Error message appears
+4. Verify: Error says "Only @company.com accounts allowed"
+5. Click "Try again" button
+6. Add prompt: login-google-account using workspace account
+7. Wait until: Successfully authenticated
+```
+
+### Pattern 3: Testing Incremental Authorization
+
+When your app requests additional permissions later:
+
+```
+Test: "Request additional Google Drive access"
+
+1. Add prompt: login-google-account
+2. Wait until: Dashboard loads
+3. Navigate to: Integrations
+4. Click "Connect Google Drive" button
+5. Wait until: Google consent screen for Drive appears
+6. Verify: Only Drive permissions are requested
+7. Click "Allow" on consent screen
+8. Wait until: Drive integration is active
+9. Verify: Can access user's Drive files
+```
+
+### Pattern 4: Testing Token Refresh
+
+For testing long-running sessions:
+
+```
+Test: "Verify token refresh works"
+
+1. Add prompt: login-google-account
+2. Wait until: Authenticated
+3. Store: Current access token
+4. Wait: 55 minutes (or set system time ahead)
+5. Perform: API call requiring Google auth
+6. Verify: Call succeeds (token was refreshed)
+7. Verify: New access token is different from original
+```
+
+### Pattern 5: Testing Logout Everywhere
+
+For security features that revoke all sessions:
+
+```
+Test: "Logout from all devices"
+
+Session 1:
+1. Add prompt: login-google-account
+2. Navigate to: Security settings
+3. Click "Logout from all devices" button
+
+Session 2 (parallel):
+1. Add prompt: login-google-account
+2. Wait: For logout action in Session 1
+3. Try to: Perform authenticated action
+4. Verify: Session is invalidated
+5. Verify: Redirected to login
+```
+
+## Debugging Login Issues
+
+### Issue: Stuck at Google Login Page
+
+**Symptoms**: Test waits indefinitely at Google's login screen.
+
+**Possible causes:**
+1. Credentials not configured correctly
+2. Account locked or suspended
+3. Security challenge (CAPTCHA, unusual activity)
+4. Network connectivity issues
+
+**Debugging steps:**
+1. Verify credentials in Autonoma configuration
+2. Try logging in manually to confirm account status
+3. Check test run screenshots for security challenges
+4. Review test logs for network errors
+
+### Issue: Authentication Completes but User Not Logged In
+
+**Symptoms**: OAuth flow completes, but application doesn't recognize user.
+
+**Possible causes:**
+1. OAuth callback not processed correctly
+2. Cookie/session storage issues
+3. State parameter validation failure
+4. Token exchange failure
+
+**Debugging steps:**
+1. Check application logs for OAuth errors
+2. Verify redirect URI matches OAuth configuration
+3. Inspect network requests for token exchange
+4. Check for JavaScript errors during callback
+5. Verify cookies are being set correctly
+
+### Issue: Wrong Account Selected
+
+**Symptoms**: Different Google account than expected is used.
+
+**Possible causes:**
+1. Multiple accounts signed in to browser
+2. Account configuration mismatch
+3. Previous session not cleared
+
+**Debugging steps:**
+1. Clear all Google sessions before test
+2. Verify correct account is configured
+3. Check account selection screen in test screenshots
+4. Use incognito/private mode for tests
+
+### Issue: Consent Screen Appears Every Time
+
+**Symptoms**: OAuth consent screen shows on every test run.
+
+**Possible causes:**
+1. Application not storing consent
+2. Test account cookies being cleared
+3. OAuth configuration issue (prompt=consent)
+
+**Debugging steps:**
+1. Check if application saves OAuth consent
+2. Verify cookies aren't being cleared between steps
+3. Review OAuth request parameters for forced consent
+4. Check if test account has granted consent previously
+
+## Integration with Other Authentication Methods
+
+### Supporting Multiple Identity Providers
+
+If your application supports multiple sign-in methods:
+
+```
+Test: "Test all authentication methods"
+
+Test Case 1: Google
+1. Add prompt: login-google-account
+2. Verify: Authenticated via Google
+3. Verify: Profile shows Google as provider
+
+Test Case 2: Microsoft
+1. Add prompt: login-microsoft-account
+2. Verify: Authenticated via Microsoft
+3. Verify: Profile shows Microsoft as provider
+
+Test Case 3: Email/Password
+1. Input: test@example.com on email field
+2. Input: password on password field
+3. Click: Sign in button
+4. Verify: Authenticated via email
+```
+
+### Testing Social Login Fallbacks
+
+When Google login fails, does your app handle it gracefully?
+
+```
+Test: "Graceful handling of Google auth failure"
+
+1. Click "Sign in with Google" button
+2. Wait until: Google login page appears
+3. Close the Google auth window
+4. Verify: User returns to login page
+5. Verify: Error message shown (optional)
+6. Verify: Can try alternative login method
+```
+
+## Performance Considerations
+
+### OAuth Flow Timing
+
+Be aware of typical timing for Google authentication:
+
+- **Initial redirect to Google**: 1-2 seconds
+- **Google login page load**: 1-3 seconds
+- **Credential entry and validation**: 2-4 seconds
+- **Callback redirect**: 1-2 seconds
+- **Token exchange**: 1-2 seconds
+- **Application session setup**: 1-3 seconds
+
+**Total expected time**: 7-17 seconds for complete flow
+
+**Optimize by:**
+- Using returning user flows when possible (skips consent)
+- Testing with stable network conditions
+- Keeping test accounts in good standing
+- Using efficient wait conditions
+
+## Key Takeaways
+
+1. **Login Google Account handles the complete OAuth flow** - You don't need to script individual steps
+2. **Works with multiple Google account types** - Personal Gmail, Workspace, Education accounts
+3. **Requires proper configuration** - Set up test credentials securely in Autonoma
+4. **Always wait for redirects** - OAuth involves multiple navigation steps
+5. **Test both first-time and returning users** - The flows differ significantly
+6. **Use dedicated test accounts** - Never use real user credentials
+7. **Handle consent screens** - First-time users see permission requests
+8. **Clear sessions between tests** - Prevent interference from previous runs
+9. **Verify authentication completed** - Don't assume login succeeded
+10. **Test the complete lifecycle** - Include login, usage, logout, and re-login
+
+## What's Next
+
+Now that you understand Google authentication, explore these related topics:
+
+- **Biometric Auth**: Learn about fingerprint and face recognition for mobile apps
+- **Extract Information**: Capture user data after authentication
+- **Variables**: Store and reuse authentication tokens across tests
+- **Wait Until**: Master waiting for authentication flows to complete
+
+---
+
+**Need help?** If Login Google Account isn't working as expected, check your OAuth configuration, verify test credentials, and ensure your application's redirect URIs match your test environment.

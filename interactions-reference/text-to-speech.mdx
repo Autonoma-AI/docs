@@ -1,0 +1,784 @@
+---
+title: "Text to Speech"
+description: "Convert text content into audio for testing voice-enabled features, accessibility compliance, and audio output validation in web applications."
+---
+
+## What is Text to Speech?
+
+The Text to Speech interaction converts visible text content on your web page into synthesized audio that plays in the browser. This allows you to test how your application handles audio output, verify text-to-speech implementations, and validate accessibility features that provide audio alternatives to visual content.
+
+Think of it as activating a virtual "read aloud" feature during your test—the browser's text-to-speech engine converts specified text into spoken audio, which you can then verify or interact with during test execution.
+
+This interaction is particularly useful for testing:
+- Accessibility features that read content aloud
+- Voice-enabled user interfaces
+- Audio feedback systems
+- Screen reader compatibility
+- Text-to-speech API implementations
+- Audio-based tutorials or guidance
+
+## The Challenge of Testing Audio Features
+
+Modern web applications increasingly include audio features:
+
+**Accessibility Requirements**
+```
+Applications must provide audio alternatives for visual content
+Screen readers need to work correctly
+Text-to-speech features must pronounce content properly
+```
+
+**Voice-Enabled Interfaces**
+```
+Voice assistants read interface elements
+Navigation prompts provide audio guidance
+Error messages are announced audibly
+```
+
+**Educational and Tutorial Content**
+```
+Tutorial steps are read aloud
+Instructions provide audio guidance
+Help systems offer voice assistance
+```
+
+**Traditional testing limitations:**
+- **Manual testing**: Requires human listener to verify audio
+- **Mock audio**: Doesn't test actual speech synthesis
+- **Skip audio testing**: Leaves critical accessibility features untested
+- **External tools**: Require complex integration and setup
+
+**Text to Speech in Autonoma** provides automated testing of audio output, ensuring your application's voice and accessibility features work correctly.
+
+## When to Use Text to Speech
+
+### Use Text to Speech when:
+
+**Testing accessibility features**
+```
+Screen reader compatibility
+"Read aloud" button functionality
+Audio descriptions for visual content
+ARIA label pronunciation
+```
+
+**Testing voice-enabled UI elements**
+```
+Voice navigation systems
+Audio feedback for user actions
+Spoken confirmation messages
+Tutorial narration
+```
+
+**Validating pronunciation**
+```
+Product names are pronounced correctly
+Technical terms are handled properly
+Numbers and dates are spoken clearly
+Abbreviations expand appropriately
+```
+
+**Testing audio-based tutorials**
+```
+Step-by-step audio instructions work
+Tutorial progression with voice guidance
+Help system audio output
+```
+
+**Verifying text-to-speech integration**
+```
+TTS API calls function correctly
+Audio playback initiates properly
+Speech synthesis settings are applied
+```
+
+### Don't use when:
+
+**Testing pre-recorded audio**
+```
+If audio is pre-recorded files, not synthesized
+Use standard audio testing approaches
+```
+
+**Testing music or sound effects**
+```
+Background music
+Button click sounds
+Alert tones
+These aren't text-to-speech scenarios
+```
+
+**Testing on mobile applications**
+```
+Text to Speech is web-only
+Mobile platforms use different audio APIs
+```
+
+**Testing without visible text**
+```
+Can't convert text that isn't present
+Need visible text content to convert
+```
+
+## How It Works
+
+When you use Text to Speech:
+
+1. **Text Identification**: Autonoma identifies the text content you want to convert
+2. **Speech Synthesis**: The browser's native Web Speech API synthesizes the text
+3. **Audio Generation**: Text is converted to spoken audio
+4. **Playback**: Audio plays through the browser
+5. **Completion**: Interaction completes when audio finishes or is stopped
+
+### Browser Support
+
+Text to Speech relies on the browser's Web Speech API:
+- **Chrome/Edge**: Full support with high-quality voices
+- **Safari**: Full support with iOS voices
+- **Firefox**: Partial support (varies by platform)
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not supported (web-only feature)
+
+Text to Speech is specifically a web browser feature using the Web Speech API. Mobile testing requires alternative approaches.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing Accessibility "Read Aloud" Button
+
+You're testing an accessibility feature that reads article content aloud when users click a button.
+
+```
+Test: "Read aloud accessibility feature"
+
+Navigate to Article:
+1. Navigate to {{variable:APP_URL}}/article/accessibility-guide
+2. Wait until: Article content loads
+3. Assert: Article text is visible
+
+Test Read Aloud Button:
+4. Click "Read Aloud" button
+5. Wait until: Audio playback starts
+6. Text-to-speech: Convert article content to audio
+7. Wait 5 seconds for audio playback
+
+Verify Audio Controls:
+8. Assert: "Pause" button is now visible
+9. Assert: "Stop" button is available
+10. Assert: Progress indicator shows playback position
+
+Test Pause Functionality:
+11. Click "Pause" button
+12. Assert: Audio pauses
+13. Assert: "Resume" button appears
+
+Test Resume:
+14. Click "Resume" button
+15. Assert: Audio resumes from where it paused
+
+Test Stop:
+16. Click "Stop" button
+17. Assert: Audio stops
+18. Assert: "Read Aloud" button returns to initial state
+```
+
+**Why Text to Speech is useful**: You're verifying that your accessibility feature correctly triggers text-to-speech functionality and that all controls work as expected.
+
+### Scenario 2: Testing Voice-Guided Tutorial
+
+You're testing a tutorial system that provides audio instructions for each step.
+
+```
+Test: "Voice-guided tutorial walkthrough"
+
+Start Tutorial:
+1. Navigate to {{variable:APP_URL}}/tutorial/getting-started
+2. Wait until: Tutorial loads
+3. Click "Start Tutorial" button
+4. Wait until: First step appears
+
+Verify Step 1 Audio:
+5. Assert: Step 1 instructions are visible
+6. Text-to-speech: Convert step 1 instructions to audio
+7. Wait until: Audio completes
+8. Assert: "Next Step" button becomes enabled
+
+Progress to Step 2:
+9. Click "Next Step" button
+10. Wait until: Step 2 appears
+11. Text-to-speech: Convert step 2 instructions to audio
+12. Wait until: Audio completes
+
+Complete Interactive Task:
+13. Follow step 2 instructions
+14. Complete required action
+15. Assert: Step 2 marked as complete
+
+Progress to Step 3:
+16. Click "Next Step" button
+17. Text-to-speech: Convert step 3 instructions to audio
+18. Complete step 3
+
+Verify Tutorial Completion:
+19. Click "Finish Tutorial" button
+20. Wait until: Completion screen appears
+21. Text-to-speech: Convert completion message to audio
+22. Assert: Tutorial marked as completed
+```
+
+**Why Text to Speech is useful**: You're testing that audio guidance plays at each tutorial step and that the tutorial progression works correctly with audio feedback.
+
+### Scenario 3: Testing Form Validation Audio Feedback
+
+You're testing a form that provides audio feedback for validation errors to assist users with visual impairments.
+
+```
+Test: "Audio feedback for form validation errors"
+
+Navigate to Form:
+1. Navigate to {{variable:APP_URL}}/contact
+2. Wait until: Contact form loads
+
+Test Empty Submission:
+3. Click "Submit" button without filling fields
+4. Wait until: Validation errors appear
+
+Verify Audio Feedback:
+5. Text-to-speech: Convert error message to audio
+6. Assert: Error message is announced audibly
+7. Assert: "3 errors found" is spoken
+8. Assert: First error field is focused
+
+Fill Form with Invalid Email:
+9. Input text: "John" in name field
+10. Input text: "invalid-email" in email field
+11. Click "Submit" button
+
+Verify Specific Error Audio:
+12. Wait until: Email validation error appears
+13. Text-to-speech: Convert email error to audio
+14. Assert: "Please enter a valid email address" is spoken
+15. Assert: Email field is focused
+
+Correct and Submit:
+16. Input text: "john@example.com" in email field
+17. Input text: "Test message" in message field
+18. Click "Submit" button
+
+Verify Success Audio:
+19. Wait until: Success message appears
+20. Text-to-speech: Convert success message to audio
+21. Assert: "Message sent successfully" is spoken
+```
+
+**Why Text to Speech is useful**: You're ensuring that form errors and confirmations are properly announced to users who rely on audio feedback.
+
+### Scenario 4: Testing Product Description Read-Aloud
+
+You're testing an e-commerce feature that reads product descriptions aloud to help users shopping hands-free.
+
+```
+Test: "Product description audio playback"
+
+Browse to Product:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Click first product
+4. Wait until: Product details page loads
+
+Test Description Read-Aloud:
+5. Extract information about product name with key PRODUCT_NAME
+6. Extract information about product price with key PRODUCT_PRICE
+7. Click "Read Description" button
+8. Wait until: Audio playback starts
+
+Verify Audio Content:
+9. Text-to-speech: Convert product name to audio
+10. Text-to-speech: Convert product price to audio
+11. Text-to-speech: Convert product description to audio
+12. Wait 3 seconds for audio playback
+
+Test Audio During Interaction:
+13. Scroll down page during audio playback
+14. Assert: Audio continues playing
+15. Click "View Reviews" tab
+16. Assert: Audio stops when navigating away from description
+
+Test Re-activation:
+17. Click "Description" tab
+18. Click "Read Description" button again
+19. Assert: Audio starts from beginning
+20. Text-to-speech: Verify description audio plays
+```
+
+**Why Text to Speech is useful**: You're testing that product information can be consumed audibly and that audio behaves correctly during user interactions.
+
+### Scenario 5: Testing Screen Reader Compatibility
+
+You're testing that your application works correctly with screen reader technology by verifying text-to-speech conversion of ARIA labels and semantic HTML.
+
+```
+Test: "Screen reader ARIA label compatibility"
+
+Navigate to Dashboard:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Dashboard loads
+
+Test Navigation Labels:
+3. Focus "Main Menu" button
+4. Text-to-speech: Convert ARIA label to audio
+5. Assert: "Main Menu, button" is announced
+6. Assert: Button role is communicated
+
+Test Interactive Elements:
+7. Focus "Search" input field
+8. Text-to-speech: Convert label and placeholder to audio
+9. Assert: "Search, edit text" is announced
+10. Assert: Placeholder text is readable
+
+Test Link Descriptions:
+11. Focus "View Profile" link
+12. Text-to-speech: Convert link text and context to audio
+13. Assert: "View Profile, link" is announced
+14. Assert: Link destination is communicated
+
+Test Status Messages:
+15. Click "Save Settings" button
+16. Wait until: Success notification appears
+17. Text-to-speech: Convert ARIA live region to audio
+18. Assert: "Settings saved successfully" is announced
+19. Assert: Status role is communicated
+
+Test Error Announcements:
+20. Submit form with invalid data
+21. Wait until: Error message appears
+22. Text-to-speech: Convert error alert to audio
+23. Assert: "Error: Please correct the following fields" is announced
+24. Assert: Alert role is communicated
+```
+
+**Why Text to Speech is useful**: You're verifying that semantic HTML and ARIA attributes are correctly interpreted and announced, ensuring screen reader compatibility.
+
+### Scenario 6: Testing Multi-Language Text-to-Speech
+
+You're testing that text-to-speech works correctly in different languages with appropriate pronunciation.
+
+```
+Test: "Multi-language text-to-speech support"
+
+Test English Content:
+1. Navigate to {{variable:APP_URL}}?lang=en
+2. Wait until: Page loads in English
+3. Extract page language with key CURRENT_LANG
+4. Assert: Language is "en"
+
+5. Click "Read Page" button
+6. Text-to-speech: Convert English content to audio
+7. Wait 3 seconds for audio playback
+8. Assert: Content is pronounced with English voice
+
+Switch to Spanish:
+9. Click language selector
+10. Select "Español" from dropdown
+11. Wait until: Page reloads in Spanish
+12. Extract page language with key CURRENT_LANG
+13. Assert: Language is "es"
+
+Test Spanish Content:
+14. Click "Leer Página" button
+15. Text-to-speech: Convert Spanish content to audio
+16. Wait 3 seconds for audio playback
+17. Assert: Content is pronounced with Spanish voice
+
+Switch to French:
+18. Click language selector
+19. Select "Français" from dropdown
+20. Wait until: Page reloads in French
+
+Test French Content:
+21. Click "Lire la Page" button
+22. Text-to-speech: Convert French content to audio
+23. Assert: Content is pronounced with French voice
+```
+
+**Why Text to Speech is useful**: You're ensuring that text-to-speech correctly adapts to different languages and uses appropriate voices for each language.
+
+## Example Prompts
+
+Here are effective ways to phrase Text to Speech commands:
+
+**Basic conversion:**
+```
+text-to-speech
+convert text to audio
+read the text aloud
+text to speech
+```
+
+**With context:**
+```
+convert article text to audio
+text-to-speech for product description
+read error message aloud
+convert tutorial instructions to audio
+```
+
+**Specific elements:**
+```
+convert heading text to audio
+text-to-speech for button labels
+read form validation messages
+convert navigation labels to audio
+```
+
+## Best Practices
+
+### 1. Use for Accessibility Testing
+
+Text to Speech is primarily valuable for testing accessibility features:
+
+```
+Test: "Accessibility compliance"
+
+1. Navigate to page
+2. Test all interactive elements with text-to-speech
+3. Verify ARIA labels are announced correctly
+4. Confirm error messages are audible
+5. Validate navigation is screen-reader friendly
+```
+
+### 2. Combine with Wait Conditions
+
+Allow time for audio playback:
+
+```
+1. Click "Read Aloud" button
+2. Text-to-speech: Convert content to audio
+3. Wait 5 seconds for audio playback
+4. Assert: Audio completed
+5. Continue with next step
+```
+
+### 3. Test Audio Controls
+
+If your application has audio controls, test them:
+
+```
+1. Start text-to-speech playback
+2. Test pause button
+3. Test resume button
+4. Test stop button
+5. Test volume controls
+6. Test playback speed controls
+```
+
+### 4. Verify Content Pronunciation
+
+For important content, verify pronunciation is acceptable:
+
+```
+1. Text-to-speech: Convert product name to audio
+2. Listen for correct pronunciation
+3. If mispronounced, adjust phonetic spelling
+4. Verify technical terms are handled
+5. Check abbreviations expand correctly
+```
+
+### 5. Consider Browser Differences
+
+Text-to-speech quality varies by browser:
+
+```
+Test in Chrome: High-quality voices
+Test in Safari: iOS native voices
+Test in Firefox: May have limitations
+
+Document any browser-specific issues
+```
+
+### 6. Handle Long Content Appropriately
+
+For lengthy content, test audio management:
+
+```
+1. Start text-to-speech for long article
+2. Verify pause/resume works mid-content
+3. Test navigation during playback
+4. Confirm audio stops when leaving page
+5. Verify resume-from-position functionality
+```
+
+### 7. Test Error Message Announcements
+
+Ensure errors are communicated audibly:
+
+```
+1. Trigger validation error
+2. Text-to-speech: Convert error to audio
+3. Assert: Error is announced immediately
+4. Verify error message is clear
+5. Confirm field focus is announced
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting for Audio Playback
+
+**Problem:**
+```
+1. Text-to-speech: Convert content to audio
+2. Immediately continue to next step ← Audio still playing!
+```
+
+**Solution:**
+```
+1. Text-to-speech: Convert content to audio
+2. Wait 5 seconds for audio playback
+3. Continue to next step
+```
+
+### Pitfall 2: Testing on Mobile
+
+**Problem:**
+```
+Running text-to-speech tests on mobile platforms
+Feature is web-only
+```
+
+**Solution:**
+```
+Only use Text to Speech for web testing
+For mobile, use platform-specific TTS APIs
+Document platform limitations
+```
+
+### Pitfall 3: Not Verifying Audio Started
+
+**Problem:**
+```
+1. Click "Read Aloud" button
+2. Assume audio is playing
+3. No verification
+```
+
+**Solution:**
+```
+1. Click "Read Aloud" button
+2. Wait until: Audio playback indicator appears
+3. Assert: Audio is playing
+4. Text-to-speech: Verify audio conversion
+```
+
+### Pitfall 4: Ignoring Browser Compatibility
+
+**Problem:**
+```
+Test passes in Chrome
+Fails in Firefox (limited TTS support)
+No browser-specific handling
+```
+
+**Solution:**
+```
+Check browser before testing TTS
+Skip or adjust test for unsupported browsers
+Document browser requirements
+Provide fallback verification methods
+```
+
+### Pitfall 5: Not Testing Audio Controls
+
+**Problem:**
+```
+Test audio playback starts
+Don't test pause, stop, or volume controls
+```
+
+**Solution:**
+```
+1. Test audio playback starts
+2. Test pause functionality
+3. Test resume functionality
+4. Test stop functionality
+5. Test volume adjustment
+6. Test playback speed (if available)
+```
+
+## Advanced Patterns
+
+### Pattern 1: Progressive Audio Testing
+
+```
+Test: "Complete audio interface testing"
+
+Initial Playback:
+1. Navigate to content page
+2. Click "Read Aloud" button
+3. Text-to-speech: Start audio conversion
+4. Wait 2 seconds
+5. Assert: Audio is playing
+
+Pause and Resume:
+6. Click "Pause" button
+7. Assert: Audio paused
+8. Wait 1 second
+9. Click "Resume" button
+10. Assert: Audio resumed
+
+Volume Control:
+11. Click volume slider
+12. Adjust to 50%
+13. Assert: Volume adjusted
+14. Audio continues at new volume
+
+Speed Control:
+15. Click speed selector
+16. Select "1.5x speed"
+17. Assert: Playback speed increased
+18. Audio continues at new speed
+
+Complete Playback:
+19. Wait for audio to complete naturally
+20. Assert: "Read Aloud" button returns to initial state
+21. Assert: Progress indicator shows 100%
+```
+
+### Pattern 2: Multi-Section Audio Navigation
+
+```
+Test: "Audio navigation through sections"
+
+Start at Section 1:
+1. Navigate to article
+2. Assert: Section 1 is visible
+3. Click "Read This Section" button
+4. Text-to-speech: Convert section 1 to audio
+5. Wait 3 seconds
+
+Skip to Section 3:
+6. Click "Section 3" in table of contents
+7. Assert: Section 3 scrolls into view
+8. Assert: Previous audio stopped
+9. Click "Read This Section" button
+10. Text-to-speech: Convert section 3 to audio
+
+Navigate Back:
+11. Click "Section 1" in table of contents
+12. Assert: Section 1 scrolls into view
+13. Verify audio handling during navigation
+```
+
+### Pattern 3: Error Message Audio Queue
+
+```
+Test: "Multiple error announcements"
+
+Trigger Multiple Errors:
+1. Submit form with multiple validation errors
+2. Wait until: Error summary appears
+
+Test Error Announcements:
+3. Text-to-speech: Convert error summary to audio
+4. Assert: "3 errors found" is announced
+5. Wait 2 seconds
+
+6. Text-to-speech: Convert first error to audio
+7. Assert: "Name is required" is announced
+8. Wait 2 seconds
+
+9. Text-to-speech: Convert second error to audio
+10. Assert: "Email is invalid" is announced
+11. Wait 2 seconds
+
+12. Text-to-speech: Convert third error to audio
+13. Assert: "Message is too short" is announced
+
+Verify Sequential Announcement:
+14. Assert: Errors announced in correct order
+15. Assert: Each error was clearly communicated
+```
+
+## Debugging Text to Speech Issues
+
+### Issue: Audio Not Playing
+
+**Possible causes:**
+1. Browser doesn't support Web Speech API
+2. Audio permissions not granted
+3. Volume is muted
+4. Text content is empty
+
+**Solutions:**
+```
+# Check browser support:
+Verify browser supports Web Speech API
+Test in Chrome or Edge for best support
+
+# Check audio settings:
+Ensure system volume is audible
+Check browser audio permissions
+
+# Verify text content:
+Ensure text to convert is visible and non-empty
+Check for valid text content
+```
+
+### Issue: Poor Audio Quality
+
+**Possible causes:**
+1. Browser using low-quality voice
+2. Text formatting affects pronunciation
+3. Special characters not handled well
+
+**Solutions:**
+```
+# Use better browser:
+Chrome/Edge have higher quality voices
+Safari uses iOS native voices
+
+# Clean text content:
+Remove special formatting
+Simplify complex punctuation
+Test pronunciation of technical terms
+```
+
+### Issue: Audio Cuts Off
+
+**Possible causes:**
+1. Navigation away from page
+2. Page reloads during playback
+3. Audio stopped programmatically
+
+**Solutions:**
+```
+# Wait for completion:
+Add appropriate wait time for audio length
+Don't navigate during playback
+
+# Handle interruptions:
+Test what happens when user navigates
+Verify audio stops cleanly
+```
+
+## What's Next
+
+Now that you understand Text to Speech, you can:
+- Test accessibility features requiring audio output
+- Verify screen reader compatibility
+- Validate voice-enabled interface elements
+- Test audio-based tutorials and guidance
+- Ensure form errors are announced audibly
+
+Text to Speech is a specialized interaction for testing web accessibility and audio features, ensuring your application serves users who rely on audible content.
+
+Explore related interactions:
+- **Assert**: Verify text content before converting to audio
+- **Wait**: Allow time for audio playback
+- **Click**: Trigger audio playback controls
+- **Extract Information**: Capture text content for audio testing
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

@@ -1,0 +1,849 @@
+---
+title: "Set File to Upload"
+description: "Pre-load files from your file system into Autonoma's memory, enabling seamless testing of file upload features without dealing with OS dialogs or complex mocking."
+---
+
+## What is Set File to Upload?
+
+Set File to Upload is Autonoma's solution to one of the most challenging aspects of automated testing: file uploads. It's the interaction that bridges the gap between your file system and your application's file upload functionality.
+
+Think of it as pre-loading the answer before the question is asked. Before your test clicks an upload button (which would normally open a file picker dialog), you use Set File to Upload to tell Autonoma: "When a file picker opens, automatically provide this specific file."
+
+What makes this powerful is that it eliminates the impossible task of automating OS-level file dialogs. Traditional testing tools can't interact with your operating system's file picker—it exists outside the browser's security boundary. Set File to Upload sidesteps this entirely by preparing the file in advance, so when the dialog appears, Autonoma already knows which file to provide.
+
+## When to Use Set File to Upload
+
+Set File to Upload should be used whenever your test needs to upload files through standard file input controls. Here's when it's the right tool:
+
+**Perfect for:**
+- Profile picture uploads (JPG, PNG, WebP)
+- Resume or CV submissions (PDF, DOCX)
+- Document uploads (invoices, receipts, contracts)
+- Data import features (CSV, XLSX, JSON)
+- Image galleries and photo uploads
+- Attachment features (support tickets, messages)
+- Bulk file uploads (multiple documents)
+- Any feature with a "Choose File" or "Browse" button
+
+**Required when:**
+- Your application uses standard `<input type="file">` elements
+- Users click a button that opens their OS file picker
+- You need to test the complete upload flow, not just the UI
+- Your upload feature includes file validation or processing
+- You're testing file-related error states (wrong type, too large)
+
+**Not needed when:**
+- Your application uses drag-and-drop only (though you can still use it)
+- Testing mobile camera uploads (use Set Camera Image instead)
+- The upload is purely visual/UI without actual file processing
+
+## How It Works
+
+When you use Set File to Upload in Autonoma, here's the complete process:
+
+1. **File Selection**: You specify a file path from your local file system
+2. **File Loading**: Autonoma reads the file and stores it in memory
+3. **File Registration**: The file is registered with your test run
+4. **Dialog Interception**: When your test clicks an upload button, Autonoma intercepts the file picker dialog
+5. **Automatic Provision**: Autonoma automatically provides the pre-loaded file to the dialog
+6. **Upload Execution**: Your application receives the file as if a user manually selected it
+7. **Persistence**: The file remains available throughout the test run for repeated uploads
+
+This process is completely transparent to your application. From your app's perspective, a user selected a file through the normal file picker.
+
+## Platform Support
+
+- **Web**: Full support (Chrome, Firefox, Safari, Edge)
+- **Mobile**: Not supported (use Set Camera Image for mobile camera uploads)
+
+Set File to Upload is specifically designed for web application testing where standard file input controls are used.
+
+## Real-World Scenarios
+
+### Scenario 1: Profile Picture Upload
+
+You're testing a user profile feature where users can upload and change their profile picture.
+
+```
+Test: "Upload and change profile picture"
+
+1. Navigate to {{variable:APP_URL}}/profile/edit
+2. Wait until: Edit profile page loads
+3. Set file to upload: /Users/test/images/profile-pic.jpg
+4. Click "Change Picture" button
+5. Wait until: File picker opens and file is selected
+6. Wait until: Image preview appears
+7. Verify: Preview shows the uploaded image
+8. Click "Save Changes" button
+9. Wait until: "Profile updated" message appears
+10. Verify: New profile picture appears in header
+```
+
+**Why this approach works**: By setting the file before clicking the upload button, you avoid the impossible task of interacting with the OS file dialog. The test flows naturally, just as a user would experience it.
+
+**File preparation**: Keep a standard test image (like `profile-pic.jpg`) in a known location. Make it a reasonable size (500KB or less) and a standard format (JPG or PNG).
+
+### Scenario 2: Resume Submission for Job Application
+
+You're testing a job application flow where candidates upload their resume along with their application details.
+
+```
+Test: "Submit job application with resume"
+
+1. Navigate to {{variable:APP_URL}}/careers/software-engineer/apply
+2. Wait until: Application form loads
+3. Type {{variable:TEST_FIRST_NAME}} in "First Name" field
+4. Type {{variable:TEST_LAST_NAME}} in "Last Name" field
+5. Type {{variable:TEST_EMAIL}} in "Email Address" field
+6. Type {{variable:TEST_PHONE}} in "Phone Number" field
+7. Set file to upload: /Users/test/documents/test-resume.pdf
+8. Click "Upload Resume" button
+9. Wait until: Filename "test-resume.pdf" appears on page
+10. Verify: "Resume attached" confirmation is visible
+11. Click "Submit Application" button
+12. Wait until: "Application received" message appears
+13. Verify: Page shows "We'll review your application within 3-5 business days"
+```
+
+**Why this approach works**: The form-filling flow is natural and readable. Setting the file happens right before it's needed, making the test sequence logical and easy to understand.
+
+**File requirements**: Use a real PDF resume (even if it's fake content) so your application's PDF validation logic is properly tested. Keep it under 2MB to avoid slow uploads.
+
+### Scenario 3: Invoice Upload for Expense Tracking
+
+You're testing an expense management system where employees upload invoice images for reimbursement.
+
+```
+Test: "Submit expense with invoice attachment"
+
+1. Navigate to {{variable:APP_URL}}/expenses/new
+2. Wait until: New expense form loads
+3. Type "Client Dinner" in "Expense Description" field
+4. Type "125.50" in "Amount" field
+5. Click "Category" dropdown
+6. Click "Meals & Entertainment" option
+7. Type "{{variable:TODAY}}" in "Date" field
+8. Set file to upload: /Users/test/receipts/dinner-receipt.jpg
+9. Click "Attach Receipt" button
+10. Wait until: Receipt thumbnail appears
+11. Verify: Receipt image is visible in preview
+12. Click "Submit Expense" button
+13. Wait until: "Expense submitted" message appears
+14. Verify: Expense appears in "Pending" status
+```
+
+**Why this approach works**: The expense form is completed first, then the supporting documentation is added—mimicking the natural user workflow. The file attachment is seamlessly integrated into the test flow.
+
+**Image considerations**: Use an actual photo of a receipt (or a generated test receipt image) to ensure your application's image processing and OCR features (if any) are tested properly.
+
+### Scenario 4: CSV Data Import
+
+You're testing a customer data import feature where administrators upload CSV files to bulk-import customer records.
+
+```
+Test: "Import customer data via CSV"
+
+1. Navigate to {{variable:APP_URL}}/admin/customers/import
+2. Wait until: Import page loads
+3. Verify: Page shows "Supported format: CSV"
+4. Set file to upload: /Users/test/data/customers-sample.csv
+5. Click "Choose CSV File" button
+6. Wait until: Filename "customers-sample.csv" appears
+7. Verify: "10 records detected" message is visible
+8. Click "Preview Import" button
+9. Wait until: Data preview table loads
+10. Verify: Table shows 10 rows of customer data
+11. Click "Confirm Import" button
+12. Wait until: Progress bar completes
+13. Verify: "Successfully imported 10 customers" message appears
+14. Click "View Imported Customers" link
+15. Wait until: Customer list loads
+16. Verify: New customers appear in the list
+```
+
+**Why this approach works**: This tests the complete import pipeline: file selection, validation, preview, and final import. Each step is verified to ensure the data flow works correctly.
+
+**CSV preparation**: Create a realistic test CSV with 10-20 sample records. Include edge cases like names with special characters, international addresses, and various phone number formats.
+
+### Scenario 5: Multiple Document Upload
+
+You're testing a document management system where users can upload multiple files in sequence.
+
+```
+Test: "Upload multiple project documents"
+
+1. Navigate to {{variable:APP_URL}}/projects/{{variable:PROJECT_ID}}/documents
+2. Wait until: Project documents page loads
+3. Verify: "No documents uploaded" message is visible
+
+   # Upload first document
+4. Set file to upload: /Users/test/docs/project-proposal.pdf
+5. Click "Add Document" button
+6. Wait until: First document appears in list
+7. Verify: "project-proposal.pdf" is listed
+
+   # Upload second document
+8. Set file to upload: /Users/test/docs/budget-breakdown.xlsx
+9. Click "Add Document" button
+10. Wait until: Second document appears in list
+11. Verify: "budget-breakdown.xlsx" is listed
+
+   # Upload third document
+12. Set file to upload: /Users/test/docs/timeline.png
+13. Click "Add Document" button
+14. Wait until: Third document appears in list
+15. Verify: "timeline.png" is listed
+
+   # Verify final state
+16. Verify: Page shows "3 documents" in header
+17. Verify: All three documents are visible with correct icons
+```
+
+**Why this approach works**: Each upload is a complete cycle: set file, click button, verify result. This pattern is easy to read and debug if one upload fails.
+
+**Multiple file types**: Use different file formats (PDF, XLSX, PNG) to test your application's file type detection and icon rendering logic.
+
+### Scenario 6: Testing File Validation
+
+You're testing that your application properly rejects invalid file types or oversized files.
+
+```
+Test: "Verify file type validation for profile pictures"
+
+1. Navigate to {{variable:APP_URL}}/profile/edit
+2. Wait until: Edit profile page loads
+
+   # Test invalid file type (PDF instead of image)
+3. Set file to upload: /Users/test/invalid/document.pdf
+4. Click "Upload Profile Picture" button
+5. Wait until: Error message appears
+6. Verify: "Only JPG, PNG, and WebP images are allowed" error is visible
+
+   # Test valid file type
+7. Set file to upload: /Users/test/images/valid-profile.jpg
+8. Click "Upload Profile Picture" button
+9. Wait until: Image preview appears
+10. Verify: No error messages are visible
+11. Verify: Preview shows the uploaded image
+```
+
+**Why this approach works**: You're testing both the failure and success cases, ensuring your validation logic works correctly and provides helpful error messages.
+
+**Test file preparation**: Keep a folder of deliberately invalid test files (wrong types, corrupted files, oversized files) specifically for validation testing.
+
+## File Path Specifications
+
+Set File to Upload requires absolute file paths from your local file system. Understanding the correct path format for your operating system is crucial.
+
+### macOS and Linux Path Format
+
+On macOS and Linux, paths start with a forward slash:
+
+```
+/Users/username/Documents/test-files/image.jpg
+/home/username/test-data/customers.csv
+/Users/qa/Desktop/receipts/invoice-001.pdf
+```
+
+**Finding the absolute path on macOS:**
+1. Right-click the file in Finder
+2. Hold the Option key
+3. Select "Copy as Pathname"
+4. The absolute path is now in your clipboard
+
+**Finding the absolute path on Linux:**
+1. Open the file's location in your file manager
+2. Right-click the file
+3. Select "Properties" or "Copy path"
+
+### Windows Path Format
+
+On Windows, paths start with a drive letter:
+
+```
+C:\Users\username\Documents\test-files\image.jpg
+C:\test-data\customers.csv
+D:\test-files\resume.pdf
+```
+
+**Important**: In some contexts, you may need to escape backslashes:
+```
+C:\\Users\\username\\Documents\\image.jpg
+```
+
+**Finding the absolute path on Windows:**
+1. Hold Shift and right-click the file
+2. Select "Copy as path"
+3. The absolute path is now in your clipboard
+
+### Organizing Test Files
+
+Best practices for managing test files:
+
+**Create a dedicated test files directory:**
+```
+/Users/qa/autonoma-test-files/
+  ├── images/
+  │   ├── profile-pic-small.jpg
+  │   ├── profile-pic-large.jpg
+  │   └── product-image.png
+  ├── documents/
+  │   ├── test-resume.pdf
+  │   ├── invoice-template.pdf
+  │   └── contract-sample.docx
+  ├── data/
+  │   ├── customers-10-rows.csv
+  │   ├── customers-1000-rows.csv
+  │   └── products.xlsx
+  └── invalid/
+      ├── wrong-type.txt
+      ├── oversized-image.jpg
+      └── corrupted-file.pdf
+```
+
+**Benefits of organized test files:**
+- Easy to find files when building tests
+- Consistent paths across all tests
+- Simple to share with team members
+- Version control friendly (commit test files to your repo)
+- Clear organization by file type and purpose
+
+### File Path in Variables
+
+You can store file paths in test variables for reusability:
+
+```
+Variable: TEST_PROFILE_IMAGE
+Value: /Users/qa/autonoma-test-files/images/profile-pic-small.jpg
+
+Variable: TEST_RESUME
+Value: /Users/qa/autonoma-test-files/documents/test-resume.pdf
+
+Variable: TEST_CSV_SMALL
+Value: /Users/qa/autonoma-test-files/data/customers-10-rows.csv
+```
+
+Then use them in your tests:
+```
+Set file to upload: {{variable:TEST_PROFILE_IMAGE}}
+```
+
+This makes it easy to update file paths globally if your test file directory moves.
+
+## Example Prompts
+
+Here are effective ways to phrase Set File to Upload interactions:
+
+**Basic file upload:**
+```
+set file to upload /Users/test/images/profile.jpg
+set the file to upload /Users/test/documents/resume.pdf
+upload file /Users/test/receipts/invoice.png
+```
+
+**With context:**
+```
+set the file /Users/test/data/customers.csv to upload
+prepare file /Users/test/images/product-image.jpg for upload
+load file /Users/test/documents/contract.pdf for uploading
+```
+
+**Using variables:**
+```
+set file to upload {{variable:TEST_PROFILE_IMAGE}}
+upload the file {{variable:TEST_RESUME}}
+set the file {{variable:TEST_CSV}} to upload
+```
+
+**Natural language:**
+```
+upload the test resume file
+set the profile picture for upload
+prepare the invoice image for uploading
+```
+
+## Best Practices
+
+### 1. Set File Right Before Clicking Upload Button
+
+Always set the file immediately before clicking the upload button. This makes the test sequence clear and logical.
+
+**Good:**
+```
+1. Navigate to profile page
+2. Wait until: Page loads
+3. Set file to upload: /Users/test/images/profile.jpg
+4. Click "Upload Picture" button
+5. Wait until: Upload completes
+```
+
+**Less clear:**
+```
+1. Set file to upload: /Users/test/images/profile.jpg ← Too early
+2. Navigate to profile page
+3. Wait until: Page loads
+4. Fill out other form fields
+5. Click "Upload Picture" button
+```
+
+### 2. Use Descriptive Test File Names
+
+Name your test files clearly so anyone reading the test understands what they are.
+
+**Good file names:**
+```
+profile-pic-valid-jpg.jpg
+resume-with-special-chars.pdf
+customers-10-rows.csv
+oversized-image-5mb.jpg
+invoice-receipt-example.png
+```
+
+**Poor file names:**
+```
+test.jpg
+file1.pdf
+data.csv
+img.png
+```
+
+### 3. Keep Test Files Small
+
+Use small file sizes to keep test execution fast. Large files slow down uploads and don't provide additional test value.
+
+**Recommended sizes:**
+- Images: 500KB or less
+- PDFs: 1-2MB or less
+- CSV files: 100KB or less
+- Excel files: 500KB or less
+
+**Exception**: When specifically testing large file handling, use appropriately sized files (but keep them under 10MB).
+
+### 4. Store Test Files in Version Control
+
+Commit your test files to your repository so all team members and CI/CD environments have access to them.
+
+```
+your-project/
+  ├── tests/
+  └── test-files/
+      ├── images/
+      ├── documents/
+      └── data/
+```
+
+Add to `.gitattributes` to prevent line ending issues:
+```
+*.jpg binary
+*.png binary
+*.pdf binary
+*.xlsx binary
+```
+
+### 5. Verify Upload Success
+
+Always verify that the upload completed successfully before continuing the test.
+
+**Good:**
+```
+1. Set file to upload: /Users/test/images/profile.jpg
+2. Click "Upload Picture" button
+3. Wait until: Filename appears on page
+4. Verify: "profile.jpg" is visible
+5. Verify: Image preview shows uploaded picture
+```
+
+**Risky:**
+```
+1. Set file to upload: /Users/test/images/profile.jpg
+2. Click "Upload Picture" button
+3. Click "Save" button ← Might click before upload finishes
+```
+
+### 6. Test Different File Types
+
+If your application accepts multiple file types, test each type to ensure proper handling.
+
+```
+Test Suite: "Document upload - all supported types"
+
+Test 1: Upload PDF document
+  - Set file to upload: test.pdf
+
+Test 2: Upload DOCX document
+  - Set file to upload: test.docx
+
+Test 3: Upload TXT document
+  - Set file to upload: test.txt
+```
+
+### 7. Use Absolute Paths, Never Relative
+
+Always use absolute paths starting from the root of your file system.
+
+**Good:**
+```
+set file to upload /Users/test/images/profile.jpg
+```
+
+**Won't work:**
+```
+set file to upload ./images/profile.jpg
+set file to upload ../test-files/profile.jpg
+```
+
+### 8. Handle File Name Display Correctly
+
+Many applications display the uploaded filename. Account for this in your verifications.
+
+```
+1. Set file to upload: /Users/test/receipts/dinner-receipt-2024-01-15.jpg
+2. Click "Attach Receipt" button
+3. Wait until: Filename appears
+4. Verify: "dinner-receipt-2024-01-15.jpg" is visible
+   # Note: Only the filename appears, not the full path
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Setting File After Clicking Upload Button
+
+**Problem:**
+```
+1. Click "Upload Picture" button ← Opens file picker immediately
+2. Set file to upload: /Users/test/images/profile.jpg ← Too late!
+```
+
+The file picker has already opened. Setting the file afterwards doesn't help.
+
+**Solution:**
+```
+1. Set file to upload: /Users/test/images/profile.jpg ← Set first
+2. Click "Upload Picture" button ← Then click
+```
+
+Always set the file *before* clicking the button.
+
+### Pitfall 2: Using Relative Paths
+
+**Problem:**
+```
+set file to upload ./test-files/image.jpg
+set file to upload ../images/profile.jpg
+```
+
+Relative paths don't work because Autonoma needs to know the absolute location on your file system.
+
+**Solution:**
+```
+set file to upload /Users/test/test-files/image.jpg
+```
+
+Always use absolute paths starting from your file system root.
+
+### Pitfall 3: File Doesn't Exist at Specified Path
+
+**Problem:**
+```
+set file to upload /Users/test/images/profile.jpg
+```
+
+If this file doesn't exist, the interaction will fail.
+
+**Solution:**
+- Verify the file exists at the specified path
+- Double-check the path spelling and capitalization
+- Make sure test files are committed to version control
+- Use copy/paste to get exact paths (don't type them manually)
+
+### Pitfall 4: Not Verifying Upload Completion
+
+**Problem:**
+```
+1. Set file to upload: /Users/test/resume.pdf
+2. Click "Upload Resume" button
+3. Click "Submit Application" button ← Might submit before upload finishes
+```
+
+The submit button is clicked before verifying the upload completed.
+
+**Solution:**
+```
+1. Set file to upload: /Users/test/resume.pdf
+2. Click "Upload Resume" button
+3. Wait until: "resume.pdf" appears on page
+4. Verify: Upload complete indicator is visible
+5. Click "Submit Application" button
+```
+
+Always wait for upload completion confirmation.
+
+### Pitfall 5: Wrong File Type for Application Requirements
+
+**Problem:**
+```
+1. Set file to upload: /Users/test/image.gif
+2. Click "Upload Profile Picture" button
+3. Error: "Only JPG and PNG files are allowed"
+```
+
+You're testing with the wrong file type.
+
+**Solution:**
+- Read your application's file type requirements
+- Use test files that match the accepted formats
+- Create separate tests for file type validation
+
+### Pitfall 6: Reusing File Path Across Different Machines
+
+**Problem:**
+Your test uses `/Users/tom/test-files/image.jpg`, but your teammate is `/Users/sarah/` and CI is `/home/runner/`.
+
+**Solution:**
+- Store test files in your project repository
+- Use consistent relative locations within the project
+- Document where test files should be stored
+- Consider using test variables for paths:
+  ```
+  Variable: TEST_FILES_DIR
+  Value: /Users/tom/project/test-files
+
+  Then: set file to upload {{variable:TEST_FILES_DIR}}/images/profile.jpg
+  ```
+
+### Pitfall 7: Testing with Unrealistic File Sizes
+
+**Problem:**
+Using a 50MB image to test profile picture upload when your application likely limits uploads to 5MB.
+
+**Solution:**
+- Use realistic file sizes that match production constraints
+- Test the file size limit explicitly with separate tests
+- Keep standard test files small for fast test execution
+
+## Advanced Use Cases
+
+### Testing File Upload Error States
+
+Create tests that intentionally upload invalid files to verify error handling:
+
+```
+Test: "Profile picture upload validation"
+
+# Test wrong file type
+1. Navigate to profile page
+2. Set file to upload: /Users/test/invalid/document.pdf
+3. Click "Upload Picture" button
+4. Wait until: Error message appears
+5. Verify: "Only images (JPG, PNG) are allowed" is visible
+
+# Test oversized file
+6. Set file to upload: /Users/test/invalid/oversized-10mb.jpg
+7. Click "Upload Picture" button
+8. Wait until: Error message appears
+9. Verify: "File must be smaller than 5MB" is visible
+
+# Test valid file
+10. Set file to upload: /Users/test/images/valid-profile.jpg
+11. Click "Upload Picture" button
+12. Wait until: Upload succeeds
+13. Verify: Profile picture preview appears
+```
+
+### Sequential Multiple File Uploads
+
+When your application requires uploading multiple files one at a time:
+
+```
+Test: "Upload project documents sequentially"
+
+# Document 1
+1. Set file to upload: /Users/test/docs/proposal.pdf
+2. Click "Add Document" button
+3. Wait until: "proposal.pdf" appears in list
+
+# Document 2
+4. Set file to upload: /Users/test/docs/budget.xlsx
+5. Click "Add Document" button
+6. Wait until: "budget.xlsx" appears in list
+
+# Document 3
+7. Set file to upload: /Users/test/docs/timeline.png
+8. Click "Add Document" button
+9. Wait until: "timeline.png" appears in list
+
+# Verify all uploads
+10. Verify: Document list shows 3 files
+```
+
+Each upload is a complete cycle with verification before moving to the next.
+
+### Upload with Form Submission
+
+Combining file upload with form data submission:
+
+```
+Test: "Submit support ticket with attachment"
+
+# Fill form
+1. Type "Login Issue" in "Subject" field
+2. Type "I can't log in to my account" in "Description" field
+3. Type {{variable:USER_EMAIL}} in "Email" field
+
+# Add attachment
+4. Set file to upload: /Users/test/screenshots/login-error.png
+5. Click "Attach Screenshot" button
+6. Wait until: "login-error.png" appears
+7. Verify: Attachment indicator shows 1 file
+
+# Submit
+8. Click "Submit Ticket" button
+9. Wait until: "Ticket created" message appears
+10. Verify: Ticket number is displayed
+```
+
+### Testing File Upload Limits
+
+Verify your application properly enforces upload limits:
+
+```
+Test: "Verify 3-file upload limit"
+
+# Upload first 3 files successfully
+1. Set file to upload: /Users/test/docs/file1.pdf
+2. Click "Add Document" button
+3. Wait until: file1.pdf appears
+
+4. Set file to upload: /Users/test/docs/file2.pdf
+5. Click "Add Document" button
+6. Wait until: file2.pdf appears
+
+7. Set file to upload: /Users/test/docs/file3.pdf
+8. Click "Add Document" button
+9. Wait until: file3.pdf appears
+
+# Verify 4th upload is rejected
+10. Set file to upload: /Users/test/docs/file4.pdf
+11. Click "Add Document" button
+12. Wait until: Error message appears
+13. Verify: "Maximum 3 files allowed" error is visible
+14. Verify: file4.pdf does NOT appear in list
+```
+
+## Comparison with Similar Interactions
+
+### Set File to Upload vs Set Camera Image
+
+**Set File to Upload:**
+- Platform: Web only
+- Use case: Standard file input controls
+- File source: Your computer's file system
+- File types: Any (images, PDFs, CSVs, etc.)
+- Interaction: Opens OS file picker dialog
+- Best for: Desktop web applications
+
+**Set Camera Image:**
+- Platform: Mobile only
+- Use case: Camera capture features
+- File source: Simulated camera capture
+- File types: Images only
+- Interaction: Simulates taking a photo
+- Best for: Mobile app camera features
+
+**When to switch**: Use Set Camera Image when testing mobile apps that use camera capture functionality. Use Set File to Upload for standard file selection.
+
+### Set File to Upload vs Drag-and-Drop
+
+**Set File to Upload:**
+- Method: Click button → File picker opens
+- Setup: Set file, then click button
+- Reliability: High (standard upload flow)
+- Browser support: Universal
+
+**Drag-and-Drop Upload:**
+- Method: Drag file onto drop zone
+- Setup: Currently not directly supported in Autonoma
+- Workaround: Most drag-drop zones also have a "click to upload" fallback
+
+**Best practice**: Even if your app supports drag-and-drop, test using the click-to-upload method with Set File to Upload. This tests the most common user flow and is more reliable to automate.
+
+## Metadata and Return Values
+
+When you use Set File to Upload, Autonoma stores metadata about the file. This metadata is returned and can be used in subsequent steps:
+
+**Metadata includes:**
+- File path (absolute path to the file)
+- File name (just the filename, not full path)
+- File size (in bytes)
+- File type (MIME type)
+
+**Example metadata:**
+```json
+{
+  "path": "/Users/test/images/profile.jpg",
+  "filename": "profile.jpg",
+  "size": 245678,
+  "type": "image/jpeg"
+}
+```
+
+This metadata is primarily used internally by Autonoma to manage the file upload process, but it's helpful to understand what information is captured.
+
+## Testing in CI/CD
+
+When your tests run in CI/CD environments, file paths need to work on the CI server's file system.
+
+**Best practices for CI/CD:**
+
+1. **Store test files in your repository:**
+```
+your-project/
+  ├── tests/
+  └── test-files/
+      └── images/
+          └── profile.jpg
+```
+
+2. **Use project-relative paths in CI:**
+If your CI environment checks out your repo to `/home/runner/work/project/`, and test files are in the repo, construct absolute paths based on the working directory:
+
+```
+Variable: TEST_FILES_PATH
+Value (local): /Users/qa/project/test-files
+Value (CI): /home/runner/work/project/test-files
+```
+
+3. **Verify files exist:**
+Add a test step to verify test files are available:
+```
+1. Verify: Test file exists at {{variable:TEST_FILES_PATH}}/images/profile.jpg
+2. Navigate to profile page
+3. Set file to upload: {{variable:TEST_FILES_PATH}}/images/profile.jpg
+```
+
+4. **Keep files small:**
+Small test files upload faster in CI environments, making your test suite more efficient.
+
+## Key Takeaways
+
+1. **Pre-load files before clicking upload buttons** - This is the core concept that makes file upload testing possible
+2. **Use absolute paths** - Always specify the complete path from your file system root
+3. **Set file immediately before clicking** - Keep the test sequence logical and readable
+4. **Verify upload completion** - Always wait for confirmation before continuing
+5. **Organize test files** - Create a dedicated directory structure for test files
+6. **Keep files small** - Use minimal file sizes for fast test execution
+7. **Store in version control** - Commit test files to your repo for team and CI access
+8. **Test validation** - Include tests for invalid file types and sizes
+9. **Use descriptive file names** - Make test files self-documenting
+10. **Works only on web** - Remember this is for web applications; use Set Camera Image for mobile
+
+## What's Next
+
+Now that you understand how to test file uploads, explore these related interactions:
+
+- **Set Camera Image**: Learn how to test camera capture in mobile apps
+- **Unset Camera Image**: Discover how to clear uploaded images in mobile tests
+- **Click**: Master the fundamental interaction for triggering upload buttons
+- **Wait Until**: Understand how to properly wait for upload completion
+
+You can also explore the comprehensive guide on [Testing File Uploads](/testing-file-uploads) for more detailed examples and patterns.

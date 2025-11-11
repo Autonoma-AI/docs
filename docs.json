@@ -164,8 +164,118 @@
              ]
            }
          ]
-       }
-      ],
+       },
+      {
+        "tab": "Interactions Reference",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "interactions-reference/introduction"
+            ]
+          },
+          {
+            "group": "Navigation & Interaction",
+            "pages": [
+              "interactions-reference/click",
+              "interactions-reference/smart-click",
+              "interactions-reference/visual-click",
+              "interactions-reference/freestyle-click",
+              "interactions-reference/ocr-click",
+              "interactions-reference/conditional-click",
+              "interactions-reference/click-until",
+              "interactions-reference/double-tap",
+              "interactions-reference/long-press",
+              "interactions-reference/right-click",
+              "interactions-reference/freestyle-gesture"
+            ]
+          },
+          {
+            "group": "Input & Text Entry",
+            "pages": [
+              "interactions-reference/input-text",
+              "interactions-reference/input-on-focus",
+              "interactions-reference/send-enter-on-input",
+              "interactions-reference/keypad",
+              "interactions-reference/backspace"
+            ]
+          },
+          {
+            "group": "Scrolling",
+            "pages": [
+              "interactions-reference/scroll-web",
+              "interactions-reference/scroll-mobile",
+              "interactions-reference/scroll-with-condition",
+              "interactions-reference/ocr-scroll",
+              "interactions-reference/move-carousel"
+            ]
+          },
+          {
+            "group": "Assertions & Verification",
+            "pages": [
+              "interactions-reference/assert",
+              "interactions-reference/assert-url-location",
+              "interactions-reference/math-assert",
+              "interactions-reference/extract-information"
+            ]
+          },
+          {
+            "group": "Waiting & Timing",
+            "pages": [
+              "interactions-reference/wait",
+              "interactions-reference/wait-until"
+            ]
+          },
+          {
+            "group": "Browser & Navigation",
+            "pages": [
+              "interactions-reference/open-url-on-new-page",
+              "interactions-reference/go-back-on-page",
+              "interactions-reference/go-home",
+              "interactions-reference/exit-last-tab"
+            ]
+          },
+          {
+            "group": "File & Media Operations",
+            "pages": [
+              "interactions-reference/set-file-to-upload",
+              "interactions-reference/set-camera-image",
+              "interactions-reference/unset-camera-image"
+            ]
+          },
+          {
+            "group": "Authentication & Security",
+            "pages": [
+              "interactions-reference/login-google-account",
+              "interactions-reference/biometric-auth"
+            ]
+          },
+          {
+            "group": "Network & State",
+            "pages": [
+              "interactions-reference/go-online",
+              "interactions-reference/go-offline",
+              "interactions-reference/restart-app"
+            ]
+          },
+          {
+            "group": "Advanced Features",
+            "pages": [
+              "interactions-reference/fetch",
+              "interactions-reference/curl",
+              "interactions-reference/email-information-retriever",
+              "interactions-reference/email-information-retriever-generator",
+              "interactions-reference/text-to-speech",
+              "interactions-reference/zoom-in",
+              "interactions-reference/zoom-out",
+              "interactions-reference/ocr-hover",
+              "interactions-reference/swipe-with-condition",
+              "interactions-reference/end"
+            ]
+          }
+        ]
+      }
+    ],
       "seo": {
         "metatags": {
           "description": "Comprehensive documentation for Autonoma - AI-powered UI test automation platform. Learn to create, run, and manage automated tests for web and mobile applications.",

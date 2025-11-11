@@ -1,0 +1,1191 @@
+---
+title: "Restart App"
+description: "Simulate app restart scenarios to test state persistence, session handling, initialization flows, and ensure your application recovers correctly from fresh launches."
+---
+
+## What is Restart App?
+
+Restart App is an interaction that closes your application completely and then reopens it from scratch, simulating what happens when a user force-quits your app and launches it again. It's the equivalent of swiping away your app from the task switcher and tapping the icon to reopen it.
+
+This interaction is crucial for testing one of the most overlooked aspects of application quality: **does your app properly handle being closed and reopened?**
+
+When Restart App executes, it completely terminates your application process and then launches it fresh from the home screen or app launcher. This means:
+- All in-memory state is cleared
+- The app goes through complete initialization
+- Any data that wasn't persisted is lost
+- The app starts from its default entry point
+
+It's the ultimate test of whether your persistence, state management, and initialization logic work correctly.
+
+## Why Restart Testing is Critical
+
+In the real world, users restart apps constantly, often for reasons you might not expect:
+
+**Common restart triggers:**
+- User force-quits app when it seems frozen
+- System kills app due to memory pressure
+- App crashes and user relaunches it
+- User closes app and returns hours or days later
+- OS terminates background app to free resources
+- Device restarts (system updates, battery drain, etc.)
+- User switches between many apps and yours gets terminated
+
+Each of these scenarios should result in a smooth restart experience. But without proper testing, you might discover:
+
+**Common restart failures:**
+- Authentication state lost (user forced to log in again)
+- Form data disappears (user loses their work)
+- App crashes on launch
+- Incorrect initial screen displayed
+- Cached data corrupted or missing
+- Onboarding flows repeat unnecessarily
+- Deep links stop working
+- Push notification state lost
+
+The difference between an app that handles restarts gracefully and one that doesn't is the difference between user trust and user frustration.
+
+## When to Use Restart App
+
+Restart App should be a standard part of your testing strategy. Here's when it's essential:
+
+**Critical test scenarios:**
+- **State persistence**: Verify saved data survives restart
+- **Authentication**: Confirm logged-in state persists (or properly expires)
+- **Form data**: Ensure draft content is preserved
+- **App initialization**: Test cold start behavior
+- **Cache validity**: Verify cached data loads correctly
+- **Session recovery**: Confirm in-progress operations can resume
+- **Memory leaks**: Test repeated restart cycles
+- **Deep link handling**: Verify links work after restart
+- **Notification state**: Ensure notification badges update correctly
+
+**Essential test patterns:**
+
+```
+Pattern 1: Data Persistence
+1. Create data
+2. Restart app ← Does data survive?
+3. Verify data present
+
+Pattern 2: Authentication State
+1. Log in
+2. Restart app ← Does session persist?
+3. Verify still logged in
+
+Pattern 3: Draft Recovery
+1. Fill form partially
+2. Save draft
+3. Restart app ← Is draft recovered?
+4. Verify form data restored
+
+Pattern 4: Cold Start Performance
+1. Restart app ← How long does cold start take?
+2. Wait until: App fully initialized
+3. Assert: Performance acceptable
+
+Pattern 5: Crash Recovery
+1. Trigger error condition
+2. App crashes
+3. Restart app ← Does app recover?
+4. Verify error handled gracefully
+```
+
+## How It Works
+
+When you trigger Restart App in a test, here's what happens:
+
+1. **Application Termination**: Autonoma completely closes your application, terminating all processes
+2. **Memory Cleanup**: All in-memory state is cleared (just like a real restart)
+3. **Launch Trigger**: The app is launched fresh from the home screen/launcher
+4. **Initialization**: Your app goes through its complete startup sequence
+5. **Navigation**: The app opens to its default entry screen (usually home or last screen depending on state)
+6. **Test Continuation**: Your test continues with the restarted app
+
+This mirrors exactly what happens when users force-quit and relaunch your app, or when the system kills and later restarts it.
+
+## Platform Support
+
+**Web**: Full support (page reload and fresh navigation)
+**Mobile**: Full support (Android and iOS app restart)
+
+Restart App works across both platforms, but the behavior differs slightly:
+
+**Web restart behavior:**
+- Browser tab closes or page reloads
+- Session storage cleared
+- Local storage persists
+- Cookies persist
+- Service workers may cache data
+
+**Mobile restart behavior:**
+- App process terminates completely
+- All memory cleared
+- Persistent storage (UserDefaults, SharedPreferences, databases) survives
+- Keychain/credential storage survives
+- Cache directories may persist depending on implementation
+
+## Real-World Testing Scenarios
+
+### Scenario 1: Authentication Session Persistence
+
+You're testing a social media app where users should remain logged in across app restarts (unless they explicitly log out).
+
+```
+Test: "User remains logged in after app restart"
+
+Initial login:
+1. Navigate to login screen
+2. Wait until: Login form loads
+3. Type {{variable:TEST_EMAIL}} in email field
+4. Type {{variable:TEST_PASSWORD}} in password field
+5. Click: "Sign In" button
+6. Wait until: Dashboard loads
+7. Assert: User is logged in
+8. Assert: Welcome message shows user name
+9. Assert: Profile icon displays user avatar
+
+Extract user info for verification:
+10. Extract information about user name with key USERNAME
+11. Extract information about user ID with key USER_ID
+12. Assert: Extracted {{key:USERNAME}} successfully
+
+Navigate through app:
+13. Click: Profile tab
+14. Wait until: Profile loads
+15. Assert: User profile displays
+16. Click: Settings
+17. Assert: Settings page accessible
+
+Restart app and verify session:
+18. Restart app ← Key action
+19. Wait until: App reopens
+20. Wait until: Initial screen loads
+
+Verify auto-login:
+21. Assert: Dashboard loads automatically (not login screen)
+22. Assert: User still logged in
+23. Assert: Welcome message shows {{key:USERNAME}}
+24. Assert: Profile icon displays avatar
+25. Assert: No login required
+
+Verify full functionality:
+26. Click: Profile tab
+27. Assert: Profile accessible
+28. Click: Create post button
+29. Assert: Post creation works
+30. Assert: All features available
+
+Test multiple restarts:
+31. Restart app
+32. Wait until: App reopens
+33. Assert: Still logged in
+34. Restart app
+35. Wait until: App reopens
+36. Assert: Still logged in (session very persistent)
+
+Verify logout clears session:
+37. Navigate to settings
+38. Click: "Log Out" button
+39. Wait until: Login screen appears
+40. Restart app
+41. Wait until: App reopens
+42. Assert: Login screen shows (not auto-logged in)
+43. Assert: Session properly cleared
+```
+
+**Why this matters**: Users expect apps to remember their login state. Forcing users to log in after every restart creates massive friction and abandonment.
+
+### Scenario 2: Form Draft Recovery
+
+You're testing a blogging app where users write posts. If they restart the app mid-composition, their draft should be preserved.
+
+```
+Test: "Draft post recovers after app restart"
+
+Create new post:
+1. Navigate to home screen
+2. Click: "Write" button
+3. Wait until: Editor loads
+4. Assert: Empty editor displayed
+
+Fill in post content:
+5. Type {{random:title}} in title field
+6. Extract information about the title with key POST_TITLE
+7. Type "This is the first paragraph of my blog post." in content field
+8. Type "This is the second paragraph with more details." in content field
+9. Type "And this is the conclusion." in content field
+10. Assert: Content visible in editor
+
+Add formatting:
+11. Select: First paragraph text
+12. Click: Bold button
+13. Select: "more details" in second paragraph
+14. Click: Italic button
+15. Assert: Formatting applied
+
+Add metadata:
+16. Click: "Add tags" field
+17. Type "technology, testing" in tags
+18. Click: Category dropdown
+19. Select: "Engineering" category
+20. Assert: Metadata set
+
+Verify auto-save:
+21. Wait until: "Draft saved" indicator appears
+22. Assert: Last saved timestamp displays
+23. Wait: 2 seconds (ensure save completed)
+
+Restart without publishing:
+24. Restart app ← Exit editor without publishing
+25. Wait until: App reopens
+26. Wait until: Home screen loads
+
+Check for draft recovery:
+27. Assert: "Resume draft" notification appears
+28. Assert: Shows {{key:POST_TITLE}} in notification
+
+Resume draft:
+29. Click: "Resume draft" notification
+30. Wait until: Editor reopens
+31. Assert: Title shows {{key:POST_TITLE}}
+32. Assert: First paragraph present
+33. Assert: Second paragraph present
+34. Assert: Third paragraph present
+35. Assert: Bold formatting preserved on first paragraph
+36. Assert: Italic formatting preserved on "more details"
+37. Assert: Tags show "technology, testing"
+38. Assert: Category shows "Engineering"
+39. Assert: All content and metadata restored perfectly
+
+Continue editing:
+40. Type "Additional paragraph added after restart." in content field
+41. Wait until: "Draft saved" appears
+42. Assert: New content saved
+
+Restart again to verify cumulative saves:
+43. Restart app
+44. Wait until: App reopens
+45. Click: "Resume draft" notification
+46. Wait until: Editor opens
+47. Assert: All previous content present
+48. Assert: New paragraph also present
+49. Assert: Nothing lost across multiple restarts
+
+Publish and verify cleanup:
+50. Click: "Publish" button
+51. Wait until: "Published successfully" appears
+52. Navigate to home
+53. Restart app
+54. Wait until: App reopens
+55. Assert: No draft recovery notification (draft was published)
+56. Assert: Draft properly cleaned up after publishing
+```
+
+**Why this matters**: Users invest significant time creating content. Losing that content due to an app restart is one of the most frustrating experiences. Draft recovery is essential for content creation apps.
+
+### Scenario 3: Offline Data Persistence with Restart
+
+You're testing a note-taking app where notes created offline should persist across app restarts until they can be synced.
+
+```
+Test: "Offline notes persist through app restart and sync when online"
+
+Setup baseline:
+1. Ensure online
+2. Navigate to notes list
+3. Wait until: Notes load
+4. Assert: Network connected
+
+Create online note for comparison:
+5. Click: "New Note" button
+6. Type "Baseline Online Note" in title
+7. Type "This note was created while online" in content
+8. Click: "Save" button
+9. Wait until: Note syncs
+10. Assert: "Baseline Online Note" appears in list with synced icon
+
+Disconnect and create offline notes:
+11. Go offline
+12. Wait until: Offline indicator appears
+13. Assert: "You're offline" banner shows
+
+Create first offline note:
+14. Click: "New Note" button
+15. Type "Offline Note 1" in title
+16. Type "First note created while offline" in content
+17. Click: "Save" button
+18. Wait until: Saves locally
+19. Assert: "Offline Note 1" appears with pending sync icon
+
+Create second offline note:
+20. Click: "New Note" button
+21. Type "Offline Note 2" in title
+22. Type "Second note created while offline" in content
+23. Click: "Save" button
+24. Wait until: Saves locally
+25. Assert: "Offline Note 2" appears with pending sync icon
+
+Verify offline notes in list:
+26. Navigate to notes list
+27. Assert: Three notes total
+28. Assert: "Baseline Online Note" with synced icon
+29. Assert: "Offline Note 1" with pending icon
+30. Assert: "Offline Note 2" with pending icon
+
+Restart app while offline:
+31. Restart app ← Key test: do offline notes survive restart?
+32. Wait until: App reopens
+33. Wait until: Notes list loads
+34. Assert: Still offline
+
+Verify offline notes persisted:
+35. Assert: "Baseline Online Note" still present
+36. Assert: "Offline Note 1" still present
+37. Assert: "Offline Note 2" still present
+38. Assert: All three notes survived restart
+39. Assert: Offline notes still show pending sync
+
+Verify note content persisted:
+40. Click: "Offline Note 1"
+41. Wait until: Note opens
+42. Assert: Title shows "Offline Note 1"
+43. Assert: Content shows "First note created while offline"
+44. Assert: No data corruption
+45. Navigate back
+
+Check second offline note:
+46. Click: "Offline Note 2"
+47. Wait until: Note opens
+48. Assert: Title shows "Offline Note 2"
+49. Assert: Content shows "Second note created while offline"
+50. Navigate back
+
+Restart again while offline (double verification):
+51. Restart app
+52. Wait until: App reopens
+53. Assert: All three notes still present
+54. Assert: Offline notes still show pending
+55. Assert: Multiple restarts don't corrupt data
+
+Go online and verify sync:
+56. Go online
+57. Wait until: "You're back online" appears
+58. Wait until: Sync starts
+59. Wait until: "Offline Note 1" syncs
+60. Assert: Pending icon changes to synced
+61. Wait until: "Offline Note 2" syncs
+62. Assert: Both offline notes now synced
+
+Final restart to verify synced state:
+63. Restart app
+64. Wait until: App reopens
+65. Assert: All three notes present
+66. Assert: All three show synced status
+67. Assert: Complete offline → restart → online → sync → restart cycle successful
+```
+
+**Why this matters**: This tests the complete persistence cycle: offline creation, restart persistence, online sync, and final state. This is the reality of mobile app usage, and data must survive all stages.
+
+### Scenario 4: Cart Persistence for E-Commerce
+
+You're testing a shopping app where items added to cart should remain even if the user restarts the app.
+
+```
+Test: "Shopping cart persists across app restarts"
+
+Setup fresh cart:
+1. Restart app (start fresh)
+2. Wait until: App loads
+3. Navigate to shop
+4. Wait until: Products load
+5. Click: Cart icon
+6. Wait until: Cart loads
+7. Assert: Cart is empty (starting clean)
+
+Add first product:
+8. Navigate back to products
+9. Click: First product
+10. Wait until: Product page loads
+11. Extract information about product name with key PRODUCT_1
+12. Extract information about product price with key PRICE_1
+13. Click: "Add to Cart" button
+14. Wait until: Cart updates
+15. Assert: Cart badge shows "1"
+
+Add second product with quantity:
+16. Navigate back to products
+17. Click: Second product
+18. Wait until: Product page loads
+19. Extract information about product name with key PRODUCT_2
+20. Extract information about product price with key PRICE_2
+21. Change quantity to: 2
+22. Click: "Add to Cart" button
+23. Wait until: Cart updates
+24. Assert: Cart badge shows "3" (1 + 2)
+
+Add third product:
+25. Navigate back to products
+26. Click: Third product
+27. Extract information about product name with key PRODUCT_3
+28. Extract information about product price with key PRICE_3
+29. Click: "Add to Cart" button
+30. Assert: Cart badge shows "4"
+
+View cart and verify contents:
+31. Click: Cart icon
+32. Wait until: Cart page loads
+33. Assert: Three products in cart
+34. Assert: {{key:PRODUCT_1}} appears with quantity 1
+35. Assert: {{key:PRODUCT_2}} appears with quantity 2
+36. Assert: {{key:PRODUCT_3}} appears with quantity 1
+37. Extract information about cart total with key CART_TOTAL
+
+Restart app mid-shopping:
+38. Restart app ← User closes app before checkout
+39. Wait until: App reopens
+40. Wait until: Home screen loads
+
+Verify cart persisted:
+41. Assert: Cart badge still shows "4"
+42. Click: Cart icon
+43. Wait until: Cart loads
+44. Assert: All three products still present
+45. Assert: {{key:PRODUCT_1}} still in cart
+46. Assert: {{key:PRODUCT_2}} still in cart with quantity 2
+47. Assert: {{key:PRODUCT_3}} still in cart
+48. Assert: Cart total matches {{key:CART_TOTAL}}
+49. Assert: No items lost
+
+Modify cart after restart:
+50. Update {{key:PRODUCT_2}} quantity to 3
+51. Wait until: Cart updates
+52. Assert: Cart badge shows "5" (1 + 3 + 1)
+53. Extract information about new cart total with key NEW_TOTAL
+
+Restart again:
+54. Restart app ← Verify modified cart persists
+55. Wait until: App reopens
+56. Click: Cart icon
+57. Wait until: Cart loads
+58. Assert: {{key:PRODUCT_2}} now shows quantity 3
+59. Assert: Cart total matches {{key:NEW_TOTAL}}
+60. Assert: Modifications survived restart
+
+Remove item and restart:
+61. Remove {{key:PRODUCT_3}} from cart
+62. Wait until: Cart updates
+63. Assert: Cart badge shows "4" (1 + 3)
+64. Restart app
+65. Wait until: App reopens
+66. Click: Cart icon
+67. Assert: {{key:PRODUCT_3}} no longer in cart
+68. Assert: Only two products remain
+69. Assert: Deletion survived restart
+
+Complete checkout:
+70. Click: "Checkout" button
+71. Fill checkout form
+72. Complete purchase
+73. Wait until: Order confirmation appears
+
+Verify cart cleared:
+74. Restart app
+75. Wait until: App reopens
+76. Assert: Cart badge shows "0"
+77. Click: Cart icon
+78. Assert: Cart is empty
+79. Assert: Cart properly cleared after purchase
+```
+
+**Why this matters**: Cart abandonment is already a huge problem in e-commerce. If users also lose their cart when they restart your app, you're adding massive friction to the purchase process. Cart persistence is non-negotiable.
+
+### Scenario 5: Deep Link Handling After Restart
+
+You're testing that deep links continue to work correctly even after the app has been restarted.
+
+```
+Test: "Deep links work correctly after app restart"
+
+Test basic deep link:
+1. Restart app (start fresh)
+2. Wait until: App fully loads
+3. Navigate to {{variable:APP_URL}}/products/123
+4. Wait until: Product detail page loads
+5. Assert: Product ID 123 displayed
+6. Assert: Deep link handled correctly
+
+Test profile deep link:
+7. Navigate to {{variable:APP_URL}}/profile/john-doe
+8. Wait until: Profile page loads
+9. Assert: Shows profile for "john-doe"
+10. Assert: Profile data displays
+
+Restart and test same deep links:
+11. Restart app
+12. Wait until: App reopens
+13. Navigate to {{variable:APP_URL}}/products/456
+14. Wait until: Product page loads
+15. Assert: Product ID 456 displayed (different product)
+16. Assert: Deep link routing still works
+
+Test authenticated deep link:
+17. Log in if needed
+18. Navigate to {{variable:APP_URL}}/account/orders
+19. Wait until: Orders page loads
+20. Assert: User's orders displayed
+21. Assert: Authenticated deep link works
+
+Restart and re-test authenticated link:
+22. Restart app
+23. Wait until: App reopens
+24. Navigate to {{variable:APP_URL}}/account/orders
+25. Wait until: Page loads
+26. Assert: Still logged in
+27. Assert: Orders page loads correctly
+28. Assert: Auth state + deep link work together
+
+Test deep link with query parameters:
+29. Navigate to {{variable:APP_URL}}/search?q=laptop&category=electronics
+30. Wait until: Search results load
+31. Assert: Results for "laptop" in electronics
+32. Assert: Query parameters parsed correctly
+
+Restart and verify complex deep link:
+33. Restart app
+34. Wait until: App reopens
+35. Navigate to {{variable:APP_URL}}/search?q=phone&category=mobile&sort=price
+36. Wait until: Search results load
+37. Assert: Results for "phone" in mobile
+38. Assert: Sorted by price
+39. Assert: Complex URL parameters handled after restart
+
+Test deep link to modal/overlay:
+40. Navigate to {{variable:APP_URL}}/products/789?action=share
+41. Wait until: Product loads
+42. Assert: Product 789 displayed
+43. Assert: Share modal opened automatically
+44. Assert: Action parameter triggered modal
+
+Close and restart with same link:
+45. Close share modal
+46. Restart app
+47. Navigate to {{variable:APP_URL}}/products/789?action=share
+48. Assert: Product loads
+49. Assert: Share modal opens again
+50. Assert: Deep link behavior consistent across restarts
+```
+
+**Why this matters**: Deep links are how users enter your app from notifications, emails, and shared content. If they break after restart, your acquisition and engagement channels fail. Deep link reliability is critical.
+
+### Scenario 6: Memory Leak Detection Through Repeated Restarts
+
+You're testing that your app doesn't have memory leaks that cause issues over time or with repeated launches.
+
+```
+Test: "App performs consistently across multiple restart cycles"
+
+Record baseline performance:
+1. Restart app
+2. Wait until: App fully loads
+3. Extract information about load time with key BASELINE_TIME
+4. Navigate through main sections
+5. Assert: Navigation smooth
+6. Assert: No lag or stutter
+
+Restart cycle 2:
+7. Restart app
+8. Wait until: App loads
+9. Extract information about load time with key TIME_2
+10. Assert: Load time similar to {{key:BASELINE_TIME}}
+11. Navigate through main sections
+12. Assert: Performance consistent
+
+Restart cycle 3:
+13. Restart app
+14. Wait until: App loads
+15. Extract information about load time with key TIME_3
+16. Assert: No performance degradation
+
+Restart cycle 4:
+17. Restart app
+18. Wait until: App loads
+19. Assert: Still loads quickly
+
+Restart cycle 5:
+20. Restart app
+21. Wait until: App loads
+22. Assert: Performance stable across 5 restarts
+
+Heavy usage between restarts:
+23. Restart app
+24. Perform 20 actions (navigation, data loading, etc.)
+25. Restart app
+26. Wait until: Loads
+27. Assert: No crash
+28. Assert: Loads normally after heavy use
+
+Rapid restart cycle:
+29. Restart app
+30. Wait: 1 second
+31. Restart app
+32. Wait: 1 second
+33. Restart app
+34. Wait until: Loads
+35. Assert: Handles rapid restarts
+36. Assert: No crashes or corruption
+
+Final verification:
+37. Restart app
+38. Wait until: Loads normally
+39. Assert: App stable after stress testing
+40. Assert: No memory leak symptoms
+41. Assert: No increasing load times
+42. Assert: No data corruption
+```
+
+**Why this matters**: Memory leaks and poor cleanup cause apps to degrade over time. Testing multiple restart cycles helps identify resource management issues that might not appear in single-use scenarios.
+
+## Example Prompts
+
+Here are effective ways to phrase the Restart App action in your tests:
+
+**Standard usage:**
+```
+restart app
+restart the app
+reopen app
+close and reopen app
+restart application
+force restart app
+```
+
+**With context:**
+```
+Restart app to verify persistence
+Close and restart app to test recovery
+Restart app and check if user still logged in
+Force restart to simulate crash recovery
+Restart app to test cold start behavior
+```
+
+**In test flow patterns:**
+```
+1. Create data
+2. Restart app ← Verify persistence
+3. Assert data survived
+
+1. Log in
+2. Restart app ← Test session persistence
+3. Assert still logged in
+
+1. Fill form
+2. Save draft
+3. Restart app ← Test draft recovery
+4. Assert form data restored
+```
+
+## Best Practices for Restart Testing
+
+### 1. Test Critical Flows with Restart Steps
+
+Add restart steps to your most important user journeys:
+
+**Good:**
+```
+Authentication flow:
+1. Log in
+2. Restart app
+3. Verify still logged in
+4. Perform authenticated action
+5. Restart app again
+6. Verify session persists
+```
+
+**Incomplete:**
+```
+1. Log in
+2. Perform authenticated action
+3. Test complete ← Never tested restart persistence
+```
+
+### 2. Verify Data Before and After Restart
+
+Always confirm data matches before and after:
+
+**Good:**
+```
+1. Create item "Test Item"
+2. Extract item ID
+3. Assert: Item visible
+4. Restart app
+5. Search for item by ID
+6. Assert: Exact same item appears
+7. Assert: All properties match
+```
+
+**Insufficient:**
+```
+1. Create item
+2. Restart app
+3. Assert: An item exists ← But is it the right item?
+```
+
+### 3. Test Multiple Restart Cycles
+
+One restart isn't enough—test repeated cycles:
+
+**Good:**
+```
+1. Create data
+2. Restart app
+3. Verify data
+4. Restart app again
+5. Verify data still intact
+6. Restart app third time
+7. Verify data persists
+```
+
+**Too limited:**
+```
+1. Create data
+2. Restart app once
+3. Assume it works forever ← Might not
+```
+
+### 4. Combine Restart with Other State Changes
+
+Test restart in combination with other conditions:
+
+**Comprehensive:**
+```
+Test 1: Restart while online
+Test 2: Restart while offline
+Test 3: Restart after going offline → online
+Test 4: Restart with full cache
+Test 5: Restart with cleared cache
+Test 6: Restart mid-operation
+Test 7: Restart after long idle period
+```
+
+### 5. Test Both Authenticated and Unauthenticated Restarts
+
+Authentication state affects behavior:
+
+**Complete testing:**
+```
+Logged out restart:
+1. Ensure logged out
+2. Restart app
+3. Assert: Login screen appears
+4. Assert: No cached user data visible
+
+Logged in restart:
+5. Log in
+6. Restart app
+7. Assert: Stays logged in
+8. Assert: User data accessible
+```
+
+### 6. Verify Restart Triggers Proper Initialization
+
+Cold start should initialize everything correctly:
+
+**Good:**
+```
+1. Restart app
+2. Wait until: Splash screen appears
+3. Wait until: Loading indicators show
+4. Wait until: Initial data loads
+5. Assert: App fully initialized
+6. Assert: All features available
+```
+
+**Risky:**
+```
+1. Restart app
+2. Immediately interact ← App might not be ready
+```
+
+### 7. Test Performance of Cold Starts
+
+Monitor restart performance:
+
+**Good:**
+```
+1. Restart app
+2. Measure: Time to interactive
+3. Assert: Loads within 3 seconds
+4. Assert: No ANR or timeout
+5. Assert: Smooth initialization
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting for Full Initialization
+
+**Problem:**
+```
+1. Restart app
+2. Immediately assert data present ← App not ready
+```
+
+**Solution:**
+```
+1. Restart app
+2. Wait until: App fully loads
+3. Wait until: Home screen displays
+4. Assert: Data present
+```
+
+### Pitfall 2: Testing Only Logged-In Restarts
+
+**Problem:**
+```
+Always test with authenticated users, never test logged-out restarts
+```
+
+**Solution:**
+```
+Test both states:
+- Logged out restart behavior
+- Logged in restart behavior
+- Session expiration during restart
+- Auth token refresh on restart
+```
+
+### Pitfall 3: Not Testing Restart Mid-Flow
+
+**Problem:**
+```
+Only restart at clean breakpoints, never mid-operation
+```
+
+**Solution:**
+```
+Test disruptive restarts:
+1. Start filling form
+2. Restart app mid-form
+3. Verify draft recovery
+
+1. Start upload
+2. Restart during upload
+3. Verify upload can resume
+```
+
+### Pitfall 4: Assuming Restart = Clean State
+
+**Problem:**
+```
+Expect restart to clear everything like uninstall/reinstall
+```
+
+**Reality:**
+```
+Restart preserves:
+- Local databases
+- Persistent storage
+- Credentials
+- Cached files
+- User preferences
+
+Restart clears:
+- In-memory state
+- Runtime variables
+- Non-persisted data
+```
+
+### Pitfall 5: Not Testing Cross-Platform Restart Differences
+
+**Problem:**
+```
+Test restart on one platform, assume it works on others
+```
+
+**Solution:**
+```
+Test platform-specific behavior:
+
+iOS:
+- App Store restarts
+- Background termination
+- Memory pressure kills
+
+Android:
+- Process death
+- Activity recreation
+- Don't keep activities setting
+
+Web:
+- Page reload
+- Tab restoration
+- Session storage behavior
+```
+
+### Pitfall 6: Ignoring Cold Start vs Warm Start
+
+**Problem:**
+```
+Only test cold starts (full restart) or only test warm starts (resume)
+```
+
+**Solution:**
+```
+Test both:
+
+Cold start:
+1. Kill app completely
+2. Wait 10 seconds
+3. Restart app
+4. Verify full initialization
+
+Warm start:
+1. Background app
+2. Wait 2 seconds
+3. Resume app
+4. Verify quick restore
+```
+
+### Pitfall 7: Not Testing Failed Restart Recovery
+
+**Problem:**
+```
+Only test successful restarts, never test corruption or error scenarios
+```
+
+**Solution:**
+```
+Test error recovery:
+1. Create corrupted state
+2. Restart app
+3. Verify graceful error handling
+4. Assert: App offers recovery options
+5. Assert: Doesn't crash
+
+Test missing data:
+1. Delete cached data
+2. Restart app
+3. Verify fresh data fetch
+4. Assert: Handles missing cache
+```
+
+## Advanced Restart Testing Strategies
+
+### Strategy 1: Restart Storm Testing
+
+Test rapid repeated restarts:
+
+```
+Test: "App handles rapid restart cycles"
+
+1. Restart app
+2. Wait: 1 second
+3. Restart app
+4. Wait: 1 second
+5. Restart app
+6. Wait: 1 second
+7. Restart app
+8. Wait: 1 second
+9. Restart app
+10. Wait until: Fully loads
+11. Assert: No crashes
+12. Assert: Data integrity maintained
+13. Assert: No corruption
+```
+
+### Strategy 2: Background Persistence Testing
+
+Test data persistence when app is backgrounded:
+
+```
+Test: "Data persists through background and restart"
+
+1. Create data
+2. Background app for 5 minutes
+3. Restart app
+4. Assert: Data present
+5. Background app for 1 hour
+6. Restart app
+7. Assert: Data still present
+```
+
+### Strategy 3: Restart with Network State Changes
+
+Combine restart with network conditions:
+
+```
+Test: "Restart behavior varies by network state"
+
+While online:
+1. Create data
+2. Restart app
+3. Assert: Data syncs
+
+While offline:
+4. Go offline
+5. Create data
+6. Restart app
+7. Assert: Data persists locally
+
+Back online:
+8. Go online
+9. Restart app
+10. Assert: Syncs after restart
+```
+
+### Strategy 4: User Flow Interruption Testing
+
+Test restart at every step of critical flows:
+
+```
+Test: "Checkout flow resilient to restarts"
+
+1. Add item to cart
+2. Restart app ← Restart at step 1
+3. Assert: Cart persists
+4. Start checkout
+5. Restart app ← Restart at step 2
+6. Assert: Can resume checkout
+7. Fill shipping info
+8. Restart app ← Restart at step 3
+9. Assert: Shipping info saved
+10. Fill payment info
+11. Restart app ← Restart at step 4
+12. Assert: Payment info saved (securely)
+13. Complete purchase
+```
+
+### Strategy 5: Version Upgrade Simulation
+
+Test data migration across app versions:
+
+```
+Test: "Data persists through app updates"
+
+Version 1.0:
+1. Create data in old format
+2. Simulate app update
+3. Restart app (new version)
+4. Assert: Data migrated correctly
+5. Assert: Old data accessible in new version
+6. Assert: No data loss
+```
+
+## Integration with Other Interactions
+
+### Restart App + Go Offline/Online
+
+Test persistence with network state:
+
+```
+1. Go offline
+2. Create data
+3. Restart app
+4. Assert: Still offline
+5. Assert: Data persists
+6. Go online
+7. Verify sync
+```
+
+### Restart App + Assert
+
+Verify state after restart:
+
+```
+1. Log in
+2. Restart app
+3. Assert: User still logged in
+4. Assert: User data displays
+5. Assert: All features accessible
+```
+
+### Restart App + Wait Until
+
+Handle async initialization:
+
+```
+1. Restart app
+2. Wait until: Splash screen disappears
+3. Wait until: Home screen loads
+4. Wait until: Data syncs
+5. Continue test
+```
+
+### Restart App + Extract Information
+
+Verify extracted data persists:
+
+```
+1. Create item
+2. Extract: Item ID
+3. Restart app
+4. Search for item by extracted ID
+5. Assert: Item still exists
+6. Assert: ID matches
+```
+
+## Understanding Restart Behavior
+
+### What Actually Happens During Restart
+
+**Process termination:**
+- All running threads stop
+- Memory is released
+- Network connections close
+- Timers and scheduled tasks cancel
+
+**What persists:**
+- SQLite databases
+- File system data
+- UserDefaults/SharedPreferences
+- Keychain/Secure Storage
+- Cached files (unless cleared)
+
+**What doesn't persist:**
+- In-memory variables
+- Runtime state
+- Temporary data
+- Active network requests
+- UI state (unless saved)
+
+### Platform-Specific Restart Behavior
+
+**iOS:**
+- App delegate lifecycle methods called
+- State restoration (if implemented)
+- Background URL sessions may continue
+- Keychain data persists
+
+**Android:**
+- Activity lifecycle methods called
+- Process can be killed by system
+- Work Manager tasks may continue
+- SharedPreferences persist
+
+**Web:**
+- Page reload triggers fresh load
+- LocalStorage persists
+- SessionStorage clears
+- Service worker may cache resources
+
+## Key Takeaways
+
+1. **Restart tests resilience** - Verifies your app handles termination and relaunch
+2. **Essential for data persistence** - Ensures saved data survives restart
+3. **Critical for auth testing** - Confirms session management works correctly
+4. **Tests cold start performance** - Measures initialization time
+5. **Reveals memory leaks** - Repeated restarts expose resource issues
+6. **Verifies draft recovery** - Ensures work-in-progress is preserved
+7. **Tests across platforms** - Web and mobile both supported
+8. **Combine with other tests** - Restart + offline, restart + auth, etc.
+9. **Test multiple cycles** - One restart isn't enough
+10. **Test mid-flow restarts** - Users close apps at unexpected times
+
+## What's Next
+
+Now that you understand how to test app restart scenarios, explore these related interactions:
+
+- **Go Offline/Go Online**: Combine network state testing with restart testing for comprehensive resilience
+- **Wait Until**: Master timing for async initialization after restarts
+- **Extract Information**: Learn to verify data persistence across restarts using extracted values
+
+Together, these interactions enable you to build comprehensive resilience tests that ensure your application handles real-world usage patterns gracefully, including the frequent restarts that all apps experience.

@@ -1,0 +1,845 @@
+---
+title: "Assert URL Location"
+description: "Verify that navigation worked correctly by validating the current URL matches your expectations."
+---
+
+# Assert URL Location
+
+## The Navigation Verification Problem
+
+You're testing a multi-page application. Your test clicks a link:
+
+```
+Test: "Navigate to pricing page"
+
+1. Navigate to {{variable:APP_URL}}
+2. Click: "Pricing" link
+3. Wait until: Page loads
+```
+
+The test passes. But did it actually navigate to the pricing page? Or did it:
+- Stay on the same page due to a broken link?
+- Navigate to an error page?
+- Redirect to the wrong destination?
+
+**You don't know. You clicked the link, but you didn't verify navigation happened.**
+
+This is the navigation verification problem. Actions execute, pages might load, but without checking the URL, you can't confirm you're on the right page.
+
+**The solution**: Assert the URL location.
+
+```
+Test: "Navigate to pricing page"
+
+1. Navigate to {{variable:APP_URL}}
+2. Click: "Pricing" link
+3. Wait until: Page loads
+4. Assert URL Location: {{variable:APP_URL}}/pricing
+```
+
+Now you know for certain that navigation worked. **That's what this interaction does.**
+
+## What Assert URL Location Does
+
+The `Assert URL Location` interaction verifies that the current page URL matches exactly what you expect. It's a specialized assertion focused exclusively on URL validation.
+
+**Basic syntax**:
+```
+Assert URL Location: <exact URL to match>
+```
+
+**Examples**:
+```
+Assert URL Location: https://app.example.com/dashboard
+Assert URL Location: https://example.com/products/12345
+Assert URL Location: https://checkout.example.com/confirmation
+Assert URL Location: {{variable:APP_URL}}/account/settings
+```
+
+The interaction compares the current URL in the browser's address bar to the URL you provided. If they match exactly, the test continues. If they don't match, the test fails with details about the expected versus actual URL.
+
+## When to Use Assert URL Location vs Other Verification Methods
+
+Autonoma offers multiple ways to verify your application state. Here's when to use URL assertions specifically:
+
+### Use `Assert URL Location` when:
+- **Verifying navigation occurred** - Confirming a link or button took you to the right page
+- **Validating redirects** - Ensuring authentication redirects work correctly
+- **Testing deep links** - Confirming specific URLs load as expected
+- **Checking route changes** - Validating single-page apps update routes correctly
+- **Verifying form submissions navigate correctly** - Ensuring post-submit redirects work
+
+**Example scenarios**:
+```
+After clicking "Dashboard" link:
+Assert URL Location: https://app.example.com/dashboard
+
+After login:
+Assert URL Location: https://app.example.com/home
+
+After logout:
+Assert URL Location: https://app.example.com/login
+
+After completing checkout:
+Assert URL Location: https://shop.example.com/order/confirmation
+```
+
+### Use `Assert` (general) when:
+- **Verifying page content** - Checking that elements, text, or UI components appear
+- **Validating UI state** - Confirming buttons, messages, or data are visible
+- **Checking visual elements** - Ensuring logos, images, or layouts are correct
+
+**Example scenarios**:
+```
+Assert: "Welcome to your dashboard" heading appears
+Assert: User profile picture is visible
+Assert: "Logout" button is present
+```
+
+### Use `Wait Until` when:
+- **Waiting for pages to load** - Giving navigation time to complete
+- **Handling loading states** - Waiting for spinners to disappear, content to appear
+- **Dealing with asynchronous operations** - Waiting for data to populate
+
+**Example scenarios**:
+```
+Wait until: Dashboard page loads
+Wait until: URL changes
+Wait until: Page title updates
+```
+
+### The Key Distinction
+
+**`Assert URL Location`** verifies **where you are** (the address).
+
+**`Assert`** verifies **what you see** (the content).
+
+**`Wait Until`** gives **time for changes** to happen.
+
+Often you'll use all three together:
+
+```
+1. Click: "Products" link
+2. Wait until: Navigation completes
+3. Assert URL Location: {{variable:APP_URL}}/products
+4. Assert: Product grid appears
+```
+
+This pattern ensures navigation completed (step 2), went to the right place (step 3), and loaded the expected content (step 4).
+
+## Real-World Scenarios
+
+### Scenario 1: Authentication Redirect
+
+**The test**:
+```
+Test: "Unauthenticated users redirected to login"
+
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Redirect completes
+3. Assert URL Location: {{variable:APP_URL}}/login
+4. Assert: Login form appears
+5. Assert: Message says "Please log in to continue"
+```
+
+**Why URL assertion matters**:
+Without step 3, you'd only know a login form appeared—but not that the redirect actually happened. The URL assertion confirms the security redirect worked correctly.
+
+### Scenario 2: Multi-Step Form Navigation
+
+**The test**:
+```
+Test: "Checkout flow progresses through all steps"
+
+1. Navigate to {{variable:APP_URL}}/cart
+2. Click: "Checkout" button
+3. Wait until: Navigation completes
+4. Assert URL Location: {{variable:APP_URL}}/checkout/shipping
+5. Assert: Shipping form appears
+
+6. Fill shipping information
+7. Click: "Continue to Payment"
+8. Wait until: Navigation completes
+9. Assert URL Location: {{variable:APP_URL}}/checkout/payment
+10. Assert: Payment form appears
+
+11. Fill payment information
+12. Click: "Review Order"
+13. Wait until: Navigation completes
+14. Assert URL Location: {{variable:APP_URL}}/checkout/review
+15. Assert: Order summary appears
+
+16. Click: "Place Order"
+17. Wait until: Processing completes
+18. Assert URL Location: {{variable:APP_URL}}/checkout/confirmation
+19. Assert: Order confirmation appears
+```
+
+**The pattern**:
+Each major step includes both a URL assertion (confirming navigation) and a content assertion (confirming the right page loaded).
+
+### Scenario 3: Social Authentication Flow
+
+**The test**:
+```
+Test: "Login with Google redirects correctly"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Assert URL Location: {{variable:APP_URL}}/login
+3. Click: "Login with Google" button
+4. Wait until: OAuth popup or redirect happens
+5. Complete Google authentication
+6. Wait until: Redirect back to app
+7. Assert URL Location: {{variable:APP_URL}}/dashboard
+8. Assert: User is logged in
+```
+
+**Why this is critical**:
+OAuth flows involve multiple redirects. The URL assertion (step 7) confirms the app correctly redirected back from Google's authentication server to your dashboard.
+
+### Scenario 4: Search and Filter URLs
+
+**The test**:
+```
+Test: "Search updates URL with query parameter"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Assert URL Location: {{variable:APP_URL}}/products
+3. Type "laptop" in search field
+4. Click: "Search" button
+5. Wait until: Results load
+6. Assert URL Location: {{variable:APP_URL}}/products?search=laptop
+7. Assert: Search results show laptops
+
+8. Click: "Electronics" category filter
+9. Wait until: Results update
+10. Assert URL Location: {{variable:APP_URL}}/products?search=laptop&category=electronics
+11. Assert: Results filtered to electronic laptops
+```
+
+**URL parameters as state**:
+Many apps encode state in URL parameters. URL assertions verify that these parameters update correctly as users interact with filters, searches, and options.
+
+### Scenario 5: Deep Link Testing
+
+**The test**:
+```
+Test: "Direct navigation to product page works"
+
+1. Navigate to {{variable:APP_URL}}/products/12345
+2. Wait until: Page loads
+3. Assert URL Location: {{variable:APP_URL}}/products/12345
+4. Assert: Product details appear
+5. Assert: Product ID "12345" is visible
+```
+
+**Why test deep links**:
+Users might bookmark or share specific product pages. This test confirms that navigating directly to a deep URL works correctly.
+
+### Scenario 6: Logout Redirect
+
+**The test**:
+```
+Test: "Logout redirects to homepage"
+
+1. Log in as test user
+2. Assert URL Location: {{variable:APP_URL}}/dashboard
+3. Click: "Logout" button
+4. Wait until: Logout completes
+5. Assert URL Location: {{variable:APP_URL}}
+6. Assert: "Sign In" button appears
+7. Assert: User is logged out
+
+Verify protected page inaccessible:
+8. Navigate to {{variable:APP_URL}}/dashboard
+9. Wait until: Redirect happens
+10. Assert URL Location: {{variable:APP_URL}}/login
+```
+
+**Complete logout verification**:
+The test verifies logout redirected to the homepage (steps 4-5) and that attempting to access protected pages now redirects to login (steps 8-10).
+
+## Platform Support
+
+The `Assert URL Location` interaction is specifically designed for web applications:
+
+**Web**: ✓ Fully supported
+**Mobile**: ✗ Not supported (mobile apps don't have addressable URLs)
+
+### Why Mobile Apps Don't Use URLs
+
+Mobile applications use screen-based navigation rather than URL-based navigation. Instead of URLs, mobile apps use:
+- Screen names (e.g., "HomeScreen", "ProfileScreen")
+- Navigation stacks
+- Deep link schemes (e.g., "app://product/12345")
+
+For mobile testing, use the general `Assert` interaction to verify screen content:
+
+```
+Mobile equivalent:
+Assert: Dashboard screen appears
+Assert: "My Profile" heading is displayed
+Assert: Navigation shows "Home" as active tab
+```
+
+## Example Prompts with Context
+
+Here are real-world URL assertion examples you can use in your tests:
+
+### After Navigation
+
+```
+After clicking "About Us":
+Assert URL Location: https://example.com/about
+
+After clicking "Contact":
+Assert URL Location: https://example.com/contact
+
+After clicking logo:
+Assert URL Location: https://example.com/
+
+After clicking "Help Center":
+Assert URL Location: https://support.example.com/
+```
+
+### After Authentication
+
+```
+After successful login:
+Assert URL Location: https://app.example.com/dashboard
+
+After logout:
+Assert URL Location: https://app.example.com/login
+
+After registration:
+Assert URL Location: https://app.example.com/welcome
+
+After password reset:
+Assert URL Location: https://app.example.com/login
+```
+
+### After Form Submissions
+
+```
+After submitting contact form:
+Assert URL Location: https://example.com/contact/thank-you
+
+After completing checkout:
+Assert URL Location: https://shop.example.com/order/confirmation
+
+After saving profile:
+Assert URL Location: https://app.example.com/profile
+
+After creating post:
+Assert URL Location: https://blog.example.com/posts/new-post-slug
+```
+
+### Testing Redirects
+
+```
+When accessing protected page while logged out:
+Assert URL Location: https://app.example.com/login
+
+When accessing admin panel as regular user:
+Assert URL Location: https://app.example.com/dashboard
+
+When invalid product ID:
+Assert URL Location: https://shop.example.com/products
+
+When maintenance mode:
+Assert URL Location: https://example.com/maintenance
+```
+
+### With URL Parameters
+
+```
+After search:
+Assert URL Location: https://shop.example.com/products?search=laptop
+
+After filtering:
+Assert URL Location: https://shop.example.com/products?category=electronics&sort=price
+
+After pagination:
+Assert URL Location: https://blog.example.com/posts?page=2
+
+After social share:
+Assert URL Location: https://example.com/article/123?utm_source=facebook
+```
+
+### Testing Deep Links
+
+```
+Direct navigation to user profile:
+Assert URL Location: https://app.example.com/users/john-doe
+
+Direct navigation to order details:
+Assert URL Location: https://shop.example.com/orders/A7B3X9
+
+Direct navigation to specific article:
+Assert URL Location: https://blog.example.com/articles/how-to-guide
+
+Direct navigation to settings section:
+Assert URL Location: https://app.example.com/settings/privacy
+```
+
+### Single Page Application (SPA) Routes
+
+```
+After clicking dashboard link in SPA:
+Assert URL Location: https://app.example.com/#/dashboard
+
+After navigating to settings:
+Assert URL Location: https://app.example.com/#/settings
+
+After opening modal with route:
+Assert URL Location: https://app.example.com/#/products/12345/details
+```
+
+## Best Practices for URL Assertions
+
+### 1. Always Use Complete, Exact URLs
+
+**Bad**:
+```
+Assert URL Location: /dashboard
+```
+
+**Good**:
+```
+Assert URL Location: https://app.example.com/dashboard
+```
+
+**Why**: The interaction expects the complete URL including protocol and domain. Partial URLs will cause the assertion to fail.
+
+### 2. Use Variables for Base URLs
+
+**Hard-coded** (maintenance nightmare):
+```
+Assert URL Location: https://staging.example.com/products
+```
+
+**With variables** (flexible and maintainable):
+```
+Assert URL Location: {{variable:APP_URL}}/products
+```
+
+**Benefits**:
+- Test the same suite against staging, production, or local environments
+- Change one variable instead of updating every test
+- Avoid hard-coding environment-specific URLs
+
+### 3. Include Wait Before URL Assertions
+
+Navigation takes time. Always wait for it to complete:
+
+**Flaky**:
+```
+1. Click: "Products"
+2. Assert URL Location: {{variable:APP_URL}}/products ← Might check too early
+```
+
+**Reliable**:
+```
+1. Click: "Products"
+2. Wait until: Navigation completes
+3. Assert URL Location: {{variable:APP_URL}}/products
+```
+
+### 4. Assert URL and Content Together
+
+URL assertions confirm navigation, content assertions confirm the right page loaded:
+
+```
+1. Click: "Dashboard"
+2. Wait until: Page loads
+3. Assert URL Location: {{variable:APP_URL}}/dashboard
+4. Assert: "Welcome to your dashboard" appears
+```
+
+This catches both navigation failures and wrong-page-loading issues.
+
+### 5. Match Trailing Slashes Exactly
+
+URLs with and without trailing slashes are technically different:
+
+```
+https://example.com/products     ← No trailing slash
+https://example.com/products/    ← Has trailing slash
+```
+
+**Be consistent**:
+```
+If your app uses: https://example.com/products/
+Then assert: https://example.com/products/
+
+If your app uses: https://example.com/products
+Then assert: https://example.com/products
+```
+
+Check how your application actually formats URLs and match that exactly.
+
+### 6. Account for URL Parameters When Present
+
+If your application adds parameters, include them:
+
+**After search with query param**:
+```
+Assert URL Location: {{variable:APP_URL}}/products?search=laptop
+```
+
+**After filtering with multiple params**:
+```
+Assert URL Location: {{variable:APP_URL}}/products?category=electronics&sort=price&page=1
+```
+
+**Note**: Parameters must match exactly. If the order changes or values differ, the assertion fails.
+
+### 7. Test Redirects Explicitly
+
+Don't just test the destination—test that redirects happen:
+
+```
+Test: "Unauthorized access redirects to login"
+
+1. Log out
+2. Navigate to {{variable:APP_URL}}/admin
+3. Wait until: Redirect occurs
+4. Assert URL Location: {{variable:APP_URL}}/login
+5. Assert: Login form appears
+```
+
+This confirms your security redirects work.
+
+## Common Pitfalls and How to Avoid Them
+
+### Pitfall 1: Forgetting Protocol or Domain
+
+**Problem**:
+```
+Assert URL Location: /products
+```
+
+**Error**: The assertion fails because it's comparing "/products" to "https://example.com/products".
+
+**Solution**:
+```
+Assert URL Location: https://example.com/products
+```
+
+or better:
+
+```
+Assert URL Location: {{variable:APP_URL}}/products
+```
+
+Always include the full URL.
+
+### Pitfall 2: Not Waiting for Navigation
+
+**Problem**:
+```
+1. Click: "Next Page"
+2. Assert URL Location: {{variable:APP_URL}}/page-2 ← Fails, still on page 1
+```
+
+**Why**: The assertion runs before navigation completes.
+
+**Solution**:
+```
+1. Click: "Next Page"
+2. Wait until: Navigation completes
+3. Assert URL Location: {{variable:APP_URL}}/page-2
+```
+
+### Pitfall 3: URL Parameter Order Assumptions
+
+**Problem**:
+```
+Your app generates: /products?sort=price&category=electronics
+You assert: /products?category=electronics&sort=price
+Result: Assertion fails (parameters in different order)
+```
+
+**Solution**: Match the parameter order your application actually generates, or test only the base URL if parameters aren't critical:
+
+```
+Assert URL Location: {{variable:APP_URL}}/products
+Assert: Correct products are filtered (verify content instead)
+```
+
+### Pitfall 4: Subdomain Confusion
+
+**Problem**:
+```
+After OAuth redirect, you're on: https://app.example.com/dashboard
+But you assert: https://www.example.com/dashboard
+Result: Fails (different subdomain)
+```
+
+**Solution**: Be precise about subdomains:
+
+```
+Assert URL Location: https://app.example.com/dashboard
+```
+
+### Pitfall 5: Hash/Anchor Fragment Mismatches
+
+**Problem**:
+```
+Actual URL: https://example.com/page#section-2
+Asserted URL: https://example.com/page
+Result: Fails (hash fragment differs)
+```
+
+**Solution**: Include the hash if your app uses it:
+
+```
+Assert URL Location: https://example.com/page#section-2
+```
+
+### Pitfall 6: Testing on Wrong Environment
+
+**Problem**:
+```
+Testing on staging but asserting production URL:
+Assert URL Location: https://example.com/dashboard
+
+But you're on: https://staging.example.com/dashboard
+```
+
+**Solution**: Always use variables:
+
+```
+Assert URL Location: {{variable:APP_URL}}/dashboard
+```
+
+Then set `APP_URL` appropriately for each environment.
+
+## Debugging URL Assertion Failures
+
+When a URL assertion fails, Autonoma tells you what URL was expected and what was actually found.
+
+### Example Failure Message
+
+```
+Step 5: Assert URL Location: https://app.example.com/dashboard
+Failed: Expected https://app.example.com/dashboard but found https://app.example.com/login
+```
+
+### Interpreting This Failure
+
+**The test expected**: The dashboard URL
+**The test found**: The login URL
+
+**Possible causes**:
+1. **Redirect happened**: The app redirected to login (maybe session expired)
+2. **Navigation failed**: The button didn't navigate to dashboard
+3. **Wrong assertion**: You're asserting the wrong URL for this step
+4. **Authentication issue**: User wasn't authenticated, so was redirected
+
+### Debugging Steps
+
+**1. Check the screenshot**:
+Autonoma captures screenshots at each step. Look at what page actually loaded.
+
+**2. Review previous steps**:
+Did earlier steps complete successfully? Maybe login failed and the app redirected.
+
+**3. Check for redirects**:
+Is your app intentionally redirecting? Add a wait step to give redirects time to complete.
+
+**4. Verify variable values**:
+If using `{{variable:APP_URL}}`, confirm the variable is set correctly.
+
+**5. Test manually**:
+Manually perform the steps in your browser. Does navigation work as expected?
+
+## Advanced URL Validation Patterns
+
+### Testing Multi-Step Redirects
+
+Some workflows involve multiple redirects:
+
+```
+Test: "OAuth login flow completes correctly"
+
+1. Navigate to {{variable:APP_URL}}/login
+2. Assert URL Location: {{variable:APP_URL}}/login
+
+3. Click: "Login with Google"
+4. Wait until: Redirect to Google
+5. Assert URL Location contains: accounts.google.com
+
+6. Complete Google authentication
+7. Wait until: Redirect back to app
+8. Wait until: Final redirect to dashboard
+9. Assert URL Location: {{variable:APP_URL}}/dashboard
+```
+
+**Note**: Step 5 says "contains" because the full Google URL is complex. For external OAuth, you might check only the domain.
+
+### Testing URL-Based State
+
+Many single-page applications encode state in the URL:
+
+```
+Test: "Filters update URL state"
+
+Initial state:
+1. Navigate to {{variable:APP_URL}}/products
+2. Assert URL Location: {{variable:APP_URL}}/products
+
+Apply first filter:
+3. Click: "Electronics" category
+4. Wait until: Filter applies
+5. Assert URL Location: {{variable:APP_URL}}/products?category=electronics
+
+Apply second filter:
+6. Click: "Sort by Price"
+7. Wait until: Filter applies
+8. Assert URL Location: {{variable:APP_URL}}/products?category=electronics&sort=price
+
+Remove filter:
+9. Click: "Clear Filters"
+10. Wait until: Filters clear
+11. Assert URL Location: {{variable:APP_URL}}/products
+```
+
+### Validating Slug Generation
+
+When creating content, verify the URL slug generates correctly:
+
+```
+Test: "Blog post creates correct URL slug"
+
+1. Navigate to {{variable:APP_URL}}/admin/posts/new
+2. Type "How to Test Your Application" in title field
+3. Click: "Publish"
+4. Wait until: Published
+5. Assert URL Location: {{variable:APP_URL}}/blog/how-to-test-your-application
+6. Assert: Post title appears correctly
+```
+
+The URL assertion (step 5) confirms the slug was generated from the title as expected.
+
+## Combining with Other Interactions
+
+### With Extract Information
+
+Capture a dynamic URL for later verification:
+
+```
+1. Click: "Share" button
+2. Extract information about the share URL with key SHARE_URL
+3. Open new browser tab
+4. Navigate to {{key:SHARE_URL}}
+5. Wait until: Page loads
+6. Assert URL Location: {{key:SHARE_URL}}
+7. Assert: Shared content appears correctly
+```
+
+### With API Calls
+
+Verify both UI navigation and API state:
+
+```
+1. Click: "View Order Details"
+2. Wait until: Page loads
+3. Assert URL Location: {{variable:APP_URL}}/orders/12345
+4. Make API call: GET /api/orders/12345
+5. Assert: API returns order data matching page content
+```
+
+### With Conditional Logic
+
+Test different redirect behaviors:
+
+```
+Test: "Redirect depends on user role"
+
+As admin user:
+1. Log in as admin
+2. Navigate to {{variable:APP_URL}}/app
+3. Wait until: Redirect completes
+4. Assert URL Location: {{variable:APP_URL}}/admin/dashboard
+
+As regular user:
+5. Log out
+6. Log in as regular user
+7. Navigate to {{variable:APP_URL}}/app
+8. Wait until: Redirect completes
+9. Assert URL Location: {{variable:APP_URL}}/user/dashboard
+```
+
+## Real-World Test Example: Complete Navigation Flow
+
+Here's a complete test showing how URL assertions fit into a realistic workflow:
+
+```
+Test: "Complete product research and purchase journey"
+
+Start at Homepage:
+1. Navigate to {{variable:APP_URL}}
+2. Wait until: Homepage loads
+3. Assert URL Location: {{variable:APP_URL}}
+4. Assert: Homepage content appears
+
+Search for Product:
+5. Type "laptop" in search field
+6. Press enter
+7. Wait until: Search results load
+8. Assert URL Location: {{variable:APP_URL}}/search?q=laptop
+9. Assert: Search results show laptops
+
+Filter Results:
+10. Click: "Price: Low to High" sort
+11. Wait until: Results reorder
+12. Assert URL Location: {{variable:APP_URL}}/search?q=laptop&sort=price_asc
+
+View Product Details:
+13. Click: First product in results
+14. Wait until: Product page loads
+15. Assert URL Location matches pattern: {{variable:APP_URL}}/products/[id]
+16. Assert: Product details appear
+
+Add to Cart:
+17. Click: "Add to Cart"
+18. Wait until: Added to cart
+19. Assert: Cart badge updates
+20. Assert URL Location: Still on product page (no navigation)
+
+Go to Cart:
+21. Click: Cart icon
+22. Wait until: Cart page loads
+23. Assert URL Location: {{variable:APP_URL}}/cart
+24. Assert: Product appears in cart
+
+Checkout:
+25. Click: "Proceed to Checkout"
+26. Wait until: Checkout loads
+27. Assert URL Location: {{variable:APP_URL}}/checkout
+28. Assert: Checkout form appears
+
+Complete Purchase:
+29. Fill checkout form
+30. Click: "Place Order"
+31. Wait until: Processing completes
+32. Assert URL Location: {{variable:APP_URL}}/confirmation
+33. Assert: Order confirmation appears
+```
+
+**URL assertions throughout the flow**:
+- Verify each navigation step succeeded
+- Confirm search parameters updated correctly
+- Validate checkout progression
+- Ensure final confirmation page loaded
+
+## What's Next
+
+You now understand how to verify navigation by asserting URL locations—ensuring your application routes users to the correct pages, handles redirects properly, and maintains the right URL state.
+
+URL assertions handle navigation verification, but sometimes you need to validate something more specialized: mathematical calculations and numeric comparisons. That's where math assertions come in.
+
+---
+
+*Ready for numeric validation? Continue to [Math Assert →](/interactions-reference/math-assert)*

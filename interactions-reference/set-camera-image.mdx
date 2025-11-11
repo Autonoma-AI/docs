@@ -1,0 +1,858 @@
+---
+title: "Set Camera Image"
+description: "Simulate camera capture in mobile apps by providing images for camera-based features like profile pictures, photo uploads, and document scanning—no physical device needed."
+---
+
+## What is Set Camera Image?
+
+Set Camera Image is Autonoma's solution for testing mobile app features that use the device camera. It's the mobile equivalent of file uploads, but specifically designed for camera capture workflows.
+
+Think of it as giving your automated test the ability to "take a photo" without needing an actual camera. When your mobile app opens the camera to capture a profile picture, scan a document, or take a product photo, Set Camera Image provides a pre-selected image as if the user took that photo with their device's camera.
+
+What makes this powerful is that it eliminates the complexity of simulating physical camera hardware. Traditional mobile testing requires either physical devices with cameras or complex emulator camera configurations. Set Camera Image sidesteps this entirely by intercepting the camera request and providing a pre-loaded image—the test flows naturally as if a user captured a photo.
+
+## When to Use Set Camera Image
+
+Set Camera Image should be used whenever your mobile app test needs to simulate camera capture. Here's when it's the right tool:
+
+**Perfect for:**
+- Profile picture capture ("Take Photo" button in profile screens)
+- Product photo uploads in marketplace apps
+- Document scanning features (ID verification, receipts)
+- Social media photo posting
+- AR features that require camera input
+- Photo-based authentication (selfie verification)
+- Image-based search features (visual product search)
+- QR code scanning (when combined with QR code images)
+- Real estate listing photos
+- Food delivery app dish photos
+
+**Required when:**
+- Your mobile app opens the device camera
+- Users tap "Take Photo" or "Capture Image" buttons
+- Camera permission is granted and camera view opens
+- You need to test the complete camera capture flow
+- Your app processes captured photos (filters, cropping, recognition)
+
+**Not needed when:**
+- Testing web applications (use Set File to Upload instead)
+- App uses photo library/gallery selection (may work, but not primary use case)
+- Desktop application testing
+- Features that don't involve image capture
+
+## How It Works
+
+When you use Set Camera Image in Autonoma, here's the complete process:
+
+1. **Image Selection**: You provide a URL to an image (hosted online or local)
+2. **Image Loading**: Autonoma fetches and stores the image in memory
+3. **Camera Interception**: When your test triggers camera functionality, Autonoma intercepts the camera call
+4. **Image Provision**: The pre-loaded image is provided as if captured by the camera
+5. **App Processing**: Your application receives the image exactly as it would from an actual camera capture
+6. **Workflow Continuation**: The test continues with the captured image in place
+7. **Image Persistence**: The image remains available until you unset it or the test ends
+
+From your mobile app's perspective, a user opened the camera, took a photo, and confirmed the capture. The app has no way to distinguish this from a real camera interaction.
+
+## Platform Support
+
+- **Web**: Not supported (use Set File to Upload for web file uploads)
+- **Mobile**: Full support (Android and iOS)
+
+Set Camera Image is exclusively for mobile application testing where camera capture is involved.
+
+## Real-World Scenarios
+
+### Scenario 1: Profile Picture Capture
+
+You're testing a social networking app where users can take a profile picture with their camera during account setup.
+
+```
+Test: "Complete onboarding with profile picture"
+
+1. Wait until: Welcome screen appears
+2. Click "Get Started" button
+3. Wait until: Account creation screen loads
+4. Type {{variable:TEST_USERNAME}} in username field
+5. Type {{variable:TEST_EMAIL}} in email field
+6. Type {{variable:TEST_PASSWORD}} in password field
+7. Click "Next" button
+8. Wait until: Profile picture screen appears
+9. Verify: "Add a profile picture" header is visible
+10. Set camera image: https://example.com/test-assets/profile-photo.jpg
+11. Click "Take Photo" button
+12. Wait until: Camera opens and image is captured
+13. Wait until: Photo preview appears
+14. Verify: Captured photo is displayed
+15. Click "Use Photo" button
+16. Wait until: "Profile created" message appears
+17. Verify: Profile picture appears in top corner
+```
+
+**Why this approach works**: By setting the camera image before clicking "Take Photo," you avoid the complexity of simulating camera hardware. The test flows naturally through the onboarding process.
+
+**Image preparation**: Use a standard test profile photo (preferably a face photo since many apps validate for faces). Host it on a reliable server or use a local file URL.
+
+### Scenario 2: Document Verification
+
+You're testing a banking app that requires users to scan their driver's license for identity verification.
+
+```
+Test: "Verify identity with driver's license"
+
+1. Navigate to account verification screen
+2. Wait until: "Verify Your Identity" header appears
+3. Click "Scan Driver's License" button
+4. Wait until: Camera permission screen appears
+5. Click "Allow" on permission dialog
+6. Wait until: Camera view opens
+7. Set camera image: https://example.com/test-assets/drivers-license-sample.jpg
+8. Wait until: Document detection occurs
+9. Wait until: "Document detected" message appears
+10. Click "Capture" button (or auto-capture triggers)
+11. Wait until: Verification processing screen appears
+12. Wait until: "Verification successful" message appears
+13. Verify: Green checkmark icon is visible
+14. Verify: "Identity verified" status appears
+15. Click "Continue" button
+16. Wait until: Account dashboard loads
+```
+
+**Why this approach works**: Document scanning apps often use sophisticated edge detection and validation. By providing a realistic driver's license image, you test the actual validation pipeline.
+
+**Image considerations**: Use a realistic test document image that matches your app's requirements (readable text, proper dimensions, clear photo). Never use real personal documents—create test documents with fake data.
+
+### Scenario 3: Product Listing Photo
+
+You're testing a marketplace app where sellers photograph items they want to sell.
+
+```
+Test: "Create product listing with photo"
+
+1. Navigate to seller dashboard
+2. Click "Sell an Item" button
+3. Wait until: New listing screen loads
+4. Type "Vintage Camera" in product name field
+5. Type "499.99" in price field
+6. Click "Category" dropdown
+7. Click "Electronics" option
+8. Type "Classic film camera in excellent condition" in description
+9. Click "Add Photos" button
+10. Wait until: Photo options appear
+11. Set camera image: https://example.com/test-assets/camera-product.jpg
+12. Click "Take Photo" button
+13. Wait until: Camera opens and captures image
+14. Wait until: Photo thumbnail appears
+15. Verify: Product photo is visible
+16. Click "Publish Listing" button
+17. Wait until: "Listing published" confirmation appears
+18. Verify: Listing appears in seller dashboard with photo
+```
+
+**Why this approach works**: The product photo capture is seamlessly integrated into the listing creation flow. The test validates both the camera capture and the complete listing creation process.
+
+**Photo quality**: Use clear, well-lit product photos that represent real user submissions. Test with various image quality levels to ensure your app handles different camera capabilities.
+
+### Scenario 4: Receipt Scanning for Expense Report
+
+You're testing an expense management app where employees scan receipts with their phone's camera.
+
+```
+Test: "Submit expense with receipt photo"
+
+1. Navigate to expenses screen
+2. Click "New Expense" button
+3. Wait until: Expense form appears
+4. Type "Client Dinner" in description field
+5. Type "125.50" in amount field
+6. Click "Category" dropdown
+7. Click "Meals & Entertainment"
+8. Click "Scan Receipt" button
+9. Wait until: Camera view opens
+10. Set camera image: https://example.com/test-assets/restaurant-receipt.jpg
+11. Wait until: Receipt is detected and captured
+12. Wait until: OCR processing completes
+13. Verify: Extracted amount "125.50" is displayed
+14. Verify: Merchant name is detected
+15. Click "Confirm" button
+16. Wait until: Expense details screen appears
+17. Verify: Receipt thumbnail is attached
+18. Click "Submit Expense" button
+19. Wait until: "Expense submitted" message appears
+```
+
+**Why this approach works**: This tests the complete receipt scanning workflow including OCR text extraction. The pre-loaded receipt image goes through actual processing.
+
+**Receipt images**: Use realistic receipt photos with clear text and readable amounts. Test with various receipt styles (thermal paper, handwritten, international formats) to ensure robust processing.
+
+### Scenario 5: Social Media Photo Post
+
+You're testing a social media app where users share photos with their followers.
+
+```
+Test: "Create photo post with caption"
+
+1. Navigate to home feed
+2. Click "Create Post" button
+3. Wait until: Post creation screen appears
+4. Click "Add Photo" button
+5. Wait until: Photo source options appear
+6. Click "Take Photo" option
+7. Wait until: Camera opens
+8. Set camera image: https://example.com/test-assets/sunset-photo.jpg
+9. Wait until: Photo is captured
+10. Wait until: Photo editor appears
+11. Verify: Captured photo is displayed
+12. Click "Next" button
+13. Wait until: Caption screen appears
+14. Type "Beautiful sunset today!" in caption field
+15. Click "Add Location" button
+16. Type "San Francisco" in location search
+17. Click first location result
+18. Click "Share" button
+19. Wait until: "Post shared" confirmation appears
+20. Wait until: Feed refreshes
+21. Verify: New post appears in feed with photo
+```
+
+**Why this approach works**: The test covers the complete photo posting flow from capture to publishing, including photo editing options and metadata like location.
+
+**Test photos**: Use engaging, realistic photos similar to what users would actually post. Test with various aspect ratios (landscape, portrait, square) to ensure proper handling.
+
+### Scenario 6: Barcode/QR Code Scanning
+
+You're testing a mobile app that scans product barcodes or QR codes using the camera.
+
+```
+Test: "Scan product barcode to view details"
+
+1. Navigate to product scanner screen
+2. Click "Scan Barcode" button
+3. Wait until: Camera view opens with scanning overlay
+4. Set camera image: https://example.com/test-assets/barcode-sample.jpg
+5. Wait until: Barcode is detected
+6. Wait until: Product details appear
+7. Verify: Product name "Organic Coffee Beans" is displayed
+8. Verify: Product price "$14.99" is shown
+9. Verify: Product image loads
+10. Click "Add to Cart" button
+11. Wait until: "Added to cart" confirmation appears
+```
+
+**Why this approach works**: Even though barcode scanning happens in real-time with camera feed, Set Camera Image can provide a static barcode image for testing the detection and lookup logic.
+
+**Barcode images**: Use clear, high-resolution barcode/QR code images. Ensure they're properly formatted and contain valid data that exists in your test environment.
+
+## Image URL Specifications
+
+Set Camera Image requires a URL to the image you want to use. Understanding the correct URL format and hosting options is crucial.
+
+### URL Format Options
+
+**Hosted image URL (recommended):**
+```
+https://example.com/test-assets/profile-photo.jpg
+https://storage.googleapis.com/test-images/receipt.png
+https://s3.amazonaws.com/qa-files/document.jpg
+```
+
+**Local file URL (if supported):**
+```
+file:///storage/emulated/0/Pictures/test-image.jpg
+```
+
+**Important considerations:**
+- URLs must be accessible from the test environment
+- Images should be hosted on reliable servers
+- HTTPS is recommended for security
+- Image must be in a supported format (JPG, PNG, WebP)
+
+### Hosting Test Images
+
+**Option 1: Project repository**
+Commit test images to your code repository and serve them during tests:
+
+```
+your-project/
+  ├── tests/
+  └── test-assets/
+      └── images/
+          ├── profile-photo.jpg
+          ├── drivers-license-sample.jpg
+          ├── receipt-template.jpg
+          └── product-photo.jpg
+```
+
+Then host via a local server or use direct URLs if your test environment supports it.
+
+**Option 2: Cloud storage**
+Upload test images to cloud storage (S3, Google Cloud Storage, Azure Blob Storage):
+
+```
+https://your-bucket.s3.amazonaws.com/test-images/profile-photo.jpg
+https://storage.googleapis.com/your-bucket/test-images/receipt.jpg
+```
+
+**Benefits:**
+- Reliable access from any test environment
+- Easy to share across team
+- Works in CI/CD without special configuration
+
+**Option 3: CDN or asset server**
+Host test images on a CDN or dedicated test asset server:
+
+```
+https://cdn.yourdomain.com/test-assets/profile-photo.jpg
+https://test-assets.yourdomain.com/images/receipt.jpg
+```
+
+### Image Specifications
+
+**Recommended image properties:**
+- **Format**: JPG or PNG (WebP if supported)
+- **Size**: 1-3MB (realistic phone camera size)
+- **Dimensions**:
+  - Profile photos: 800x800px to 1200x1200px
+  - Document scans: 2000x1500px or higher
+  - Product photos: 1200x1200px to 1600x1600px
+  - Receipts: 1000x1500px or higher
+- **Quality**: Good enough to be realistic, not so high that it slows tests
+
+**Aspect ratios:**
+- Portrait: 3:4 (common for document scans)
+- Square: 1:1 (common for profile pictures)
+- Landscape: 4:3 (common for general photos)
+
+### Organizing Test Images
+
+Create a well-organized structure for test images:
+
+```
+test-assets/
+  ├── profiles/
+  │   ├── profile-male-1.jpg
+  │   ├── profile-female-1.jpg
+  │   └── profile-generic.jpg
+  ├── documents/
+  │   ├── drivers-license-sample.jpg
+  │   ├── passport-sample.jpg
+  │   └── id-card-sample.jpg
+  ├── receipts/
+  │   ├── restaurant-receipt.jpg
+  │   ├── retail-receipt.jpg
+  │   └── gas-receipt.jpg
+  ├── products/
+  │   ├── electronics-item.jpg
+  │   ├── clothing-item.jpg
+  │   └── furniture-item.jpg
+  └── barcodes/
+      ├── upc-barcode.jpg
+      └── qr-code-sample.jpg
+```
+
+## Example Prompts
+
+Here are effective ways to phrase Set Camera Image interactions:
+
+**Basic camera image:**
+```
+set camera image https://example.com/test-assets/photo.jpg
+set the camera image to https://cdn.test.com/profile.jpg
+use camera image https://storage.test.com/receipt.jpg
+```
+
+**With context:**
+```
+set camera image https://example.com/profile-photo.jpg for profile picture
+prepare camera with image https://example.com/receipt.jpg
+load camera image https://example.com/product.jpg for capture
+```
+
+**Natural language:**
+```
+set the camera to use the test profile photo
+use the test receipt image for camera
+set camera image to the sample document
+```
+
+**Direct URL reference:**
+```
+set camera image <https://example.com/test-assets/profile.jpg>
+camera image: https://example.com/receipt.jpg
+```
+
+## Best Practices
+
+### 1. Set Camera Image Before Opening Camera
+
+Always set the camera image before your test clicks the button that opens the camera.
+
+**Good:**
+```
+1. Navigate to profile screen
+2. Set camera image: https://example.com/profile-photo.jpg
+3. Click "Take Photo" button
+4. Wait until: Photo captured
+```
+
+**Wrong order:**
+```
+1. Navigate to profile screen
+2. Click "Take Photo" button ← Opens camera first
+3. Set camera image: https://example.com/profile-photo.jpg ← Too late
+```
+
+### 2. Use Realistic Test Images
+
+Use images that closely match what real users would capture with their cameras.
+
+**Good test images:**
+- Profile photos: Actual face photos (not logos or graphics)
+- Documents: Realistic document layouts with readable text
+- Receipts: Actual receipt photos with proper formatting
+- Products: Clear product photos with appropriate backgrounds
+
+**Poor test images:**
+- Placeholder images or stock graphics
+- Images with wrong dimensions
+- Unrealistic or synthetic images
+- Corrupt or invalid image files
+
+### 3. Verify Capture Completion
+
+Always verify that the camera capture completed successfully and the image was accepted.
+
+**Good:**
+```
+1. Set camera image: https://example.com/receipt.jpg
+2. Click "Scan Receipt" button
+3. Wait until: Image captured
+4. Wait until: Receipt preview appears
+5. Verify: Receipt image is displayed
+6. Verify: "Use This Photo" button is enabled
+```
+
+**Risky:**
+```
+1. Set camera image: https://example.com/receipt.jpg
+2. Click "Scan Receipt" button
+3. Click "Continue" button ← Might click before capture completes
+```
+
+### 4. Test Camera Permissions
+
+Include camera permission handling in your tests when testing fresh app installs.
+
+```
+Test: "Grant camera permission and capture photo"
+
+1. Launch app for first time
+2. Navigate to profile setup
+3. Click "Add Profile Picture" button
+4. Wait until: Camera permission dialog appears
+5. Click "Allow" on permission dialog
+6. Wait until: Camera view opens
+7. Set camera image: https://example.com/profile.jpg
+8. Wait until: Photo captured
+9. Verify: Photo preview appears
+```
+
+### 5. Handle Camera UI Variations
+
+Different devices and OS versions may have different camera UI layouts. Write flexible tests:
+
+```
+# Instead of clicking precise coordinates
+Click coordinates (200, 400) ← Breaks on different devices
+
+# Use prompt-based clicks that find the shutter button
+Click "Capture" button ← Works across devices
+```
+
+### 6. Clean Up After Tests
+
+Use Unset Camera Image to clear the camera image when it's no longer needed, especially in tests with multiple camera captures:
+
+```
+Test: "Upload two different product photos"
+
+# First photo
+1. Set camera image: https://example.com/product-front.jpg
+2. Click "Take Photo" button
+3. Wait until: First photo added
+4. Unset camera image
+
+# Second photo
+5. Set camera image: https://example.com/product-back.jpg
+6. Click "Take Photo" button
+7. Wait until: Second photo added
+8. Unset camera image
+```
+
+### 7. Test Image Processing Features
+
+If your app processes captured images (cropping, filters, enhancement), verify these features work with test images:
+
+```
+1. Set camera image: https://example.com/photo.jpg
+2. Click "Take Photo" button
+3. Wait until: Photo editor appears
+4. Click "Filter" button
+5. Click "Vintage" filter
+6. Wait until: Filter applied to preview
+7. Verify: Image shows sepia tones
+8. Click "Crop" button
+9. Adjust crop to square
+10. Click "Apply" button
+11. Verify: Cropped image preview updates
+```
+
+### 8. Use High-Quality Images for OCR Testing
+
+When testing document scanning or receipt OCR, use high-resolution, clear images:
+
+**Good for OCR:**
+- High-resolution scans (300 DPI or higher)
+- Clear, readable text
+- Good lighting and contrast
+- Straight, unrotated documents
+
+**Poor for OCR:**
+- Low-resolution images
+- Blurry or out-of-focus photos
+- Rotated or skewed documents
+- Poor lighting or shadows
+
+## Common Pitfalls
+
+### Pitfall 1: Setting Camera Image After Opening Camera
+
+**Problem:**
+```
+1. Click "Take Photo" button ← Camera opens
+2. Set camera image: https://example.com/photo.jpg ← Too late
+```
+
+The camera has already opened before the image was set.
+
+**Solution:**
+```
+1. Set camera image: https://example.com/photo.jpg ← Set first
+2. Click "Take Photo" button ← Then open camera
+```
+
+### Pitfall 2: Using Broken or Inaccessible Image URLs
+
+**Problem:**
+```
+set camera image: https://example.com/non-existent-photo.jpg
+```
+
+If this URL doesn't exist or isn't accessible, the interaction will fail.
+
+**Solution:**
+- Verify image URLs are accessible before using them in tests
+- Host test images on reliable infrastructure
+- Test image URLs manually in a browser first
+- Use stable URLs that won't change
+
+### Pitfall 3: Wrong Image Format or Size
+
+**Problem:**
+Using an image that's too large, wrong format, or inappropriate dimensions:
+```
+set camera image: https://example.com/huge-10mb-photo.tiff
+```
+
+**Solution:**
+- Use standard formats (JPG, PNG)
+- Keep images under 3MB
+- Use realistic dimensions for mobile cameras
+- Test with images similar to what real cameras produce
+
+### Pitfall 4: Not Handling Multiple Camera Captures
+
+**Problem:**
+When an app allows multiple photo captures, forgetting to set new images for each capture:
+```
+1. Set camera image: https://example.com/photo1.jpg
+2. Click "Add Photo 1" button
+3. Click "Add Photo 2" button ← Uses same image from step 1
+```
+
+**Solution:**
+Set a new camera image before each capture:
+```
+1. Set camera image: https://example.com/photo1.jpg
+2. Click "Add Photo 1" button
+3. Set camera image: https://example.com/photo2.jpg ← New image
+4. Click "Add Photo 2" button
+```
+
+### Pitfall 5: Not Verifying Image Quality Requirements
+
+**Problem:**
+Your app rejects low-quality images, but your test uses a blurry or low-resolution image:
+```
+1. Set camera image: https://example.com/blurry-photo.jpg
+2. Click "Take Photo" button
+3. Error: "Image quality too low. Please retake."
+```
+
+**Solution:**
+Use test images that meet your app's quality requirements. If testing validation, create separate tests for quality rejection:
+```
+Test: "Reject low-quality images"
+1. Set camera image: https://example.com/low-quality.jpg
+2. Click "Take Photo" button
+3. Wait until: Error message appears
+4. Verify: "Image quality too low" message is shown
+```
+
+### Pitfall 6: Ignoring Camera Permission States
+
+**Problem:**
+Test assumes camera permission is already granted when it's not:
+```
+1. Set camera image: https://example.com/photo.jpg
+2. Click "Take Photo" button ← Permission dialog appears
+3. Expecting camera to open immediately
+```
+
+**Solution:**
+Handle permission dialogs in your test:
+```
+1. Set camera image: https://example.com/photo.jpg
+2. Click "Take Photo" button
+3. If permission dialog appears:
+   4. Click "Allow" button
+5. Wait until: Camera opens
+```
+
+### Pitfall 7: Testing Only Happy Path
+
+**Problem:**
+Only testing successful camera captures without testing edge cases:
+
+**Solution:**
+Create comprehensive test coverage:
+```
+Suite: Camera Capture Tests
+
+Test 1: Successful photo capture (happy path)
+Test 2: User denies camera permission
+Test 3: User cancels camera without taking photo
+Test 4: App rejects image due to quality
+Test 5: App rejects image due to file size
+Test 6: Capture multiple photos sequentially
+```
+
+## Advanced Use Cases
+
+### Testing Selfie Verification with Face Detection
+
+Some apps use face detection to verify profile pictures contain faces:
+
+```
+Test: "Profile picture with face detection"
+
+1. Navigate to profile setup
+2. Click "Add Profile Picture" button
+3. Set camera image: https://example.com/face-photo.jpg
+4. Click "Take Selfie" button
+5. Wait until: Face detection processing occurs
+6. Wait until: "Face detected" checkmark appears
+7. Verify: Green outline appears around detected face
+8. Click "Use Photo" button
+9. Wait until: Profile picture saved
+10. Verify: Photo appears in profile with face centered
+```
+
+Use test images with clear, front-facing faces for apps with face detection.
+
+### Testing Document Edge Detection
+
+Document scanning apps often detect document edges automatically:
+
+```
+Test: "Scan document with auto edge detection"
+
+1. Navigate to document scanner
+2. Click "Scan New Document" button
+3. Set camera image: https://example.com/document-with-background.jpg
+4. Wait until: Camera opens
+5. Wait until: Document edges detected (blue outline appears)
+6. Wait until: Auto-capture triggers
+7. Wait until: Edge adjustment screen appears
+8. Verify: Four corner markers are positioned on document edges
+9. Adjust top-right corner marker if needed
+10. Click "Crop & Save" button
+11. Wait until: Cropped document appears
+12. Verify: Only document content is visible (background removed)
+```
+
+Use test images with documents on contrasting backgrounds for testing edge detection.
+
+### Testing Photo Filter Applications
+
+For apps with photo editing features:
+
+```
+Test: "Apply filter to captured photo"
+
+1. Navigate to photo sharing screen
+2. Set camera image: https://example.com/portrait-photo.jpg
+3. Click "Take Photo" button
+4. Wait until: Photo editor appears
+5. Click "Filters" button
+6. Wait until: Filter options appear
+7. Click "Vintage" filter
+8. Wait until: Preview updates with filter
+9. Verify: Sepia tone applied to image
+10. Click "Brightness" slider
+11. Adjust slider to 120%
+12. Wait until: Preview updates
+13. Click "Apply" button
+14. Wait until: Final image ready
+15. Click "Share" button
+```
+
+### Sequential Multiple Photo Capture
+
+For listing apps or multi-photo features:
+
+```
+Test: "Add 3 product photos to listing"
+
+# Photo 1: Front view
+1. Set camera image: https://example.com/product-front.jpg
+2. Click "Add Photo" button
+3. Wait until: First photo thumbnail appears
+4. Verify: Photo count shows "1 of 5"
+
+# Photo 2: Side view
+5. Set camera image: https://example.com/product-side.jpg
+6. Click "Add Photo" button
+7. Wait until: Second photo thumbnail appears
+8. Verify: Photo count shows "2 of 5"
+
+# Photo 3: Back view
+9. Set camera image: https://example.com/product-back.jpg
+10. Click "Add Photo" button
+11. Wait until: Third photo thumbnail appears
+12. Verify: Photo count shows "3 of 5"
+13. Verify: All three thumbnails are visible
+```
+
+### Testing Camera Capture with Location Tagging
+
+For apps that tag photos with GPS location:
+
+```
+Test: "Capture photo with location tag"
+
+1. Enable location permissions
+2. Navigate to photo capture screen
+3. Set camera image: https://example.com/landmark-photo.jpg
+4. Set GPS location: 37.7749° N, 122.4194° W (San Francisco)
+5. Click "Take Photo" button
+6. Wait until: Photo captured with location
+7. Verify: Location tag "San Francisco, CA" appears on photo
+8. Click "View Details" button
+9. Verify: GPS coordinates are stored
+10. Verify: Map preview shows photo location
+```
+
+## Comparison with Similar Interactions
+
+### Set Camera Image vs Set File to Upload
+
+**Set Camera Image:**
+- Platform: Mobile only
+- Use case: Camera capture simulation
+- Source: URL to hosted image
+- Trigger: Camera opens in app
+- Best for: Mobile camera features
+- File types: Images only
+
+**Set File to Upload:**
+- Platform: Web only
+- Use case: File input controls
+- Source: Local file system path
+- Trigger: File picker dialog
+- Best for: Web file uploads
+- File types: Any (images, PDFs, CSVs, etc.)
+
+**When to switch**: Use Set File to Upload for web applications. Use Set Camera Image for mobile camera functionality.
+
+### Set Camera Image vs Unset Camera Image
+
+**Set Camera Image:**
+- Purpose: Load an image for camera capture
+- When: Before opening camera
+- Effect: Next camera capture uses this image
+- Usage: Required for camera testing
+
+**Unset Camera Image:**
+- Purpose: Clear the loaded camera image
+- When: After camera capture or between captures
+- Effect: Removes the set image from memory
+- Usage: Optional cleanup, useful for multiple captures
+
+**Pattern**: Set → Use → Unset → Set → Use → Unset (for multiple photos)
+
+### Set Camera Image vs Photo Library Selection
+
+**Set Camera Image:**
+- Simulates: Taking a new photo with camera
+- Use for: "Take Photo" / "Camera" buttons
+- Image processing: Full camera capture flow
+- Permissions: Requires camera permission
+
+**Photo Library (not a separate interaction):**
+- Simulates: Selecting existing photo from gallery
+- Use for: "Choose from Library" buttons
+- May work: With Set Camera Image depending on implementation
+- Permissions: Requires photo library permission
+
+Most apps offer both options. Set Camera Image works best for the camera capture path.
+
+## Platform-Specific Considerations
+
+### Android Considerations
+
+- Camera UI varies between manufacturers (Samsung, Google, OnePlus)
+- Test with generic button prompts that work across brands
+- Consider different camera app implementations
+- Handle permission dialogs that vary by Android version
+
+### iOS Considerations
+
+- Consistent camera UI across devices
+- Permission dialogs have standard format
+- Camera controls in consistent locations
+- Consider different screen sizes (iPhone SE vs Pro Max)
+
+## Key Takeaways
+
+1. **Mobile-only feature** - Set Camera Image is exclusively for mobile app testing
+2. **Set before opening camera** - Always set the image before clicking camera buttons
+3. **Use image URLs** - Provide URLs to hosted test images, not file paths
+4. **Realistic test images** - Use images similar to what real cameras capture
+5. **Verify capture completion** - Always wait for and verify successful capture
+6. **Handle permissions** - Include camera permission granting in tests
+7. **Clean up between captures** - Use Unset Camera Image when capturing multiple photos
+8. **Test image processing** - Verify filters, cropping, and editing features work
+9. **Host reliably** - Store test images on stable, accessible servers
+10. **Test edge cases** - Include permission denial, cancelation, and rejection scenarios
+
+## What's Next
+
+Now that you understand how to test camera features in mobile apps, explore these related interactions:
+
+- **Unset Camera Image**: Learn how to clear camera images between captures
+- **Set File to Upload**: Understand file uploads for web applications
+- **Click**: Master triggering camera buttons and photo capture
+- **Wait Until**: Properly wait for camera capture and image processing
+
+You can also explore mobile-specific testing patterns in the [Mobile Testing Features](/mobile-testing-features) guide.

@@ -1,0 +1,564 @@
+---
+title: "Scroll (Web)"
+description: "Scroll web pages vertically to bring elements into view and navigate long-form content."
+---
+
+## What It Does
+
+The Scroll interaction scrolls web pages vertically—up or down—to bring elements into view. When you need to interact with content that's not currently visible on screen, scrolling is essential to make that content accessible.
+
+Think of it like reading a long article in a newspaper. You start at the top, but to read the rest, you need to scroll down. The same applies to web testing: buttons, forms, and content below the fold need to be scrolled into view before you can interact with them.
+
+## When to Use It
+
+Use the Scroll interaction when:
+
+- **Elements are below the fold** - Content exists on the page but isn't visible in the current viewport
+- **Fixed number of scrolls** - You know exactly how many times to scroll (e.g., "scroll down 3 times")
+- **General navigation** - You want to browse through content without a specific target
+- **Lazy-loaded content** - You need to trigger loading of additional content
+- **Long forms** - You're filling out multi-section forms that extend beyond the screen
+
+**Don't use it when:**
+- You need to scroll until a specific element appears - Use **Scroll With Condition** instead
+- You're working on a mobile app - Use **Scroll (Mobile)** instead
+- You need to scroll horizontally through carousels - Use **Move Carousel** instead
+- You need to scroll within a specific container - Use **OCR Scroll** instead
+
+## Platform Support
+
+- **Web**: Yes
+- **Mobile**: No (use Scroll Mobile instead)
+
+## How It Works
+
+When you use the Scroll interaction, Autonoma scrolls the web page viewport by a standard amount in the direction you specify. You can control how many times to scroll by providing a number in the metadata.
+
+**Single scroll**:
+```
+Scroll: down
+```
+
+**Multiple scrolls**:
+```
+Scroll: down 3 times
+```
+
+The metadata is always a number representing how many times to scroll. If you don't specify, it defaults to 1.
+
+## Real-World Scenarios
+
+### Scenario 1: Reading a Long Article
+
+You're testing a blog or news site where articles extend far beyond the initial viewport.
+
+```
+Test: "Read complete article and reach comments"
+
+1. Navigate to article page
+2. Wait until: Article loads
+3. Assert: Article title appears
+4. Scroll: down
+5. Wait: 1 second
+6. Scroll: down
+7. Wait: 1 second
+8. Scroll: down
+9. Wait until: Comments section appears
+10. Assert: Comments section is visible
+```
+
+**Why this works**: You're progressively revealing content, giving time for any lazy-loaded elements to appear.
+
+### Scenario 2: Product Catalog Browsing
+
+Testing an e-commerce site where products are arranged in a long grid.
+
+```
+Test: "Browse product catalog"
+
+1. Navigate to products page
+2. Wait until: Product grid loads
+3. Assert: First products visible
+4. Scroll: down 5 times
+5. Wait: 2 seconds ← Let lazy-loading complete
+6. Assert: More products loaded
+7. Scroll: up 2 times
+8. Assert: Back near top of page
+```
+
+**Why this works**: Multiple scrolls efficiently navigate through large catalogs, and you verify that content loads correctly.
+
+### Scenario 3: Long Form Submission
+
+Testing a multi-section registration form that requires scrolling to reach all fields.
+
+```
+Test: "Complete extended registration form"
+
+1. Navigate to registration page
+2. Input text: "John Doe" in name field
+3. Input text: "john@example.com" in email field
+4. Scroll: down
+5. Input text: "555-123-4567" in phone field
+6. Input text: "123 Main St" in address field
+7. Scroll: down
+8. Select: "United States" from country dropdown
+9. Input text: "New York" in city field
+10. Scroll: down
+11. Click: "Accept Terms" checkbox
+12. Click: "Submit" button
+13. Wait until: Success message appears
+```
+
+**Why this works**: You scroll progressively as you fill the form, ensuring each section is visible before interacting with it.
+
+### Scenario 4: Infinite Scroll Testing
+
+Testing a social media feed or endless product listing.
+
+```
+Test: "Verify infinite scroll loads content"
+
+1. Navigate to feed
+2. Wait until: Initial posts load
+3. Extract information: Count of visible posts
+4. Scroll: down 3 times
+5. Wait: 2 seconds
+6. Extract information: Updated count of visible posts
+7. Assert: More posts loaded (count increased)
+8. Scroll: down 5 times
+9. Wait: 2 seconds
+10. Assert: Additional posts visible
+```
+
+**Why this works**: You scroll multiple times to trigger the infinite scroll mechanism, then verify content actually loads.
+
+### Scenario 5: Footer Information Access
+
+Testing that footer links are accessible and work correctly.
+
+```
+Test: "Access footer privacy policy"
+
+1. Navigate to homepage
+2. Wait until: Page loads
+3. Scroll: down 10 times ← Get to bottom
+4. Wait: 1 second
+5. Assert: Footer appears
+6. Click: "Privacy Policy" link in footer
+7. Wait until: Privacy page loads
+8. Assert: Privacy Policy heading visible
+```
+
+**Why this works**: Multiple scrolls efficiently get you to the page bottom where footers typically reside.
+
+## Scroll Up vs Scroll Down
+
+**Scroll Down** - The most common direction:
+- Reveals content below current viewport
+- Natural reading direction for most web content
+- Used for progressive disclosure patterns
+- Triggers lazy-loading of content
+
+**Scroll Up** - Moving back toward the top:
+- Returns to previously viewed content
+- Useful for verification after scrolling down
+- Tests sticky headers and navigation
+- Confirms content remains accessible
+
+**Example using both directions**:
+```
+Test: "Navigate article and return to top"
+
+1. Navigate to article
+2. Scroll: down 5 times ← Read through article
+3. Assert: Bottom content visible
+4. Scroll: up 5 times ← Return to top
+5. Assert: Article title still visible
+6. Click: "Related Articles" at top
+```
+
+## Understanding Metadata: The Scroll Count
+
+The Scroll interaction requires metadata: a number indicating how many times to scroll.
+
+**Important**: The metadata must be a NUMBER, not a string.
+
+```
+Correct: 3
+Incorrect: "3"
+Incorrect: "three"
+```
+
+**How to specify in your test**:
+
+```
+Scroll: down      ← Defaults to 1 scroll
+Scroll: down 2    ← Scrolls 2 times
+Scroll: down 5    ← Scrolls 5 times
+Scroll: up 3      ← Scrolls up 3 times
+```
+
+**How much does one scroll move?**
+
+A single scroll typically moves the viewport by approximately one screen height (minus some overlap for context). The exact distance depends on:
+- Browser window size
+- Screen resolution
+- Page content and structure
+
+**Rule of thumb**:
+- 3-5 scrolls usually gets you to the middle of a long page
+- 10+ scrolls typically reaches the footer on most pages
+
+## Common Patterns
+
+### Pattern 1: Progressive Disclosure
+
+Revealing content step by step:
+
+```
+1. Scroll: down
+2. Wait: 1 second
+3. Assert: Section 2 appears
+4. Scroll: down
+5. Wait: 1 second
+6. Assert: Section 3 appears
+```
+
+### Pattern 2: Rapid Navigation
+
+Getting to a distant part of the page quickly:
+
+```
+1. Scroll: down 8 times
+2. Wait: 2 seconds ← Let content stabilize
+3. Assert: Target section visible
+```
+
+### Pattern 3: Scroll and Interact
+
+Scrolling to reveal interactive elements:
+
+```
+1. Scroll: down 3 times
+2. Click: "Load More" button
+3. Wait until: New content loads
+4. Scroll: down 2 times
+```
+
+### Pattern 4: Verification Loop
+
+Scrolling to verify content at different positions:
+
+```
+1. Assert: Top content visible
+2. Scroll: down 5 times
+3. Assert: Middle content visible
+4. Scroll: down 5 times
+5. Assert: Bottom content visible
+6. Scroll: up 10 times
+7. Assert: Back at top
+```
+
+## When to Choose Scroll vs Scroll With Condition
+
+This is a crucial decision point:
+
+**Use Scroll when:**
+- You know exactly how many times to scroll
+- You're navigating without a specific target
+- You want to trigger loading behavior
+- The number of scrolls is part of your test logic
+
+**Use Scroll With Condition when:**
+- You need to find a specific element by scrolling
+- The element's position varies
+- You don't know how far down it is
+- You want to stop scrolling once found
+
+**Example comparison**:
+
+```
+// Using Scroll (fixed number)
+1. Scroll: down 5 times
+2. Assert: Footer appears ← Might fail if page length varies
+
+// Using Scroll With Condition (better for this)
+1. Scroll with condition: Until footer appears ← Always works
+```
+
+## Best Practices
+
+### 1. Add Waits After Scrolling
+
+Always give content time to render after scrolling:
+
+```
+Good:
+1. Scroll: down
+2. Wait: 1 second ← Allows content to settle
+3. Assert: Element appears
+
+Bad:
+1. Scroll: down
+2. Assert: Element appears ← Might fail due to timing
+```
+
+### 2. Start With Fewer Scrolls
+
+You can always scroll more, but you can't "unscroll" within a single test flow:
+
+```
+Good approach:
+1. Scroll: down 2 times
+2. Check if target visible
+3. If not, scroll: down 2 more times
+
+Risky approach:
+1. Scroll: down 10 times ← Might overshoot
+2. Try to find element
+```
+
+### 3. Verify After Scrolling
+
+Always confirm the scroll had the intended effect:
+
+```
+1. Scroll: down 3 times
+2. Assert: Expected content now visible ← Verification!
+```
+
+### 4. Consider Page Length Variability
+
+If page length might change, use Scroll With Condition instead:
+
+```
+// Brittle (page length might change):
+1. Scroll: down 8 times
+2. Click: Contact form at bottom
+
+// Robust (adapts to page length):
+1. Scroll with condition: Until contact form visible
+2. Click: Contact form
+```
+
+### 5. Test Both Directions
+
+Verify scrolling works in both directions:
+
+```
+Test: "Navigation scrolling"
+
+1. Scroll: down 5 times
+2. Assert: Lower content visible
+3. Scroll: up 5 times
+4. Assert: Upper content visible again
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting for Lazy-Loaded Content
+
+**Problem**:
+```
+1. Scroll: down 3 times
+2. Assert: Product 20 appears ← Fails!
+```
+
+**Why it fails**: Content hasn't finished loading.
+
+**Solution**:
+```
+1. Scroll: down 3 times
+2. Wait: 2 seconds ← Let lazy-loading complete
+3. Assert: Product 20 appears
+```
+
+### Pitfall 2: Using Scroll When You Need Scroll With Condition
+
+**Problem**:
+```
+1. Scroll: down 5 times
+2. Click: "Subscribe" button ← Button might not be visible yet
+```
+
+**Why it fails**: The button's position varies.
+
+**Solution**:
+```
+1. Scroll with condition: Until "Subscribe" button visible
+2. Click: "Subscribe" button
+```
+
+### Pitfall 3: Scrolling Too Fast
+
+**Problem**:
+```
+1. Scroll: down 10 times
+2. Scroll: down 10 times
+3. Assert: Footer appears
+```
+
+**Why it fails**: Page can't keep up with rapid scrolling.
+
+**Solution**:
+```
+1. Scroll: down 10 times
+2. Wait: 2 seconds ← Let page stabilize
+3. Assert: Footer appears
+```
+
+### Pitfall 4: Forgetting About Sticky Headers
+
+**Problem**:
+```
+1. Scroll: down to element
+2. Click: Element ← Fails because sticky header covers it
+```
+
+**Why it fails**: Sticky header overlays the element after scrolling.
+
+**Solution**:
+```
+1. Scroll: down to element
+2. Scroll: down 1 more time ← Move element below sticky header
+3. Click: Element
+```
+
+### Pitfall 5: Using String Instead of Number for Metadata
+
+**Problem**:
+```
+Scroll: down "3" times ← Will cause an error
+```
+
+**Why it fails**: Metadata must be a number, not a string.
+
+**Solution**:
+```
+Scroll: down 3 times ← Correct
+```
+
+## Combining Scroll With Other Interactions
+
+Scroll rarely works alone. Here's how it combines with other interactions:
+
+### With Assert
+
+```
+1. Scroll: down 3 times
+2. Assert: Newsletter signup appears ← Verify content is visible
+```
+
+### With Click
+
+```
+1. Scroll: down 5 times
+2. Click: "Back to Top" button ← Interact with revealed element
+```
+
+### With Input Text
+
+```
+1. Scroll: down 2 times
+2. Input text: "message" in comment field ← Fill field that's now visible
+```
+
+### With Extract Information
+
+```
+1. Scroll: down 10 times
+2. Extract information: Footer copyright year ← Capture data from bottom
+```
+
+### With Wait Until
+
+```
+1. Scroll: down 4 times
+2. Wait until: Loading spinner disappears ← Ensure content loads
+3. Assert: Content appears
+```
+
+## Accessibility Considerations
+
+When testing scroll behavior, consider accessibility:
+
+### Keyboard Navigation
+Users should be able to scroll using keyboard:
+```
+Test: "Keyboard scroll navigation"
+
+1. Press: Page Down key
+2. Assert: Page scrolls
+3. Press: Page Up key
+4. Assert: Page scrolls back
+```
+
+### Skip Links
+Test that skip-to-content links work:
+```
+Test: "Skip to main content"
+
+1. Click: "Skip to main content" link
+2. Assert: Page scrolls to main content
+3. Assert: Focus is on main content area
+```
+
+## Performance Testing With Scroll
+
+Scroll interactions help test performance:
+
+```
+Test: "Lazy loading performance"
+
+1. Navigate to products page
+2. Start timer
+3. Scroll: down 10 times
+4. Wait until: All products loaded
+5. Stop timer
+6. Assert: Loading completed within 5 seconds
+```
+
+## Example Prompts
+
+Here are example prompts that trigger the Scroll interaction:
+
+**Basic scrolling**:
+- "scroll"
+- "scroll down"
+- "scroll up"
+
+**Scrolling multiple times**:
+- "scroll down 3 times"
+- "scroll up 2 times"
+- "scroll down five times"
+
+**Scrolling with context**:
+- "scroll down the page"
+- "scroll to see more content"
+- "scroll up to the top"
+
+## Quick Reference
+
+| Aspect | Details |
+|--------|---------|
+| **Direction** | Up or Down |
+| **Metadata** | Number of times to scroll (default: 1) |
+| **Platform** | Web only |
+| **Use for** | Fixed-distance scrolling, general navigation |
+| **Avoid for** | Finding specific elements (use Scroll With Condition) |
+| **Common count** | 3-5 for mid-page, 10+ for footer |
+| **Best practice** | Always add wait after scrolling |
+
+## What's Next
+
+Now that you understand basic scrolling on web:
+
+- **Scroll With Condition** - Learn how to scroll until specific elements appear
+- **Scroll (Mobile)** - Understand mobile scrolling behavior
+- **OCR Scroll** - Discover how to scroll within specific containers
+- **Move Carousel** - Master horizontal scrolling for carousels
+
+---
+
+Scrolling is fundamental to web testing. Master it, and you'll handle long-form content, infinite scroll, and complex layouts with confidence.

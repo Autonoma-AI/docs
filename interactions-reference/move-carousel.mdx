@@ -1,0 +1,806 @@
+---
+title: "Move Carousel"
+description: "Navigate horizontal carousels and scrollable content on mobile—perfect for image galleries, story feeds, and card-based layouts."
+---
+
+## What It Does
+
+Move Carousel is a specialized mobile interaction designed for navigating horizontal carousels—those swipeable components common in mobile apps that display content in a side-by-side, scrollable format. Think Instagram stories, product image galleries, card-based payment methods, or promotional banner carousels.
+
+Unlike general scrolling that moves vertically through a page, Move Carousel specifically handles horizontal swipe gestures on carousel-style UI components. It recognizes that carousels are distinct interaction patterns requiring precise horizontal navigation.
+
+## When to Use It
+
+Use Move Carousel when:
+
+- **Horizontal card layouts** - Payment methods, saved addresses, profile cards
+- **Image galleries** - Product photos, profile pictures, media galleries
+- **Story feeds** - Instagram-style stories, news snippets, promotional stories
+- **Promotional banners** - Marketing carousels at top of screens
+- **Tabbed content** - Horizontally swipeable tab panels
+- **Onboarding screens** - Tutorial slides that swipe left/right
+- **Date pickers** - Horizontal scrolling date or time selectors
+- **Category selectors** - Horizontally scrolling category chips or filters
+
+**Don't use it when:**
+- Scrolling vertically through content - Use **Scroll (Mobile)** instead
+- Working on web applications - Use **Scroll (Web)** or other interactions
+- Scrolling the main screen - Use **Scroll (Mobile)** instead
+- Scrolling within nested containers - Use **OCR Scroll** instead
+
+## Platform Support
+
+- **Web**: No
+- **Mobile**: Yes (iOS and Android only)
+
+This is a mobile-specific interaction optimized for touch-based carousel navigation common in modern mobile applications.
+
+## How It Works
+
+Move Carousel simulates the horizontal swipe gesture that users naturally use to navigate carousels on mobile devices:
+
+**Swipe left** (reveals content to the right):
+```
+Move carousel: left
+```
+
+**Swipe right** (reveals content to the left):
+```
+Move carousel: right
+```
+
+The interaction identifies carousel components through visual and structural analysis, then performs precise horizontal swipes to navigate between items.
+
+## Real-World Scenarios
+
+### Scenario 1: Selecting a Payment Method
+
+Testing payment method selection from a horizontal carousel of saved cards.
+
+```
+Test: "Select specific payment card"
+
+1. Open checkout screen
+2. Wait until: Checkout loads
+3. Assert: Payment methods carousel visible
+4. Move carousel: left 2 times
+5. Wait: 500ms
+6. Assert: Different payment cards visible
+7. Add prompt: "Click on the Visa card ending in 4242"
+8. Wait until: Card selected
+9. Click: "Pay Now" button
+```
+
+**Why this works**: Payment methods are often displayed in a horizontal carousel. Move Carousel navigates precisely through the cards.
+
+### Scenario 2: Browsing Product Images
+
+Testing navigation through a product's photo gallery.
+
+```
+Test: "View all product images"
+
+1. Navigate to product details
+2. Wait until: Product page loads
+3. Assert: Primary product image visible
+4. Move carousel: left 5 times
+5. Wait: 1 second
+6. Assert: Different product images visible
+7. Move carousel: right 3 times
+8. Assert: Returned to earlier images
+9. Click: Specific image to enlarge
+```
+
+**Why this works**: Product images are typically in a swipeable gallery. Move Carousel navigates through all available photos.
+
+### Scenario 3: Story Feed Navigation
+
+Testing Instagram-style story browsing.
+
+```
+Test: "Browse through stories"
+
+1. Open app home screen
+2. Wait until: Stories bar loads
+3. Assert: First story visible
+4. Move carousel: left 3 times
+5. Wait: 500ms
+6. Assert: Different stories visible
+7. Add prompt: "Click on story from @brandinc"
+8. Wait until: Story opens fullscreen
+9. Move carousel: left 5 times
+10. Assert: Story progresses through frames
+```
+
+**Why this works**: Stories appear in horizontal carousels at multiple levels—both the story list and within individual stories.
+
+### Scenario 4: Onboarding Tutorial Navigation
+
+Testing the app's first-run experience.
+
+```
+Test: "Complete onboarding flow"
+
+1. Launch app for first time
+2. Wait until: Welcome screen appears
+3. Assert: "Welcome" tutorial screen visible
+4. Move carousel: left
+5. Wait until: Second tutorial screen
+6. Assert: "Features" tutorial visible
+7. Move carousel: left
+8. Assert: "Get Started" tutorial visible
+9. Click: "Get Started" button
+10. Wait until: Main app loads
+```
+
+**Why this works**: Onboarding screens use carousel patterns for progressive disclosure. Move Carousel navigates the tutorial flow.
+
+### Scenario 5: Category Filter Selection
+
+Testing horizontal category filters in a shopping app.
+
+```
+Test: "Filter products by category"
+
+1. Navigate to products screen
+2. Wait until: Products load
+3. Assert: Category carousel visible
+4. Move carousel: left 3 times
+5. Wait: 500ms
+6. Add prompt: "Click on 'Electronics' category"
+7. Wait until: Products filter applied
+8. Assert: Electronics products visible
+```
+
+**Why this works**: Category filters often scroll horizontally at the top of product listings. Move Carousel reveals more categories.
+
+### Scenario 6: Promotional Banner Navigation
+
+Testing marketing banners in a carousel format.
+
+```
+Test: "View all promotional offers"
+
+1. Open app home screen
+2. Wait until: Home screen loads
+3. Assert: Promotional banner carousel visible
+4. Move carousel: left 4 times
+5. Wait: 1 second
+6. Assert: Different promotions visible
+7. Add prompt: "Click on the 50% off banner"
+8. Wait until: Promotion details load
+9. Assert: Discount details visible
+```
+
+**Why this works**: Promotional banners rotate in carousels. Move Carousel lets you access specific promotions.
+
+### Scenario 7: Saved Addresses Selection
+
+Testing address selection from a carousel of saved locations.
+
+```
+Test: "Select delivery address"
+
+1. Open checkout
+2. Navigate to: Delivery section
+3. Wait until: Address carousel loads
+4. Assert: First saved address visible
+5. Move carousel: left 2 times
+6. Wait: 500ms
+7. Add prompt: "Click on the work address"
+8. Assert: Work address selected
+9. Click: "Continue to payment"
+```
+
+**Why this works**: E-commerce apps display saved addresses in horizontal carousels for easy selection.
+
+## Left vs Right Navigation
+
+Understanding carousel direction is crucial:
+
+### Move Left (Swipe Left)
+- **Reveals content to the right**
+- Progresses forward through carousel items
+- "Next" in the sequence
+- Natural reading direction in most cultures
+
+```
+Move carousel: left
+```
+
+**Use for**:
+- Moving to next story
+- Viewing next product image
+- Selecting next payment method
+- Advancing through onboarding
+
+### Move Right (Swipe Right)
+- **Reveals content to the left**
+- Goes back to previous carousel items
+- "Previous" in the sequence
+- Returning to earlier content
+
+```
+Move carousel: right
+```
+
+**Use for**:
+- Going back to previous story
+- Reviewing earlier images
+- Returning to first payment option
+- Backing up in tutorial flow
+
+**Example using both directions**:
+
+```
+Test: "Navigate carousel bidirectionally"
+
+1. Assert: First carousel item visible
+2. Move carousel: left 5 times ← Move forward
+3. Assert: Later items visible
+4. Move carousel: right 3 times ← Move back
+5. Assert: Earlier items visible again
+```
+
+## Common Patterns
+
+### Pattern 1: Progressive Carousel Browsing
+
+```
+1. Assert: Carousel visible
+2. Move carousel: left
+3. Wait: 500ms
+4. Assert: New item visible
+5. Move carousel: left
+6. Wait: 500ms
+7. Assert: Next item visible
+```
+
+### Pattern 2: Find and Select
+
+```
+1. Move carousel: left 3 times
+2. Wait: 500ms
+3. Add prompt: "Click on the target item"
+4. Wait until: Item selected
+```
+
+### Pattern 3: Complete Carousel Traversal
+
+```
+1. Move carousel: left 10 times ← Go through all items
+2. Wait: 1 second
+3. Assert: Reached end of carousel
+4. Move carousel: right 10 times ← Return to start
+5. Assert: Back at first item
+```
+
+### Pattern 4: Verify Carousel Length
+
+```
+1. Extract information: Count carousel items
+2. Move carousel: left [count-1] times
+3. Assert: Last item visible
+```
+
+### Pattern 5: Carousel Within Scrollable Content
+
+```
+// Scroll main screen to carousel
+1. Scroll: down (swipe up) 3 times
+2. Assert: Carousel visible
+
+// Navigate carousel horizontally
+3. Move carousel: left 5 times
+4. Assert: Different carousel items visible
+```
+
+## Best Practices
+
+### 1. Add Brief Waits After Each Move
+
+Carousel animations need time to complete:
+
+```
+Good:
+1. Move carousel: left
+2. Wait: 500ms ← Let animation finish
+3. Assert: New item visible
+
+Risky:
+1. Move carousel: left
+2. Assert: New item visible ← Might check during animation
+```
+
+### 2. Verify Carousel is Visible First
+
+Ensure the carousel has loaded:
+
+```
+1. Wait until: Screen loads
+2. Assert: Carousel component visible ← Verify it's there
+3. Move carousel: left 3 times
+```
+
+### 3. Don't Move Beyond Carousel Bounds
+
+Carousels have finite items:
+
+```
+// If carousel has 5 items
+Good:
+1. Move carousel: left 4 times ← Moves through all items
+
+Problematic:
+1. Move carousel: left 20 times ← Might get stuck at end
+```
+
+### 4. Be Specific When Selecting Items
+
+After moving, clearly identify what to select:
+
+```
+Good:
+1. Move carousel: left 2 times
+2. Add prompt: "Click on the Mastercard ending in 7890" ← Specific
+
+Vague:
+1. Move carousel: left 2 times
+2. Add prompt: "Click the card" ← Which one?
+```
+
+### 5. Test Both Directions
+
+Verify carousel works in both directions:
+
+```
+Test: "Bidirectional carousel navigation"
+
+1. Move carousel: left 3 times
+2. Assert: Forward navigation works
+3. Move carousel: right 3 times
+4. Assert: Backward navigation works
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Using Move Carousel for Vertical Scrolling
+
+**Problem**:
+```
+1. Move carousel: down ← This doesn't exist!
+```
+
+**Why it fails**: Move Carousel only handles horizontal (left/right) navigation.
+
+**Solution**:
+```
+1. Scroll: down (swipe up) ← Use Scroll for vertical movement
+```
+
+### Pitfall 2: Not Waiting for Carousel Animations
+
+**Problem**:
+```
+1. Move carousel: left
+2. Click: Item ← Item might be mid-animation
+```
+
+**Why it fails**: Carousel animations take time.
+
+**Solution**:
+```
+1. Move carousel: left
+2. Wait: 500ms ← Critical wait
+3. Click: Item
+```
+
+### Pitfall 3: Moving Too Many Times
+
+**Problem**:
+```
+// Carousel has 5 items
+1. Move carousel: left 20 times ← Gets stuck at item 5
+```
+
+**Why it fails**: Can't move beyond the last item.
+
+**Solution**:
+```
+1. Move carousel: left 4 times ← Just enough to see all items
+Or better:
+1. Move carousel: left 3 times
+2. Check if target item visible
+3. If not, move carousel: left 2 more times
+```
+
+### Pitfall 4: Using on Web Applications
+
+**Problem**:
+```
+// Web application test
+1. Move carousel: left ← Not supported on web
+```
+
+**Why it fails**: Move Carousel is mobile-only.
+
+**Solution**:
+```
+// For web carousels
+1. Click: "Next" arrow button
+Or
+1. Add prompt: "Click the right arrow to see next items"
+```
+
+### Pitfall 5: Confusing Direction
+
+**Problem**:
+```
+// Want to see next item (to the right)
+1. Move carousel: right ← This goes BACK to previous!
+```
+
+**Why it fails**: Swipe right reveals content on the LEFT.
+
+**Solution**:
+```
+// To see next item (content on the right)
+1. Move carousel: left ← Swipe left reveals right content
+```
+
+**Memory aid**: You swipe left to move left in the carousel sequence, revealing what's to the right visually.
+
+### Pitfall 6: Not Distinguishing From Main Screen Scroll
+
+**Problem**:
+```
+// Carousel exists, but using general scroll
+1. Scroll: left ← Might not target carousel properly
+```
+
+**Why it's suboptimal**: Not specific to carousel behavior.
+
+**Solution**:
+```
+1. Move carousel: left ← Explicitly targets carousel
+```
+
+## Move Carousel vs Other Scroll Interactions
+
+| Scenario | Scroll (Mobile) | Move Carousel | OCR Scroll |
+|----------|----------------|---------------|------------|
+| Main screen vertical | ✓ | | |
+| Carousel horizontal | | ✓ | |
+| Nested container scroll | | | ✓ |
+| Story feed | | ✓ | |
+| Payment cards | | ✓ | |
+| Product gallery | | ✓ | |
+| Modal dialog scroll | | | ✓ |
+| Long form vertical | ✓ | | |
+| Sidebar navigation | | | ✓ |
+
+**General rule**: If it's a horizontal carousel-style component on mobile, use Move Carousel. For everything else, use the appropriate scroll interaction.
+
+## Combining Move Carousel With Other Interactions
+
+### With Assert
+
+```
+1. Move carousel: left 3 times
+2. Assert: Different carousel items visible
+```
+
+### With Add Prompt (Click)
+
+```
+1. Move carousel: left 2 times
+2. Add prompt: "Click on the blue card"
+```
+
+### With Wait Until
+
+```
+1. Move carousel: left
+2. Wait until: Next item fully loaded
+3. Assert: Item details visible
+```
+
+### With Extract Information
+
+```
+1. Move carousel: left 5 times
+2. Extract information: Last carousel item title
+```
+
+### With Scroll (Mobile)
+
+```
+// Scroll main screen to carousel
+1. Scroll: down (swipe up) 5 times
+2. Assert: Carousel visible
+
+// Navigate carousel
+3. Move carousel: left 3 times
+4. Assert: Carousel items navigated
+```
+
+## Testing Carousel Edge Cases
+
+### Start of Carousel
+
+```
+Test: "Verify first item behavior"
+
+1. Assert: At first carousel item
+2. Move carousel: right ← Try to go before first
+3. Assert: Still at first item (can't go further)
+```
+
+### End of Carousel
+
+```
+Test: "Verify last item behavior"
+
+1. Move carousel: left 10 times ← Go to end
+2. Wait: 1 second
+3. Move carousel: left ← Try to go past last
+4. Assert: Still at last item (can't go further)
+```
+
+### Circular Carousels
+
+Some carousels loop back:
+
+```
+Test: "Verify circular carousel"
+
+1. Move carousel: left 5 times ← Go to end
+2. Assert: Last item visible
+3. Move carousel: left ← Should loop to first
+4. Assert: First item visible again
+```
+
+## Performance Considerations
+
+Carousel animations can affect test performance:
+
+### Fast Consecutive Moves
+
+```
+// Less optimal - might skip items
+1. Move carousel: left 5 times without waits
+
+// Better - ensures each item is seen
+1. Move carousel: left
+2. Wait: 300ms
+3. Move carousel: left
+4. Wait: 300ms
+5. Move carousel: left
+6. Wait: 300ms
+```
+
+### Heavy Image Carousels
+
+Carousels with large images need longer waits:
+
+```
+1. Move carousel: left
+2. Wait: 1 second ← Longer wait for image loading
+3. Assert: Image fully loaded
+```
+
+## Accessibility Testing
+
+Test that carousels are accessible:
+
+### VoiceOver/TalkBack Navigation
+
+```
+Test: "Accessible carousel navigation"
+
+1. Enable VoiceOver/TalkBack
+2. Focus: Carousel component
+3. Swipe: Left to navigate
+4. Assert: Item content is announced
+5. Assert: Item position announced ("Item 2 of 5")
+```
+
+### Programmatic Carousel Control
+
+```
+Test: "Alternative carousel navigation"
+
+1. Assert: Carousel has navigation indicators
+2. Click: Carousel indicator dot 3
+3. Assert: Third item visible
+```
+
+## Different Types of Carousels
+
+### Story Carousels
+
+Horizontal row of story circles:
+```
+1. Move carousel: left 3 times
+2. Click: Specific story
+3. Wait until: Story opens
+```
+
+### Card Carousels
+
+Full-width or partial-width cards:
+```
+1. Move carousel: left
+2. Assert: Next card visible
+3. Add prompt: "Click on the card"
+```
+
+### Image Galleries
+
+Product photos or media galleries:
+```
+1. Move carousel: left 4 times
+2. Assert: Different images visible
+3. Click: Image to enlarge
+```
+
+### Chip/Tag Carousels
+
+Horizontal scrolling filters or categories:
+```
+1. Move carousel: left 5 times
+2. Click: Desired category chip
+```
+
+## Example Prompts
+
+Here are example prompts that trigger Move Carousel:
+
+**Basic navigation**:
+- "move carousel to the left"
+- "move carousel to the right"
+- "move payments carousel left"
+- "move promotions carousel right"
+
+**With context**:
+- "swipe the story carousel left"
+- "move the image gallery left 3 times"
+- "swipe payment cards right"
+- "navigate carousel left 2 times"
+
+**Specific carousels**:
+- "move payments carousel to the left"
+- "move promotions carousel to the right"
+- "swipe product images left"
+
+## Quick Reference
+
+| Aspect | Details |
+|--------|---------|
+| **Direction** | Left or Right only (horizontal) |
+| **Platform** | Mobile only (iOS and Android) |
+| **Use for** | Horizontal carousels, stories, card layouts |
+| **Avoid for** | Vertical scrolling, web applications |
+| **Left** | Move forward, reveal content on right |
+| **Right** | Move backward, reveal content on left |
+| **Best practice** | Add 300-500ms wait after each move |
+
+## Common Carousel Patterns in Apps
+
+### E-Commerce
+- Product image galleries
+- Payment method selectors
+- Saved address carousels
+- Category filters
+- Promotional banners
+
+### Social Media
+- Story feeds
+- Post image galleries
+- Filter selection
+- Profile image carousels
+
+### Finance
+- Account card carousels
+- Transaction categories
+- Investment portfolio cards
+
+### Travel
+- Destination photo galleries
+- Date selection carousels
+- Seat selection views
+- Hotel room photos
+
+### Entertainment
+- Show/movie galleries
+- Episode selectors
+- Genre carousels
+- Cast photo galleries
+
+## Debugging Carousel Issues
+
+If Move Carousel isn't working:
+
+### Check: Is it actually a carousel?
+
+```
+1. Assert: Component has carousel structure
+2. Assert: Multiple items visible or swipeable
+3. Move carousel: left
+```
+
+### Check: Is the carousel loaded?
+
+```
+1. Wait until: Carousel component visible
+2. Wait: 1 second ← Extra time for items to load
+3. Move carousel: left
+```
+
+### Check: Direction confusion
+
+```
+// Want to see NEXT item (content to the right)
+Correct: Move carousel: left
+Incorrect: Move carousel: right
+```
+
+### Try: Slower navigation
+
+```
+1. Move carousel: left
+2. Wait: 1 second ← Generous wait
+3. Assert: Item changed
+4. Move carousel: left
+5. Wait: 1 second
+```
+
+## Advanced Patterns
+
+### Carousel Within Tabs
+
+```
+Test: "Navigate carousel in specific tab"
+
+1. Click: "Featured" tab
+2. Wait until: Tab content loads
+3. Assert: Featured carousel visible
+4. Move carousel: left 3 times
+5. Assert: Different featured items
+```
+
+### Multiple Carousels on Same Screen
+
+```
+Test: "Navigate different carousels"
+
+1. Assert: Stories carousel visible
+2. Move carousel: left 2 times ← First carousel
+3. Scroll: down (swipe up) 3 times ← Get to second carousel
+4. Assert: Products carousel visible
+5. Move carousel: left 4 times ← Second carousel
+```
+
+### Nested Carousel Navigation
+
+```
+Test: "Navigate nested carousels"
+
+1. Move carousel: left 3 times ← Outer carousel
+2. Click: Item to expand
+3. Wait until: Detail view with gallery appears
+4. Move carousel: left 5 times ← Inner gallery carousel
+```
+
+## What's Next
+
+Now that you understand carousel navigation:
+
+- **Scroll (Mobile)** - Master vertical mobile scrolling
+- **Scroll With Condition** - Learn intelligent conditional scrolling
+- **OCR Scroll** - Understand scrolling in nested containers
+- **Click** - Review basic interaction patterns
+
+---
+
+Move Carousel is your key to horizontal navigation on mobile. Master it, and you'll handle any card-based, story-driven, or gallery interface with confidence.

@@ -1,0 +1,1014 @@
+---
+title: "Extract Information"
+description: "Capture dynamic information from your application and reuse it throughout your test for comprehensive workflow validation."
+---
+
+# Extract Information
+
+## The Memory Problem in Testing
+
+Your test completes a checkout flow. The confirmation page displays:
+
+```
+Order Confirmed!
+Order #A7B3X9
+Expected delivery: March 15
+Total: $87.49
+```
+
+Perfect. Now you need to verify that this order appears in the order history page.
+
+You navigate to order history and... **how do you tell your test which order to look for?**
+
+The order number changes every time the test runs. You can't hardcode "#A7B3X9"—that only works for this specific test execution. Next time it might be "#B2K5M8".
+
+**Tests, by default, have no memory.** They see information, perform actions, and move on. They don't remember what they saw.
+
+This is the fundamental challenge of testing dynamic applications:
+- Order numbers are generated
+- Confirmation codes are created
+- User IDs are assigned
+- Invoice numbers are produced
+- Booking references are issued
+
+**Your test needs to capture these values and remember them for later verification.**
+
+That's what `Extract Information` does. It gives your tests memory—the ability to capture information from your application and reuse it throughout the test.
+
+## What Extract Information Does
+
+The `Extract Information` interaction captures visual information from your application and stores it under a key name that you can reference later in your test.
+
+Think of it like taking a photo of something important and labeling it so you can find it again.
+
+**Basic syntax**:
+```
+Extract information about <what to extract> with key <KEY_NAME>
+```
+
+**Examples**:
+```
+Extract information about the order number with key ORDER_ID
+Extract information about the confirmation code with key CONFIRMATION_CODE
+Extract information about the user email with key USER_EMAIL
+Extract information about the balance with key ACCOUNT_BALANCE
+Extract information about the booking reference with key BOOKING_REF
+```
+
+Autonoma's AI examines your application's current screen, finds the information you described, extracts it, and stores it under the key name you provided.
+
+**Using extracted values**:
+Once extracted, you reference the value using `{{key:KEY_NAME}}`:
+
+```
+1. Extract information about the order number with key ORDER_ID
+2. Navigate to order history
+3. Assert: Order {{key:ORDER_ID}} appears in the list
+4. Click: Order {{key:ORDER_ID}}
+5. Assert: Order details page shows {{key:ORDER_ID}}
+```
+
+## When to Use Extract Information vs Other Approaches
+
+Autonoma provides multiple ways to work with data. Here's when to use extraction:
+
+### Use `Extract Information` when:
+- **Application generates dynamic values** - Order numbers, IDs, codes, references
+- **You need to verify values across pages** - Confirming data appears consistently
+- **Values change each test run** - Can't hardcode because values are unique
+- **Testing multi-step workflows** - Capturing information from one step to use in another
+- **Validating data persistence** - Ensuring values save and reload correctly
+
+**Example scenarios**:
+```
+Capture order number to verify in history:
+Extract information about the order number with key ORDER_ID
+
+Capture confirmation code to check email:
+Extract information about the confirmation code with key CONFIRMATION
+
+Capture username to verify in profile:
+Extract information about the username with key USERNAME
+
+Capture invoice ID for API validation:
+Extract information about the invoice ID with key INVOICE_ID
+```
+
+### Use `Variables` when:
+- **Values are known before the test runs** - Test credentials, URLs, configuration
+- **Values don't change during the test** - Static data you control
+- **Same values across multiple tests** - Shared configuration or test data
+
+**Example scenarios**:
+```
+{{variable:TEST_EMAIL}} - Known test account email
+{{variable:APP_URL}} - Application base URL
+{{variable:API_KEY}} - API authentication key
+```
+
+### Use `Random Data` when:
+- **You need unique values for testing** - Autonoma generates them for you
+- **Testing registration or creation flows** - Need fresh data each run
+- **Values don't need to be extracted** - Generated and used immediately
+
+**Example scenarios**:
+```
+{{random:email}} - Generates test@example.com format
+{{random:first_name}} - Generates realistic first names
+{{random:company_name}} - Generates company names
+{{random:phone_number}} - Generates phone numbers
+```
+
+### The Key Distinction
+
+**Variables** (`{{variable:NAME}}`): You control the value (set before test runs)
+
+**Random data** (`{{random:type}}`): Autonoma controls the value (generates during test)
+
+**Keys** (`{{key:NAME}}`): Your application controls the value (extraction captures it)
+
+**Think of it this way**:
+- **Variables**: "I'm logging in as test@example.com" (you decided)
+- **Random**: "I'm registering as alice.jones.x7k9@example.com" (Autonoma generated)
+- **Keys**: "My order number is #A7B3X9" (your app created, extraction captured)
+
+## Real-World Scenarios
+
+### Scenario 1: E-Commerce Order Tracking
+
+**The test**:
+```
+Test: "Order appears in history after purchase"
+
+Complete Purchase:
+1. Navigate to {{variable:APP_URL}}/products
+2. Add product to cart
+3. Proceed to checkout
+4. Complete checkout form
+5. Click: "Place Order"
+6. Wait until: Confirmation page loads
+
+Capture Order Information:
+7. Extract information about the order number with key ORDER_ID
+8. Extract information about the order total with key ORDER_TOTAL
+9. Extract information about the estimated delivery date with key DELIVERY_DATE
+
+Verify in Order History:
+10. Navigate to {{variable:APP_URL}}/account/orders
+11. Wait until: Order history loads
+12. Assert: Order {{key:ORDER_ID}} appears in the list
+13. Assert: Order shows total {{key:ORDER_TOTAL}}
+14. Assert: Delivery date shows {{key:DELIVERY_DATE}}
+
+Verify Order Details Page:
+15. Click: Order {{key:ORDER_ID}}
+16. Wait until: Order details page loads
+17. Assert: Page heading shows "Order {{key:ORDER_ID}}"
+18. Assert: Order total displays {{key:ORDER_TOTAL}}
+19. Assert: Estimated delivery shows {{key:DELIVERY_DATE}}
+```
+
+**Why extraction is essential**:
+Without extraction, you couldn't verify the order across multiple pages because you wouldn't know which order to look for.
+
+### Scenario 2: Account Balance Validation
+
+**The test**:
+```
+Test: "Balance updates correctly through transactions"
+
+Check Starting Balance:
+1. Navigate to {{variable:APP_URL}}/account
+2. Wait until: Account page loads
+3. Extract information about the balance with key BALANCE_START
+
+Make Purchase:
+4. Navigate to products
+5. Purchase item for $25.50
+6. Wait until: Purchase completes
+
+Verify Balance Updated:
+7. Navigate to account
+8. Extract information about the balance with key BALANCE_AFTER_PURCHASE
+9. Math Assert: "{{key:BALANCE_AFTER_PURCHASE}} = {{key:BALANCE_START}} - 25.50"
+
+Add Funds:
+10. Click: "Add Funds"
+11. Add $50.00 to account
+12. Wait until: Funds added
+
+Verify Balance Updated Again:
+13. Extract information about the balance with key BALANCE_AFTER_ADDITION
+14. Math Assert: "{{key:BALANCE_AFTER_ADDITION}} = {{key:BALANCE_AFTER_PURCHASE}} + 50.00"
+
+Overall Balance Check:
+15. Math Assert: "{{key:BALANCE_AFTER_ADDITION}} = {{key:BALANCE_START}} - 25.50 + 50.00"
+```
+
+**Progressive validation**:
+Each extraction captures the balance at a specific point, allowing validation of each transaction's effect.
+
+### Scenario 3: Support Ticket Workflow
+
+**The test**:
+```
+Test: "Support ticket lifecycle from creation to resolution"
+
+Create Ticket:
+1. Navigate to {{variable:APP_URL}}/support
+2. Click: "New Ticket"
+3. Type "Cannot reset password" in subject field
+4. Type "The password reset link doesn't work" in description
+5. Click: "Submit"
+6. Wait until: Confirmation appears
+
+Capture Ticket Details:
+7. Extract information about the ticket number with key TICKET_NUMBER
+8. Extract information about the submission date with key SUBMIT_DATE
+9. Assert: "Ticket {{key:TICKET_NUMBER}} created" message appears
+
+Verify in Ticket List:
+10. Navigate to {{variable:APP_URL}}/support/my-tickets
+11. Wait until: Ticket list loads
+12. Assert: Ticket {{key:TICKET_NUMBER}} appears
+13. Assert: Ticket shows subject "Cannot reset password"
+14. Assert: Status shows "Open"
+
+View Ticket Details:
+15. Click: Ticket {{key:TICKET_NUMBER}}
+16. Wait until: Ticket details load
+17. Assert: Ticket heading shows "Ticket #{{key:TICKET_NUMBER}}"
+18. Assert: Subject displays "Cannot reset password"
+19. Assert: Submission date shows {{key:SUBMIT_DATE}}
+
+Add Comment:
+20. Type "I tried again and still not working" in comment field
+21. Click: "Add Comment"
+22. Wait until: Comment added
+23. Assert: Comment appears on ticket {{key:TICKET_NUMBER}}
+
+Simulate Admin Response:
+24. Simulate admin update
+25. Refresh page
+26. Assert: Ticket {{key:TICKET_NUMBER}} status changed to "In Progress"
+```
+
+**Complete workflow validation**:
+The extracted ticket number allows verification across all stages of the ticket lifecycle.
+
+### Scenario 4: Referral Code Sharing
+
+**The test**:
+```
+Test: "Referral code sharing and attribution"
+
+Generate Referral Code:
+1. Log in as user A
+2. Navigate to {{variable:APP_URL}}/referrals
+3. Click: "Generate My Referral Code"
+4. Wait until: Code appears
+5. Extract information about the referral code with key REFERRAL_CODE
+6. Extract information about the referral link with key REFERRAL_LINK
+7. Assert: Code {{key:REFERRAL_CODE}} is displayed
+
+Share and Use Code:
+8. Log out
+9. Navigate to {{key:REFERRAL_LINK}}
+10. Wait until: Registration page loads
+11. Assert: "Referred by user A" message appears
+12. Assert: Referral code {{key:REFERRAL_CODE}} is pre-filled or visible
+
+Complete Registration:
+13. Complete registration as user B
+14. Wait until: Registration completes
+15. Assert: Account shows "Referred by: {{key:REFERRAL_CODE}}"
+
+Verify Referrer Credit:
+16. Log out
+17. Log in as user A
+18. Navigate to {{variable:APP_URL}}/referrals
+19. Assert: Referral count increased by 1
+20. Assert: User B appears in referral list with code {{key:REFERRAL_CODE}}
+```
+
+**Cross-user validation**:
+The extracted referral code connects actions across different user sessions.
+
+### Scenario 5: Invoice Generation and Download
+
+**The test**:
+```
+Test: "Invoice generation and consistency"
+
+Complete Purchase:
+1. Complete checkout for $87.49
+2. Wait until: Order confirmation appears
+
+Extract Order Details:
+3. Extract information about the order number with key ORDER_NUMBER
+4. Extract information about the invoice number with key INVOICE_NUMBER
+5. Extract information about the order date with key ORDER_DATE
+6. Extract information about the total amount with key TOTAL
+
+View Invoice:
+7. Click: "View Invoice"
+8. Wait until: Invoice page loads
+9. Assert: Invoice page shows invoice number {{key:INVOICE_NUMBER}}
+10. Assert: Invoice shows order number {{key:ORDER_NUMBER}}
+11. Assert: Invoice date matches {{key:ORDER_DATE}}
+12. Assert: Invoice total shows {{key:TOTAL}}
+
+Verify in Account:
+13. Navigate to {{variable:APP_URL}}/account/invoices
+14. Assert: Invoice {{key:INVOICE_NUMBER}} appears in list
+15. Click: Invoice {{key:INVOICE_NUMBER}}
+16. Assert: Invoice details match order {{key:ORDER_NUMBER}}
+
+Test Invoice Download:
+17. Click: "Download PDF"
+18. Wait until: Download completes
+19. Assert: Downloaded filename contains {{key:INVOICE_NUMBER}}
+```
+
+**Data consistency verification**:
+Extracted values ensure the same information appears correctly across multiple views.
+
+### Scenario 6: User Registration Data Persistence
+
+**The test**:
+```
+Test: "Registration data persists and displays correctly"
+
+Generate Registration Data:
+1. Navigate to {{variable:APP_URL}}/register
+2. Type {{random:email}} in email field
+3. Type {{random:first_name}} in first name field
+4. Type {{random:last_name}} in last name field
+5. Type {{random:company_name}} in company field
+6. Complete registration
+
+Extract Registration Data:
+7. Wait until: Profile page loads
+8. Extract information about the email with key USER_EMAIL
+9. Extract information about the first name with key FIRST_NAME
+10. Extract information about the last name with key LAST_NAME
+11. Extract information about the company with key COMPANY
+
+Verify in Navigation:
+12. Assert: Navigation shows {{key:FIRST_NAME}} {{key:LAST_NAME}}
+13. Assert: User menu displays {{key:USER_EMAIL}}
+
+Verify in Profile:
+14. Navigate to {{variable:APP_URL}}/profile
+15. Assert: Email field shows {{key:USER_EMAIL}}
+16. Assert: First name shows {{key:FIRST_NAME}}
+17. Assert: Last name shows {{key:LAST_NAME}}
+18. Assert: Company shows {{key:COMPANY}}
+
+Test After Logout/Login:
+19. Log out
+20. Log in with {{key:USER_EMAIL}}
+21. Wait until: Dashboard loads
+22. Assert: Welcome message includes {{key:FIRST_NAME}}
+23. Navigate to profile
+24. Assert: All profile data still matches extracted values
+```
+
+**Persistence validation**:
+Extraction confirms data persists correctly through the session and after re-authentication.
+
+## Platform Support
+
+The `Extract Information` interaction works on both platforms:
+
+**Web**: ✓ Fully supported
+**Mobile**: ✓ Fully supported
+
+The same extraction syntax works identically across web and mobile applications.
+
+### Platform-Specific Extraction Examples
+
+**Web applications**:
+```
+Extract information about the user ID with key USER_ID
+Extract information about the session token with key SESSION_TOKEN
+Extract information about the page title with key PAGE_TITLE
+Extract information about the copyright year with key COPYRIGHT_YEAR
+```
+
+**Mobile applications**:
+```
+Extract information about the device ID with key DEVICE_ID
+Extract information about the push notification token with key PUSH_TOKEN
+Extract information about the app version with key APP_VERSION
+Extract information about the username with key USERNAME
+```
+
+**Both platforms**:
+```
+Extract information about the order number with key ORDER_NUMBER
+Extract information about the balance with key BALANCE
+Extract information about the profile picture URL with key AVATAR_URL
+Extract information about the last login time with key LAST_LOGIN
+```
+
+## Example Prompts with Context
+
+Here are real-world extraction examples you can use in your tests:
+
+### Order and Transaction Information
+```
+Extract information about the order number with key ORDER_NUMBER
+Extract information about the transaction ID with key TRANSACTION_ID
+Extract information about the confirmation code with key CONFIRMATION_CODE
+Extract information about the tracking number with key TRACKING_NUMBER
+Extract information about the invoice number with key INVOICE_NUMBER
+```
+
+### Financial Information
+```
+Extract information about the balance with key ACCOUNT_BALANCE
+Extract information about the total amount with key TOTAL_AMOUNT
+Extract information about the subtotal with key SUBTOTAL
+Extract information about the tax amount with key TAX
+Extract information about the discount applied with key DISCOUNT
+```
+
+### User Information
+```
+Extract information about the username with key USERNAME
+Extract information about the email address with key EMAIL
+Extract information about the user ID with key USER_ID
+Extract information about the profile name with key PROFILE_NAME
+Extract information about the phone number with key PHONE
+```
+
+### Date and Time Information
+```
+Extract information about the order date with key ORDER_DATE
+Extract information about the delivery date with key DELIVERY_DATE
+Extract information about the expiration date with key EXPIRATION_DATE
+Extract information about the last updated time with key LAST_UPDATED
+Extract information about the timestamp with key TIMESTAMP
+```
+
+### Product and Inventory Information
+```
+Extract information about the product ID with key PRODUCT_ID
+Extract information about the SKU with key SKU_NUMBER
+Extract information about the product price with key PRICE
+Extract information about the stock quantity with key STOCK_QTY
+Extract information about the product name with key PRODUCT_NAME
+```
+
+### Booking and Reservation Information
+```
+Extract information about the booking reference with key BOOKING_REF
+Extract information about the reservation number with key RESERVATION_NUMBER
+Extract information about the check-in date with key CHECKIN_DATE
+Extract information about the check-out date with key CHECKOUT_DATE
+Extract information about the guest count with key GUEST_COUNT
+```
+
+### Support and Ticket Information
+```
+Extract information about the ticket number with key TICKET_NUMBER
+Extract information about the case ID with key CASE_ID
+Extract information about the support agent name with key AGENT_NAME
+Extract information about the ticket status with key TICKET_STATUS
+Extract information about the priority level with key PRIORITY
+```
+
+### Authentication and Session Information
+```
+Extract information about the session ID with key SESSION_ID
+Extract information about the authentication token with key AUTH_TOKEN
+Extract information about the API key with key API_KEY
+Extract information about the refresh token with key REFRESH_TOKEN
+```
+
+### Codes and Identifiers
+```
+Extract information about the coupon code with key COUPON_CODE
+Extract information about the promo code with key PROMO_CODE
+Extract information about the referral code with key REFERRAL_CODE
+Extract information about the access code with key ACCESS_CODE
+Extract information about the verification code with key VERIFICATION_CODE
+```
+
+### URLs and Links
+```
+Extract information about the share link with key SHARE_LINK
+Extract information about the download URL with key DOWNLOAD_URL
+Extract information about the redirect URL with key REDIRECT_URL
+Extract information about the profile URL with key PROFILE_URL
+```
+
+## Best Practices for Effective Extraction
+
+### 1. Extract Immediately When Values Appear
+
+**Poor timing**:
+```
+1. Complete checkout
+2. Navigate to another page
+3. Extract information about order number ← Too late! You left the page
+```
+
+**Good timing**:
+```
+1. Complete checkout
+2. Wait until: Confirmation appears
+3. Extract information about order number with key ORDER_NUMBER ← Right after it appears
+4. Navigate to another page
+```
+
+Extract values as soon as they appear on screen.
+
+### 2. Use Descriptive Key Names
+
+**Vague**:
+```
+Extract information about the number with key NUM
+Extract information about the code with key CODE
+Extract information about the ID with key ID
+```
+
+**Descriptive**:
+```
+Extract information about the order number with key ORDER_NUMBER
+Extract information about the confirmation code with key CONFIRMATION_CODE
+Extract information about the user ID with key USER_ID
+```
+
+Clear key names make your test easier to understand and maintain.
+
+### 3. Extract Before Navigating Away
+
+Once you navigate away from a page, you can't extract from it:
+
+```
+1. View order confirmation
+2. Extract information about order number with key ORDER_NUMBER ← Do this BEFORE step 3
+3. Click: "Continue Shopping"
+4. Navigate to products
+```
+
+### 4. Extract Multiple Related Values
+
+When related data appears together, extract all of it:
+
+```
+On order confirmation:
+1. Extract information about the order number with key ORDER_NUMBER
+2. Extract information about the order total with key ORDER_TOTAL
+3. Extract information about the order date with key ORDER_DATE
+4. Extract information about the delivery estimate with key DELIVERY_DATE
+```
+
+This allows comprehensive validation later.
+
+### 5. Be Specific About What to Extract
+
+**Vague**:
+```
+Extract information about the number with key NUM
+```
+
+**Specific**:
+```
+Extract information about the order number with key ORDER_NUMBER
+```
+
+The more specific your description, the more reliably Autonoma can find and extract the correct value.
+
+### 6. Handle Empty Values Appropriately
+
+The interaction documentation notes: "In case the value is empty or has no value just return an empty string."
+
+**Example**: Extracting from an empty input field:
+```
+1. Navigate to profile
+2. Extract information about the middle name with key MIDDLE_NAME
+```
+
+If the middle name field is empty, the key will contain an empty string. Your test should handle this:
+
+```
+3. If {{key:MIDDLE_NAME}} is not empty:
+4.   Assert: Middle name appears in header
+5. Otherwise:
+6.   Assert: Middle initial not displayed
+```
+
+### 7. Verify Extraction Succeeded
+
+After extracting, immediately verify the value makes sense:
+
+```
+1. Extract information about the order number with key ORDER_NUMBER
+2. Assert: Order number {{key:ORDER_NUMBER}} is displayed
+3. Assert: Order number starts with "#"
+```
+
+This confirms extraction worked before you rely on the value later.
+
+### 8. Use Keys in Assertions for Robust Testing
+
+**Fragile**:
+```
+Assert: Order appears in list
+```
+
+**Robust**:
+```
+Assert: Order {{key:ORDER_NUMBER}} appears in list
+```
+
+Using extracted keys makes assertions specific to the current test execution.
+
+## Common Pitfalls and How to Avoid Them
+
+### Pitfall 1: Extracting After Navigating Away
+
+**Problem**:
+```
+1. Complete checkout
+2. Click: "Continue Shopping"
+3. Extract information about order number ← Page is gone!
+```
+
+**Solution**:
+```
+1. Complete checkout
+2. Extract information about order number with key ORDER_NUMBER
+3. Click: "Continue Shopping"
+```
+
+Always extract before navigation.
+
+### Pitfall 2: Using Keys Before Extraction
+
+**Problem**:
+```
+1. Navigate to order history
+2. Assert: Order {{key:ORDER_NUMBER}} appears ← ORDER_NUMBER doesn't exist yet!
+```
+
+**Solution**:
+```
+1. Complete checkout
+2. Extract information about order number with key ORDER_NUMBER
+3. Navigate to order history
+4. Assert: Order {{key:ORDER_NUMBER}} appears
+```
+
+Extract before using.
+
+### Pitfall 3: Vague Extraction Descriptions
+
+**Problem**:
+```
+Extract information about the ID with key ID
+```
+
+**Why it's problematic**: Your page might have multiple IDs (user ID, order ID, product ID, session ID). Which one?
+
+**Solution**:
+```
+Extract information about the order ID with key ORDER_ID
+```
+
+Be specific about which ID to extract.
+
+### Pitfall 4: Not Handling Missing Values
+
+**Problem**:
+```
+1. Extract information about the coupon code with key COUPON
+2. Assert: Coupon {{key:COUPON}} applied ← Fails if no coupon was used
+```
+
+**Solution**:
+```
+1. Extract information about the coupon code with key COUPON
+2. If coupon was applied:
+3.   Assert: Coupon {{key:COUPON}} shows discount
+4. Otherwise:
+5.   Assert: No coupon code displayed
+```
+
+Account for scenarios where the value might be empty.
+
+### Pitfall 5: Confusing Extraction with Variables
+
+**Problem**:
+```
+Trying to use {{variable:ORDER_NUMBER}} but it's actually an extracted key
+```
+
+**Why it fails**: Variables are set before the test runs. Extracted values are captured during the test.
+
+**Solution**:
+```
+Use {{key:ORDER_NUMBER}} for extracted values
+Use {{variable:TEST_EMAIL}} for pre-set variables
+```
+
+### Pitfall 6: Extracting Complex Objects
+
+**Problem**:
+```
+Extract information about the entire order details object with key ORDER
+```
+
+**Why it's problematic**: The interaction extracts visual information, not data structures.
+
+**Solution**:
+```
+Extract individual pieces of information:
+1. Extract information about the order number with key ORDER_NUMBER
+2. Extract information about the order total with key ORDER_TOTAL
+3. Extract information about the order status with key ORDER_STATUS
+```
+
+Extract specific values, not complex objects.
+
+### Pitfall 7: Extracting Non-Visible Information
+
+**Problem**:
+```
+Extract information about the hidden field value with key HIDDEN_VALUE
+```
+
+**Why it might fail**: Extraction works on visible information. Hidden values might not be extractable.
+
+**Solution**: If you need hidden values, use API calls or other inspection methods:
+```
+1. Make API call: GET /api/order/details
+2. Extract information from API response
+```
+
+## Debugging Extraction Failures
+
+When extraction fails, you need to determine why the information couldn't be captured.
+
+### Common Failure Scenarios
+
+**Scenario 1: Information Not Found**
+```
+Step 5: Extract information about the order number with key ORDER_NUMBER
+Failed: Could not locate order number on the page
+```
+
+**Debugging**:
+1. Check the screenshot—is the order number actually visible?
+2. Is it displayed differently than described? (Maybe "Order ID" instead of "order number")
+3. Did the previous step complete successfully?
+4. Is the information in a collapsed section or hidden element?
+
+**Scenario 2: Ambiguous Description**
+```
+Step 3: Extract information about the code with key CODE
+Failed: Multiple code values found on page
+```
+
+**Debugging**:
+1. Be more specific: "confirmation code" instead of "code"
+2. Provide more context: "the confirmation code below the order summary"
+3. Check if multiple codes are displayed (promo code, order code, etc.)
+
+**Scenario 3: Timing Issue**
+```
+Step 7: Extract information about the total with key TOTAL
+Failed: Total not yet displayed
+```
+
+**Debugging**:
+1. Add a wait before extraction: `Wait until: Order total appears`
+2. Ensure asynchronous calculations complete before extracting
+3. Check if page is still loading
+
+## Advanced Extraction Patterns
+
+### Pattern 1: Extract and Validate Consistency
+
+```
+Test: "Order data consistent across all pages"
+
+On confirmation page:
+1. Extract information about order number with key ORDER_NUMBER
+2. Extract information about order total with key ORDER_TOTAL
+3. Extract information about order date with key ORDER_DATE
+
+In order history:
+4. Navigate to order history
+5. Assert: Order {{key:ORDER_NUMBER}} shows total {{key:ORDER_TOTAL}}
+6. Assert: Order {{key:ORDER_NUMBER}} shows date {{key:ORDER_DATE}}
+
+In order details:
+7. Click: Order {{key:ORDER_NUMBER}}
+8. Assert: Details page shows order number {{key:ORDER_NUMBER}}
+9. Assert: Details page shows total {{key:ORDER_TOTAL}}
+10. Assert: Details page shows date {{key:ORDER_DATE}}
+
+Via API:
+11. Make API call: GET /api/orders/{{key:ORDER_NUMBER}}
+12. Assert: API response total matches {{key:ORDER_TOTAL}}
+13. Assert: API response date matches {{key:ORDER_DATE}}
+```
+
+### Pattern 2: Extract for Email Verification
+
+```
+Test: "Confirmation email contains correct order information"
+
+Complete order:
+1. Complete checkout
+2. Extract information about order number with key ORDER_NUMBER
+3. Extract information about customer email with key EMAIL
+
+Verify email:
+4. Access email inbox for {{key:EMAIL}}
+5. Find confirmation email
+6. Assert: Email subject contains {{key:ORDER_NUMBER}}
+7. Assert: Email body shows order {{key:ORDER_NUMBER}}
+```
+
+### Pattern 3: Extract Chain for Multi-Step Workflows
+
+```
+Test: "Complete workflow from quote to invoice"
+
+Generate quote:
+1. Create quote
+2. Extract information about quote number with key QUOTE_NUMBER
+
+Convert to order:
+3. Click: "Convert to Order"
+4. Extract information about order number with key ORDER_NUMBER
+5. Assert: Order references quote {{key:QUOTE_NUMBER}}
+
+Generate invoice:
+6. Click: "Generate Invoice"
+7. Extract information about invoice number with key INVOICE_NUMBER
+8. Assert: Invoice references order {{key:ORDER_NUMBER}}
+9. Assert: Invoice references quote {{key:QUOTE_NUMBER}}
+```
+
+### Pattern 4: Extract for Comparison Testing
+
+```
+Test: "Price matches across cart and checkout"
+
+In cart:
+1. Extract information about item price with key CART_PRICE
+2. Extract information about item quantity with key CART_QUANTITY
+3. Extract information about cart subtotal with key CART_SUBTOTAL
+
+In checkout:
+4. Proceed to checkout
+5. Extract information about item price with key CHECKOUT_PRICE
+6. Extract information about item quantity with key CHECKOUT_QUANTITY
+7. Extract information about subtotal with key CHECKOUT_SUBTOTAL
+
+Validate consistency:
+8. Assert: {{key:CHECKOUT_PRICE}} matches {{key:CART_PRICE}}
+9. Assert: {{key:CHECKOUT_QUANTITY}} matches {{key:CART_QUANTITY}}
+10. Assert: {{key:CHECKOUT_SUBTOTAL}} matches {{key:CART_SUBTOTAL}}
+```
+
+## Combining Extract Information with Other Interactions
+
+### With Math Assert
+
+Validate calculations using extracted values:
+
+```
+1. Extract information about subtotal with key SUBTOTAL
+2. Extract information about tax with key TAX
+3. Extract information about total with key TOTAL
+4. Math Assert: "{{key:TOTAL}} = {{key:SUBTOTAL}} + {{key:TAX}}"
+```
+
+### With API Calls
+
+Compare UI values with API responses:
+
+```
+1. Extract information about order total from UI with key UI_TOTAL
+2. Extract information about order ID with key ORDER_ID
+3. Make API call: GET /api/orders/{{key:ORDER_ID}}
+4. Extract information about total from API response with key API_TOTAL
+5. Assert: {{key:UI_TOTAL}} equals {{key:API_TOTAL}}
+```
+
+### With Email Testing
+
+Verify email content matches application data:
+
+```
+1. Complete registration
+2. Extract information about username with key USERNAME
+3. Extract information about email with key USER_EMAIL
+4. Retrieve welcome email
+5. Assert: Email greeting includes {{key:USERNAME}}
+6. Assert: Email sent to {{key:USER_EMAIL}}
+```
+
+### With Loops
+
+Extract values in repeated operations:
+
+```
+For each item in cart:
+1. Extract information about item name with key ITEM_NAME
+2. Extract information about item price with key ITEM_PRICE
+3. Extract information about item quantity with key ITEM_QTY
+4. Math Assert: "line total = {{key:ITEM_PRICE}} * {{key:ITEM_QTY}}"
+```
+
+## Real-World Complete Example
+
+Here's a comprehensive test showing extraction throughout a complete flow:
+
+```
+Test: "End-to-end order verification across all touchpoints"
+
+Account Setup:
+1. Log in as test user
+2. Extract information about username with key USERNAME
+3. Extract information about starting balance with key BALANCE_START
+
+Create Order:
+4. Navigate to products
+5. Add $25.50 product to cart
+6. Add $42.00 product to cart
+7. Proceed to checkout
+8. Complete checkout
+
+Capture Order Information:
+9. Wait until: Confirmation page loads
+10. Extract information about order number with key ORDER_NUMBER
+11. Extract information about order total with key ORDER_TOTAL
+12. Extract information about order date with key ORDER_DATE
+13. Extract information about items count with key ITEMS_COUNT
+14. Extract information about delivery estimate with key DELIVERY_DATE
+
+Verify Math:
+15. Math Assert: "{{key:ORDER_TOTAL}} = 25.50 + 42.00"
+16. Math Assert: "{{key:ORDER_TOTAL}} = 67.50"
+17. Math Assert: "{{key:ITEMS_COUNT}} = 2"
+
+Check Balance Updated:
+18. Navigate to account
+19. Extract information about new balance with key BALANCE_NEW
+20. Math Assert: "{{key:BALANCE_NEW}} = {{key:BALANCE_START}} - {{key:ORDER_TOTAL}}"
+
+Verify in Order History:
+21. Navigate to order history
+22. Assert: Order {{key:ORDER_NUMBER}} appears in list
+23. Assert: Order {{key:ORDER_NUMBER}} shows total ${{key:ORDER_TOTAL}}
+24. Assert: Order {{key:ORDER_NUMBER}} shows {{key:ITEMS_COUNT}} items
+25. Assert: Order {{key:ORDER_NUMBER}} shows date {{key:ORDER_DATE}}
+
+Check Order Details Page:
+26. Click: Order {{key:ORDER_NUMBER}}
+27. Wait until: Details page loads
+28. Assert: Heading shows "Order #{{key:ORDER_NUMBER}}"
+29. Assert: Order total displays ${{key:ORDER_TOTAL}}
+30. Assert: Ordered on {{key:ORDER_DATE}}
+31. Assert: Estimated delivery {{key:DELIVERY_DATE}}
+32. Assert: Order placed by {{key:USERNAME}}
+
+Verify via API:
+33. Make API call: GET /api/users/{{key:USERNAME}}/orders/{{key:ORDER_NUMBER}}
+34. Assert: API response status = "confirmed"
+35. Assert: API response total = {{key:ORDER_TOTAL}}
+36. Assert: API response items count = {{key:ITEMS_COUNT}}
+
+Check Confirmation Email:
+37. Retrieve order confirmation email
+38. Assert: Email subject contains "Order {{key:ORDER_NUMBER}}"
+39. Assert: Email body shows total ${{key:ORDER_TOTAL}}
+40. Assert: Email shows delivery estimate {{key:DELIVERY_DATE}}
+```
+
+**Extraction throughout the flow**:
+Values extracted once are verified across UI, API, and email—ensuring complete consistency.
+
+## What's Next
+
+You now understand how to give your tests memory—extracting dynamic information from your application and reusing it throughout your test flows. This unlocks testing of complex, multi-step workflows that involve application-generated values.
+
+Extraction is one of the four fundamental verification techniques in Autonoma:
+- **Assert** - Verify visual elements and content exist
+- **Assert URL Location** - Validate navigation and routing
+- **Math Assert** - Check mathematical calculations
+- **Extract Information** - Capture and reuse dynamic data
+
+Together, these interactions give you complete control over test validation—from simple presence checks to complex multi-step workflow verification with data capture and calculation validation.
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

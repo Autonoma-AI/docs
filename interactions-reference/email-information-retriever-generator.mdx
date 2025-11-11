@@ -1,0 +1,1061 @@
+---
+title: "Email Information Retriever Generator"
+description: "Generate temporary test email addresses for testing email-driven workflows—the essential first step for registration flows, OTP verification, and any feature requiring email communication."
+---
+
+## What is Email Information Retriever Generator?
+
+The Email Information Retriever Generator creates temporary, unique email addresses that you can use in your tests. These aren't real email addresses that require you to set up accounts or manage inboxes—they're special test email addresses that Autonoma manages for you, complete with accessible inboxes you can read from during test execution.
+
+Think of it as having an unlimited supply of disposable email addresses that:
+- Are created instantly when needed
+- Have working inboxes that receive emails
+- Can be read by Email Information Retriever during tests
+- Are automatically cleaned up after testing
+
+This is the foundation of email testing in Autonoma. Without generating an email first, you can't retrieve information from emails. The generator creates the email address, your application sends emails to it, and the retriever extracts information from those emails.
+
+## The Email Testing Challenge
+
+Modern applications depend heavily on email for critical functionality:
+
+**User Registration**
+```
+Problem: How do you test email verification without using real email accounts?
+Solution: Generate test email, complete registration, retrieve verification code
+```
+
+**Password Resets**
+```
+Problem: How do you automate testing password reset flows that require email?
+Solution: Generate test email, request reset, retrieve reset link from email
+```
+
+**Two-Factor Authentication**
+```
+Problem: How do you test 2FA that sends codes to email?
+Solution: Generate test email, trigger 2FA, retrieve code from email
+```
+
+**Notification Testing**
+```
+Problem: How do you verify emails contain correct information without manual checking?
+Solution: Generate test email, trigger notification, retrieve and verify content
+```
+
+**Traditional approaches fail:**
+- **Real email accounts**: Require manual setup, checking, and maintenance
+- **Mocking email**: Doesn't test actual email delivery and content
+- **Skipping email steps**: Leaves critical functionality untested
+- **Database manipulation**: Bypasses the real user flow
+
+**Email Information Retriever Generator solves this** by creating test emails that work like real ones but are fully automated and disposable.
+
+## When to Use Email Information Retriever Generator
+
+### Use Email Information Retriever Generator when:
+
+**Testing any flow requiring email addresses**
+```
+Registration forms
+Contact forms
+Newsletter signups
+Account creation
+Profile updates
+```
+
+**Testing email verification workflows**
+```
+Email-based OTP authentication
+Magic link login
+Password reset flows
+Account activation
+Email change confirmation
+```
+
+**Testing notification delivery**
+```
+Order confirmations
+Account balance updates
+Transaction receipts
+Welcome emails
+Status change notifications
+```
+
+**Testing multi-user scenarios**
+```
+Generate different emails for different test users
+Test interaction between multiple accounts
+Verify email isolation between users
+```
+
+**Before using Email Information Retriever**
+```
+Must generate email first
+Then can retrieve information from emails sent to that address
+```
+
+### Don't use when:
+
+**Testing email sending itself**
+```
+If you only need to verify email was sent to external service
+Not testing content or retrieving information
+```
+
+**Using hardcoded test accounts**
+```
+If you have permanent test accounts with real email
+Though generated emails are usually better for automation
+```
+
+**Testing without email interaction**
+```
+Flows that don't involve email at all
+Use standard testing interactions
+```
+
+## How It Works
+
+When you use Email Information Retriever Generator:
+
+1. **Generation Request**: You specify what type of email testing you'll do (OTP, magic link, balance info, etc.)
+2. **Email Creation**: Autonoma generates a unique, temporary email address
+3. **Inbox Setup**: A working inbox is created for that email address
+4. **Email Return**: The generated email address is provided for use in your test
+5. **Email Receiving**: Any emails sent to this address are captured
+6. **Information Retrieval**: Use Email Information Retriever to extract data from received emails
+
+### Typical Flow
+
+```
+Generate:
+1. Generate an email for otp
+2. Extract generated email with key TEST_EMAIL
+
+Use:
+3. Fill registration form with {{key:TEST_EMAIL}}
+4. Submit form
+
+Retrieve:
+5. Wait for email delivery
+6. Retrieve the otp from the email
+7. Extract code and use in application
+```
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+Email Information Retriever Generator works identically across platforms since email generation is platform-independent.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing User Registration with Email Verification
+
+You're testing a complete registration flow that requires email address verification.
+
+```
+Test: "Complete user registration with email verification"
+
+Generate Test Email:
+1. Generate an email for otp
+2. Extract generated email address with key REGISTRATION_EMAIL
+
+Navigate and Start Registration:
+3. Navigate to {{variable:APP_URL}}/register
+4. Wait until: Registration form loads
+
+Fill Registration Form:
+5. Input text: {{random:first_name}} in first name field
+6. Extract entered name with key FIRST_NAME
+7. Input text: {{random:last_name}} in last name field
+8. Input text: {{key:REGISTRATION_EMAIL}} in email field
+9. Input text: {{random:password}} in password field
+10. Extract password with key USER_PASSWORD
+11. Click "Create Account" button
+
+Handle Email Verification:
+12. Wait until: "Verify your email" page loads
+13. Wait 5 seconds for email delivery
+14. Retrieve the otp from the email
+15. Extract information about verification code with key VERIFICATION_CODE
+16. Input text: {{key:VERIFICATION_CODE}} in verification field
+17. Click "Verify" button
+
+Verify Registration Complete:
+18. Wait until: Dashboard or welcome page loads
+19. Assert: "Welcome {{key:FIRST_NAME}}" message appears
+20. Assert: Email {{key:REGISTRATION_EMAIL}} is confirmed
+
+Test Login:
+21. Log out
+22. Navigate to login page
+23. Input text: {{key:REGISTRATION_EMAIL}} in email field
+24. Input text: {{key:USER_PASSWORD}} in password field
+25. Click "Sign In" button
+26. Assert: Login successful
+```
+
+**Why generator is essential**: Without it, you'd need a real email address for every test run, and you couldn't automate the verification step.
+
+### Scenario 2: Testing Password Reset Flow
+
+You're testing the complete password reset workflow from request through completion.
+
+```
+Test: "Reset password via email link"
+
+Generate Test Email and Create Account:
+1. Generate an email for magic link
+2. Extract generated email with key USER_EMAIL
+3. Create test account with email {{key:USER_EMAIL}} and password "OldPassword123"
+
+Request Password Reset:
+4. Navigate to {{variable:APP_URL}}/forgot-password
+5. Wait until: Forgot password form loads
+6. Input text: {{key:USER_EMAIL}} in email field
+7. Click "Send Reset Link" button
+8. Wait until: "Check your email" confirmation appears
+
+Retrieve Reset Link:
+9. Wait 5 seconds for email delivery
+10. Retrieve the magic link from the email
+11. Extract information about the reset link with key RESET_LINK
+
+Access Reset Page:
+12. Navigate to {{key:RESET_LINK}}
+13. Wait until: Password reset form loads
+14. Assert: Email {{key:USER_EMAIL}} is displayed or pre-filled
+
+Set New Password:
+15. Input text: "NewPassword456" in new password field
+16. Input text: "NewPassword456" in confirm password field
+17. Click "Reset Password" button
+18. Wait until: "Password updated successfully" message appears
+
+Verify Old Password No Longer Works:
+19. Navigate to login page
+20. Input text: {{key:USER_EMAIL}} in email field
+21. Input text: "OldPassword123" in password field
+22. Click "Sign In" button
+23. Assert: Login fails with "Invalid credentials"
+
+Verify New Password Works:
+24. Input text: {{key:USER_EMAIL}} in email field
+25. Input text: "NewPassword456" in password field
+26. Click "Sign In" button
+27. Wait until: Dashboard loads
+28. Assert: Login successful with new password
+```
+
+**Why generator is essential**: Each test run needs a fresh email to test the complete reset flow without interference from previous test runs.
+
+### Scenario 3: Testing Two-Factor Authentication Setup
+
+You're testing the setup and use of email-based two-factor authentication.
+
+```
+Test: "Enable and use email 2FA"
+
+Setup Test Account:
+1. Generate an email for otp
+2. Extract generated email with key USER_EMAIL
+3. Create account with {{key:USER_EMAIL}}
+4. Log in to account
+
+Enable 2FA:
+5. Navigate to security settings
+6. Click "Enable Two-Factor Authentication"
+7. Select "Email" as 2FA method
+8. Click "Send Verification Code"
+
+Verify 2FA Setup:
+9. Wait 5 seconds for email delivery
+10. Retrieve the otp from the email
+11. Extract verification code with key SETUP_CODE
+12. Input text: {{key:SETUP_CODE}} in verification field
+13. Click "Verify and Enable"
+14. Wait until: "2FA enabled" confirmation appears
+15. Assert: Email 2FA is active
+
+Test 2FA Login:
+16. Log out completely
+17. Navigate to login page
+18. Input text: {{key:USER_EMAIL}} in email field
+19. Input text: {{variable:TEST_PASSWORD}} in password field
+20. Click "Sign In" button
+
+Handle 2FA Challenge:
+21. Wait until: "Enter verification code" page loads
+22. Wait 5 seconds for 2FA email
+23. Retrieve the otp from the email
+24. Extract 2FA code with key LOGIN_CODE
+25. Input text: {{key:LOGIN_CODE}} in code field
+26. Click "Verify" button
+
+Verify Login Success:
+27. Wait until: Dashboard loads
+28. Assert: User is authenticated
+29. Assert: 2FA was successfully used
+```
+
+**Why generator is essential**: Testing 2FA requires receiving multiple verification codes, and each test run needs a clean email state.
+
+### Scenario 4: Testing Multi-User Interactions
+
+You're testing features that involve multiple users interacting, each needing separate email addresses.
+
+```
+Test: "User A shares document with User B"
+
+Setup User A:
+1. Generate an email for account number
+2. Extract email A with key USER_A_EMAIL
+3. Create account A with {{key:USER_A_EMAIL}}
+4. Log in as user A
+5. Create document "Shared Test Document"
+6. Extract document ID with key DOC_ID
+
+Setup User B:
+7. Generate an email for account number
+8. Extract email B with key USER_B_EMAIL
+9. Create account B with {{key:USER_B_EMAIL}}
+
+Share Document from User A to User B:
+10. Navigate to document {{key:DOC_ID}} as user A
+11. Click "Share" button
+12. Input text: {{key:USER_B_EMAIL}} in share with email field
+13. Select permission: "Can Edit"
+14. Click "Send Invitation" button
+15. Wait until: "Invitation sent" confirmation appears
+
+User B Receives Invitation Email:
+16. Wait 5 seconds for invitation email to {{key:USER_B_EMAIL}}
+17. Switch email context to user B
+18. Retrieve the magic link from the email
+19. Extract invitation link with key INVITATION_LINK
+
+User B Accepts Invitation:
+20. Log out from user A
+21. Log in as user B with {{key:USER_B_EMAIL}}
+22. Navigate to {{key:INVITATION_LINK}}
+23. Wait until: Document access page loads
+24. Click "Accept Invitation" button
+25. Wait until: Document {{key:DOC_ID}} opens
+
+Verify User B Can Edit:
+26. Edit document content
+27. Save changes
+28. Assert: Changes saved successfully
+
+Verify User A Sees User B's Changes:
+29. Log out from user B
+30. Log in as user A
+31. Open document {{key:DOC_ID}}
+32. Assert: User B's changes are visible
+```
+
+**Why generator is essential**: Testing multi-user features requires multiple distinct email addresses that don't interfere with each other.
+
+### Scenario 5: Testing Email Change Workflow
+
+You're testing that users can change their email address with proper verification.
+
+```
+Test: "Change account email address"
+
+Setup Original Account:
+1. Generate an email for otp
+2. Extract original email with key ORIGINAL_EMAIL
+3. Create account with {{key:ORIGINAL_EMAIL}}
+4. Log in with {{key:ORIGINAL_EMAIL}}
+
+Generate New Email:
+5. Generate an email for otp
+6. Extract new email with key NEW_EMAIL
+
+Initiate Email Change:
+7. Navigate to account settings
+8. Click "Change Email Address"
+9. Input text: {{key:NEW_EMAIL}} in new email field
+10. Click "Update Email" button
+11. Wait until: "Verify new email" message appears
+
+Verify New Email:
+12. Wait 5 seconds for verification email to {{key:NEW_EMAIL}}
+13. Switch email context to new email
+14. Retrieve the otp from the email
+15. Extract verification code with key NEW_EMAIL_CODE
+16. Input text: {{key:NEW_EMAIL_CODE}} in verification field
+17. Click "Verify New Email" button
+18. Wait until: "Email updated successfully" confirmation
+
+Verify Old Email No Longer Works:
+19. Log out
+20. Navigate to login page
+21. Input text: {{key:ORIGINAL_EMAIL}} in email field
+22. Input text: {{variable:TEST_PASSWORD}} in password field
+23. Click "Sign In" button
+24. Assert: Login fails (email no longer valid)
+
+Verify New Email Works:
+25. Input text: {{key:NEW_EMAIL}} in email field
+26. Input text: {{variable:TEST_PASSWORD}} in password field
+27. Click "Sign In" button
+28. Wait until: Dashboard loads
+29. Assert: Login successful with new email
+```
+
+**Why generator is essential**: Testing email change requires two separate email addresses—one for the original account and one for the new address.
+
+### Scenario 6: Testing Newsletter Signup and Confirmation
+
+You're testing a newsletter signup flow with double opt-in confirmation.
+
+```
+Test: "Newsletter double opt-in flow"
+
+Generate Test Email:
+1. Generate an email for magic link
+2. Extract generated email with key NEWSLETTER_EMAIL
+
+Sign Up for Newsletter:
+3. Navigate to {{variable:APP_URL}}/newsletter
+4. Wait until: Newsletter signup form loads
+5. Input text: {{key:NEWSLETTER_EMAIL}} in email field
+6. Select interests: "Technology", "Business"
+7. Click "Subscribe" button
+8. Wait until: "Check your email" message appears
+
+Confirm Subscription:
+9. Wait 5 seconds for confirmation email
+10. Retrieve the magic link from the email
+11. Extract confirmation link with key CONFIRMATION_LINK
+12. Navigate to {{key:CONFIRMATION_LINK}}
+13. Wait until: "Subscription confirmed" page loads
+
+Verify Subscription Active:
+14. Assert: "You're subscribed" message appears
+15. Assert: Selected interests are confirmed
+
+Test Unsubscribe:
+16. Click "Manage Preferences" in confirmation email
+17. Retrieve the magic link from the email
+18. Extract preferences link with key PREFERENCES_LINK
+19. Navigate to {{key:PREFERENCES_LINK}}
+20. Wait until: Preferences page loads
+21. Click "Unsubscribe" button
+22. Wait until: "Unsubscribed successfully" message appears
+
+Verify Unsubscribe Effective:
+23. Wait 5 seconds for unsubscribe confirmation email
+24. Retrieve the account number from the email
+25. Assert: Confirmation email received
+26. Assert: No longer subscribed
+```
+
+**Why generator is essential**: Testing newsletter workflows requires a clean email address for each test to avoid confusion from previous subscriptions.
+
+## Email Type Context
+
+When generating emails, you specify the type of information you expect to retrieve. This helps Autonoma understand the context:
+
+### For OTP/Verification Codes
+```
+generate an email for otp
+generate an email for verification code
+generate an email for 2fa
+```
+
+**Use when:**
+- Testing OTP authentication
+- Email verification during registration
+- Two-factor authentication codes
+- SMS-style verification codes sent to email
+
+### For Magic Links
+```
+generate an email for magic link
+generate an email for verification link
+generate an email for reset link
+```
+
+**Use when:**
+- Passwordless login flows
+- Password reset workflows
+- Account activation links
+- Email change confirmation links
+
+### For Account Information
+```
+generate an email for account balance
+generate an email for account number
+generate an email for account name
+generate an email for account type
+```
+
+**Use when:**
+- Testing bank/financial applications
+- Account statements and summaries
+- Balance notifications
+- Account detail emails
+
+The type you specify helps the retriever know what kind of information to look for when you later retrieve from the email.
+
+## Example Prompts
+
+Here are effective ways to phrase Email Information Retriever Generator commands:
+
+**For OTP testing:**
+```
+generate an email for otp
+generate an email for verification code
+create test email for otp
+generate email for 2fa code
+```
+
+**For magic link testing:**
+```
+generate an email for magic link
+generate an email for password reset
+create test email for verification link
+generate email for activation link
+```
+
+**For account information testing:**
+```
+generate an email for account balance
+generate an email for account number
+email for account name
+generate a mail for account type
+```
+
+**For general notification testing:**
+```
+generate an email for order confirmation
+generate an email for invoice
+generate email for receipt
+generate an email for notification
+```
+
+## Best Practices
+
+### 1. Generate Email at Start of Test
+
+Generate email addresses before you need them:
+
+**Good:**
+```
+1. Generate an email for otp
+2. Extract email with key TEST_EMAIL
+3. Navigate to registration page
+4. Fill form with {{key:TEST_EMAIL}}
+```
+
+**Bad:**
+```
+1. Navigate to registration page
+2. Fill form with... what email?
+3. Generate an email for otp ← Too late!
+```
+
+### 2. Always Extract Generated Email
+
+Always capture the generated email for use throughout your test:
+
+**Good:**
+```
+1. Generate an email for otp
+2. Extract generated email address with key USER_EMAIL
+3. Use {{key:USER_EMAIL}} throughout test
+```
+
+**Bad:**
+```
+1. Generate an email for otp
+2. Try to use the email... but it wasn't extracted
+```
+
+### 3. Use Descriptive Key Names
+
+When extracting generated emails, use clear key names:
+
+**Good:**
+```
+Generate an email for otp
+Extract with key REGISTRATION_EMAIL
+
+Generate an email for magic link
+Extract with key PASSWORD_RESET_EMAIL
+
+Generate an email for account balance
+Extract with key NOTIFICATION_EMAIL
+```
+
+**Bad:**
+```
+Extract with key EMAIL
+Extract with key EMAIL2
+Extract with key TEMP_EMAIL
+```
+
+### 4. Match Email Type to Usage
+
+Generate the appropriate email type for your use case:
+
+**For OTP codes:**
+```
+generate an email for otp
+```
+
+**For password reset links:**
+```
+generate an email for magic link
+```
+
+**For account balance emails:**
+```
+generate an email for account balance
+```
+
+This helps the retriever understand what to look for later.
+
+### 5. Generate Separate Emails for Multiple Users
+
+When testing multi-user scenarios, generate distinct emails:
+
+```
+Setup:
+1. Generate an email for otp
+2. Extract with key USER_A_EMAIL
+
+3. Generate an email for otp
+4. Extract with key USER_B_EMAIL
+
+5. Generate an email for otp
+6. Extract with key USER_C_EMAIL
+
+Use each email for its respective user throughout the test
+```
+
+### 6. Generate Fresh Email for Each Test
+
+Don't reuse email addresses across different test cases:
+
+**Good pattern:**
+```
+Test 1: "Registration flow"
+1. Generate an email for otp
+2. Use for registration test
+
+Test 2: "Password reset flow"
+1. Generate an email for magic link ← New email for new test
+2. Use for password reset test
+```
+
+**Bad pattern:**
+```
+Test 1: "Registration flow"
+1. Use {{variable:SHARED_EMAIL}}
+
+Test 2: "Password reset flow"
+1. Use {{variable:SHARED_EMAIL}} ← Reusing same email causes conflicts
+```
+
+### 7. Consider Email Context in Multi-Step Flows
+
+If your test involves multiple emails to the same address, the context matters:
+
+```
+Test: "Complete onboarding with multiple verifications"
+
+1. Generate an email for otp
+2. Extract with key USER_EMAIL
+
+3. Use {{key:USER_EMAIL}} for registration
+4. Retrieve registration OTP from email
+
+5. Use {{key:USER_EMAIL}} for phone verification
+6. Retrieve phone verification code from email
+
+7. Use {{key:USER_EMAIL}} for welcome email
+8. Retrieve welcome information from email
+```
+
+The same email receives multiple emails, and the retriever understands the context based on your retrieval requests.
+
+## Common Pitfalls
+
+### Pitfall 1: Forgetting to Generate Email
+
+**Problem:**
+```
+1. Navigate to registration page
+2. Retrieve the otp from the email ← No email was ever generated!
+```
+
+**Solution:**
+```
+1. Generate an email for otp FIRST
+2. Extract email address with key TEST_EMAIL
+3. Navigate to registration page
+4. Use {{key:TEST_EMAIL}} in form
+5. Then retrieve the otp
+```
+
+### Pitfall 2: Not Extracting Generated Email
+
+**Problem:**
+```
+1. Generate an email for otp
+2. Input text: ??? in email field ← Email was generated but not extracted
+```
+
+**Solution:**
+```
+1. Generate an email for otp
+2. Extract generated email address with key TEST_EMAIL
+3. Input text: {{key:TEST_EMAIL}} in email field
+```
+
+### Pitfall 3: Reusing Emails Across Tests
+
+**Problem:**
+```
+Test 1: Uses test@example.com
+Test 2: Uses test@example.com
+Tests interfere with each other
+```
+
+**Solution:**
+```
+Test 1:
+1. Generate an email for otp
+2. Extract with key TEST_EMAIL_1
+3. Use {{key:TEST_EMAIL_1}}
+
+Test 2:
+1. Generate an email for otp
+2. Extract with key TEST_EMAIL_2
+3. Use {{key:TEST_EMAIL_2}}
+
+Each test gets fresh email
+```
+
+### Pitfall 4: Wrong Email Type for Use Case
+
+**Problem:**
+```
+generate an email for account balance
+Then try to retrieve magic link from it
+```
+
+Mismatch between generation context and retrieval context.
+
+**Solution:**
+```
+For magic links: generate an email for magic link
+For OTP codes: generate an email for otp
+For balance info: generate an email for account balance
+```
+
+Match the generation type to what you'll retrieve.
+
+### Pitfall 5: Not Waiting for Email Delivery
+
+**Problem:**
+```
+1. Generate an email for otp
+2. Extract email with key TEST_EMAIL
+3. Submit form with {{key:TEST_EMAIL}}
+4. Retrieve the otp from the email ← Too fast! Email hasn't arrived
+```
+
+**Solution:**
+```
+1. Generate an email for otp
+2. Extract email with key TEST_EMAIL
+3. Submit form with {{key:TEST_EMAIL}}
+4. Wait until: "Code sent" confirmation appears
+5. Wait 5 seconds for email delivery
+6. Retrieve the otp from the email
+```
+
+### Pitfall 6: Confusing Multiple Generated Emails
+
+**Problem:**
+```
+1. Generate an email for otp
+2. Generate an email for magic link
+3. Generate an email for account balance
+4. Retrieve the otp from... which email?
+```
+
+**Solution:**
+```
+1. Generate an email for otp
+2. Extract with key OTP_EMAIL
+
+3. Generate an email for magic link
+4. Extract with key RESET_EMAIL
+
+5. Generate an email for account balance
+6. Extract with key NOTIFICATION_EMAIL
+
+Clear naming prevents confusion
+```
+
+## Advanced Patterns
+
+### Pattern 1: Testing Email Isolation Between Users
+
+```
+Test: "Verify users receive only their own emails"
+
+Generate User Emails:
+1. Generate an email for otp
+2. Extract with key USER_A_EMAIL
+3. Generate an email for otp
+4. Extract with key USER_B_EMAIL
+
+Register Users:
+5. Register user A with {{key:USER_A_EMAIL}}
+6. Register user B with {{key:USER_B_EMAIL}}
+
+Trigger Notifications:
+7. Perform action as user A that sends email
+8. Perform action as user B that sends email
+
+Verify User A's Email:
+9. Switch to user A context
+10. Retrieve information from user A's email
+11. Extract user A notification with key NOTIFICATION_A
+12. Assert: Notification A is for user A only
+
+Verify User B's Email:
+13. Switch to user B context
+14. Retrieve information from user B's email
+15. Extract user B notification with key NOTIFICATION_B
+16. Assert: Notification B is for user B only
+
+Verify No Cross-Contamination:
+17. Assert: User A didn't receive user B's notification
+18. Assert: User B didn't receive user A's notification
+```
+
+### Pattern 2: Testing Email Preferences
+
+```
+Test: "Email preferences control what emails are sent"
+
+Setup:
+1. Generate an email for account balance
+2. Extract with key USER_EMAIL
+3. Create account with {{key:USER_EMAIL}}
+
+Enable All Notifications:
+4. Navigate to email preferences
+5. Enable: "Order confirmations"
+6. Enable: "Balance updates"
+7. Enable: "Marketing emails"
+8. Save preferences
+
+Trigger Notifications:
+9. Make purchase
+10. Wait 5 seconds for order email
+11. Retrieve the account number from the email
+12. Assert: Order confirmation email received
+
+Update Balance:
+13. Add funds to account
+14. Wait 5 seconds for balance email
+15. Get the account balance from the email
+16. Assert: Balance update email received
+
+Disable Specific Notifications:
+17. Navigate to email preferences
+18. Disable: "Balance updates"
+19. Keep enabled: "Order confirmations"
+20. Save preferences
+
+Test Updated Preferences:
+21. Make another purchase
+22. Wait 5 seconds
+23. Retrieve the account number from the email
+24. Assert: Order confirmation still received
+
+25. Add more funds
+26. Wait 5 seconds
+27. Assert: No balance update email (preference disabled)
+```
+
+### Pattern 3: Testing Email Rate Limiting
+
+```
+Test: "Multiple email requests handled correctly"
+
+Setup:
+1. Generate an email for otp
+2. Extract with key TEST_EMAIL
+3. Create account with {{key:TEST_EMAIL}}
+
+Request Multiple Codes:
+4. Navigate to login with 2FA
+5. Click "Send Code" button
+6. Wait 3 seconds
+7. Click "Send Code" button again
+8. Wait 3 seconds
+9. Click "Send Code" button again
+
+Verify Rate Limiting:
+10. Assert: "Too many requests" message appears
+11. Assert: Must wait before requesting another code
+
+Wait and Retry:
+12. Wait 60 seconds for rate limit reset
+13. Click "Send Code" button
+14. Assert: Request succeeds
+
+Retrieve and Use Code:
+15. Wait 5 seconds for email
+16. Retrieve the otp from the email
+17. Extract code with key OTP_CODE
+18. Use {{key:OTP_CODE}} to complete login
+```
+
+### Pattern 4: Testing Email Content Localization
+
+```
+Test: "Emails respect user language preferences"
+
+Setup English Account:
+1. Generate an email for account balance
+2. Extract with key ENGLISH_USER_EMAIL
+3. Create account with {{key:ENGLISH_USER_EMAIL}}
+4. Set language preference: English
+
+Setup Spanish Account:
+5. Generate an email for account balance
+6. Extract with key SPANISH_USER_EMAIL
+7. Create account with {{key:SPANISH_USER_EMAIL}}
+8. Set language preference: Spanish
+
+Trigger English Email:
+9. Log in as English user
+10. Make transaction
+11. Wait 5 seconds for notification
+12. Switch to English user email context
+13. Get the account balance from the email
+14. Extract email content with key ENGLISH_CONTENT
+15. Assert: Content is in English
+
+Trigger Spanish Email:
+16. Log in as Spanish user
+17. Make transaction
+18. Wait 5 seconds for notification
+19. Switch to Spanish user email context
+20. Get the account balance from the email
+21. Extract email content with key SPANISH_CONTENT
+22. Assert: Content is in Spanish
+```
+
+## Debugging Generation Issues
+
+### Issue: Generation Failed
+
+**Error:**
+```
+Failed to generate email address
+```
+
+**Possible causes:**
+1. Service temporarily unavailable
+2. Account limitations reached
+3. Network connectivity issues
+
+**Solutions:**
+```
+# Retry generation:
+Wait 2 seconds
+Generate an email for otp again
+
+# Check account status:
+Verify test account has email generation enabled
+
+# Check network:
+Ensure test environment can reach Autonoma services
+```
+
+### Issue: Email Not Received After Generation
+
+**Problem:**
+```
+Generated email successfully
+Application sent email to that address
+But retrieval finds no email
+```
+
+**Possible causes:**
+1. Application didn't actually send the email
+2. Email delivery is delayed
+3. Wrong email address used
+
+**Solutions:**
+```
+# Verify email address was used:
+Check form submission used the extracted email
+
+# Add more wait time:
+Wait 10 seconds instead of 5
+
+# Check application logs:
+Verify application actually sent email
+
+# Verify email address:
+Print or log the generated email to confirm it's being used
+```
+
+### Issue: Retrieved Wrong Information
+
+**Problem:**
+```
+Retrieved information doesn't match what's needed
+```
+
+**Possible causes:**
+1. Mismatch between generation type and retrieval type
+2. Multiple emails received, retrieved from wrong one
+
+**Solutions:**
+```
+# Match types:
+If generating for magic link, retrieve magic link
+If generating for otp, retrieve otp
+
+# Be specific in retrieval:
+"retrieve the registration otp from the email"
+"retrieve the password reset link from the email"
+```
+
+## What's Next
+
+Now that you understand Email Information Retriever Generator, you can:
+- Create temporary test email addresses on demand
+- Test complete email-driven workflows end-to-end
+- Test multi-user scenarios with isolated email accounts
+- Test email verification, OTP, and magic link flows
+- Verify email content and delivery
+
+Email Information Retriever Generator is the foundation of email testing, working together with Email Information Retriever to provide complete email testing capabilities.
+
+Explore related interactions:
+- **Email Information Retriever**: Extract information from emails sent to generated addresses
+- **Extract Information**: Capture data from your application's UI
+- **Variables**: Store generated emails for reuse throughout tests
+- **Random Data**: Generate other test data like names and passwords
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

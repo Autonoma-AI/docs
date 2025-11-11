@@ -1,0 +1,845 @@
+---
+title: "Swipe With Condition"
+description: "Swipe on mobile elements until a specific condition is met—essential for testing carousels, infinite scroll, and swipeable lists where you need to find specific content."
+---
+
+## What is Swipe With Condition?
+
+Swipe With Condition repeatedly swipes on a specific mobile element in a given direction until a certain condition is met. This is like scrolling with a purpose—you're not just swiping once, but continuing to swipe until you find what you're looking for or reach the end of the content.
+
+Think of it as automatically swiping through a photo carousel until you reach the last image, or swiping through a list of cards until you find the specific card you want. The interaction handles the repetition for you, checking after each swipe whether the condition has been satisfied.
+
+This is critical for:
+- Testing horizontal carousels and image galleries
+- Finding specific items in swipeable lists
+- Testing infinite scroll behavior
+- Navigating through card-based interfaces
+- Reaching the end of horizontally scrollable content
+- Testing product sliders and promotional carousels
+
+## The Swipeable Content Challenge
+
+Mobile applications frequently use swipe gestures to navigate through content:
+
+**Horizontal Carousels**
+```
+Banking apps with card carousels (credit cards, accounts, etc.)
+E-commerce product image galleries
+Tutorial walkthroughs with swipeable steps
+Featured content sliders on home screens
+```
+
+**Swipeable Lists**
+```
+Horizontal scrolling categories
+Swipeable promotional banners
+Card stacks (like dating apps)
+Swipeable navigation tabs
+```
+
+**Paginated Content**
+```
+Multi-page forms with swipe navigation
+Image galleries with discrete pages
+Story viewers (Instagram-style)
+Tutorial sequences
+```
+
+**Testing challenges without Swipe With Condition:**
+- **Manual repetition**: Writing "swipe left" 20 times is tedious and fragile
+- **Unknown count**: Don't know how many items exist ahead of time
+- **Dynamic content**: Items might change between test runs
+- **Position-based testing**: Tests break when item order changes
+
+**Swipe With Condition solves this** by:
+- Automatically repeating swipes until condition met
+- Handling variable content lengths
+- Finding items by content, not position
+- Stopping when target found or end reached
+
+## When to Use Swipe With Condition
+
+### Use Swipe With Condition when:
+
+**Testing carousels and galleries**
+```
+Swipe through image carousel until last image
+Swipe through account cards until specific account found
+Swipe through tutorial slides until completion
+```
+
+**Finding specific content in swipeable lists**
+```
+Swipe through promotional banners until target promo found
+Swipe through categories until "Electronics" appears
+Swipe through restaurant cards until "Italian" found
+```
+
+**Testing infinite or long lists**
+```
+Swipe through product list until target product visible
+Swipe through feed until specific post appears
+Continue swiping until "Load More" button found
+```
+
+**Reaching content boundaries**
+```
+Swipe until "Last card" indicator appears
+Swipe until "End of list" message shows
+Continue swiping until no more content loads
+```
+
+**Testing swipe-based navigation**
+```
+Swipe tabs until specific tab is active
+Swipe pages until target page reached
+Navigate multi-screen forms via swipe
+```
+
+### Use regular Scroll when:
+
+**Content is vertically scrolling**
+```
+Standard vertical lists and feeds
+Regular page scrolling
+Use Scroll or Scroll With Condition instead
+```
+
+**Single swipe is sufficient**
+```
+If you only need to swipe once
+Use standard swipe gesture
+No condition checking needed
+```
+
+**Element position is known and stable**
+```
+If item is always in the same position
+Can click directly without swiping
+More reliable than position-dependent swipes
+```
+
+## How It Works
+
+When you use Swipe With Condition:
+
+1. **Element Identification**: Autonoma identifies the element to swipe on (carousel, list, etc.)
+2. **Direction Setup**: Swipe direction is determined (left, right, up, down)
+3. **Initial Check**: Condition is checked before starting swipes
+4. **Swipe Execution**: If condition not met, swipe is performed
+5. **Condition Check**: After swipe, condition is checked again
+6. **Repeat or Complete**: Steps 4-5 repeat until condition met or maximum attempts reached
+7. **Result**: Interaction completes when condition satisfied or limit reached
+
+### Swipe Directions
+
+**Horizontal swipes:**
+- **Left**: Swipe content leftward (reveals content to the right)
+- **Right**: Swipe content rightward (reveals content to the left)
+
+**Vertical swipes:**
+- **Up**: Swipe content upward (reveals content below)
+- **Down**: Swipe content downward (reveals content above)
+
+## Platform Support
+
+- **Web**: Not applicable (web uses scroll)
+- **Mobile**: Full support (Android and iOS)
+
+Swipe With Condition is specifically for mobile applications where swipe gestures are the primary navigation method.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing Banking App Card Carousel
+
+You're testing a banking app where users swipe through their accounts and cards displayed in a horizontal carousel.
+
+```
+Test: "Find savings account in card carousel"
+
+Navigate to Accounts:
+1. Open banking app
+2. Navigate to accounts screen
+3. Wait until: Card carousel loads
+4. Assert: At least one card is visible
+
+Find Specific Account:
+5. Swipe on the carousel until the card with text 'Savings Account' is visible
+6. Direction: left
+7. Wait until: Savings Account card is fully visible
+
+Verify Savings Account:
+8. Assert: "Savings Account" heading is displayed
+9. Extract information about account balance with key SAVINGS_BALANCE
+10. Assert: Balance is displayed correctly
+
+Interact with Found Account:
+11. Tap on Savings Account card
+12. Wait until: Account details load
+13. Assert: Account details page shows Savings Account
+14. Assert: Transaction history is available
+```
+
+**Why Swipe With Condition is essential**: You don't know how many cards come before Savings Account, or if the order might change. The interaction automatically swipes until found.
+
+### Scenario 2: Testing E-commerce Product Image Gallery
+
+You're testing a product detail page with a horizontal image gallery where users swipe to view all product images.
+
+```
+Test: "View all product images in gallery"
+
+Navigate to Product:
+1. Open app
+2. Navigate to products
+3. Tap on first product
+4. Wait until: Product detail page loads
+5. Assert: Image gallery is visible
+
+Swipe to Last Image:
+6. Swipe on the image gallery until the last image is visible
+7. Direction: left
+8. Wait until: Last image fully displayed
+
+Verify Last Image:
+9. Assert: Image count indicator shows "5/5" or "Last"
+10. Assert: Cannot swipe further left
+11. Assert: "Back to beginning" option may appear
+
+Count Images:
+12. Extract number of images from indicator with key IMAGE_COUNT
+13. Assert: At least 3 images available
+
+Swipe Back to First:
+14. Swipe on the image gallery until the first image is visible
+15. Direction: right
+16. Wait until: First image fully displayed
+17. Assert: Image indicator shows "1/{{key:IMAGE_COUNT}}"
+```
+
+**Why Swipe With Condition is essential**: Products have varying numbers of images. The interaction swipes until reaching the last (or first) image automatically.
+
+### Scenario 3: Testing Tutorial Walkthrough
+
+You're testing an onboarding tutorial that uses swipeable screens to guide new users.
+
+```
+Test: "Complete tutorial walkthrough via swipe"
+
+Start Tutorial:
+1. Open app (first launch)
+2. Wait until: Welcome tutorial appears
+3. Assert: Tutorial screen 1 is visible
+4. Assert: "Get Started" or "Next" is visible
+
+Swipe Through Tutorial:
+5. Swipe on the tutorial carousel until the text "Finish" is visible
+6. Direction: left
+7. Wait until: Final tutorial screen appears
+
+Verify Tutorial Completion Screen:
+8. Assert: "Finish" button is visible
+9. Assert: "Start Using App" or similar CTA appears
+10. Assert: No more tutorial screens remain
+
+Test Skip Functionality:
+11. Restart app to reset tutorial
+12. Wait until: Tutorial appears again
+13. Assert: "Skip" button is visible
+
+14. Swipe on the tutorial carousel until the last screen is visible
+15. Direction: left
+16. Assert: Can swipe to last screen
+17. Tap "Finish" button
+
+Verify Tutorial Marked Complete:
+18. Close and reopen app
+19. Assert: Tutorial does not appear again
+20. Assert: Main app screen loads directly
+```
+
+**Why Swipe With Condition is essential**: Tutorial length varies, and you want to test reaching the end regardless of how many screens exist.
+
+### Scenario 4: Testing Promotional Banner Carousel
+
+You're testing a home screen with promotional banners that users can swipe through horizontally.
+
+```
+Test: "Find specific promotion in banner carousel"
+
+Navigate to Home Screen:
+1. Open app
+2. Wait until: Home screen loads
+3. Assert: Promotional carousel is visible
+4. Assert: At least one banner is displayed
+
+Find Target Promotion:
+5. Swipe on the promotional carousel until banner with text 'Flash Sale' is visible
+6. Direction: left
+7. Wait until: Flash Sale banner is centered
+
+Verify Flash Sale Promotion:
+8. Assert: "Flash Sale" heading is visible
+9. Assert: Sale end time is displayed
+10. Extract sale end time with key SALE_ENDS
+11. Assert: "Shop Now" button is visible
+
+Tap to View Sale:
+12. Tap on Flash Sale banner
+13. Wait until: Flash Sale page loads
+14. Assert: Products on sale are displayed
+15. Assert: Sale banner matches promoted offer
+
+Return and Test Auto-Rotation:
+16. Navigate back to home screen
+17. Wait 5 seconds for auto-rotation
+18. Assert: Carousel may auto-advance to next banner
+19. Assert: Auto-rotation can be paused by user interaction
+```
+
+**Why Swipe With Condition is essential**: Promotional order changes based on business priorities. Finding promotions by content rather than position makes tests resilient.
+
+### Scenario 5: Testing Category Navigation Strip
+
+You're testing a horizontal scrolling category strip where users swipe to find and select categories.
+
+```
+Test: "Navigate to Electronics category via swipe"
+
+Navigate to Categories:
+1. Open app
+2. Navigate to shop section
+3. Wait until: Category strip loads at top
+4. Assert: Category strip is visible
+5. Assert: Multiple categories available
+
+Find Electronics Category:
+6. Swipe on the category strip until category 'Electronics' is visible
+7. Direction: left
+8. Wait until: Electronics category fully visible
+
+Verify Category Found:
+9. Assert: "Electronics" label is displayed
+10. Assert: Electronics icon is visible
+11. Assert: Category is tappable
+
+Select Electronics:
+12. Tap on Electronics category
+13. Wait until: Electronics products load
+14. Assert: Product grid shows electronics
+15. Assert: Page heading shows "Electronics"
+
+Test Multiple Category Navigation:
+16. Navigate back to categories
+17. Swipe on the category strip until category 'Clothing' is visible
+18. Direction: left
+19. Tap on Clothing category
+20. Wait until: Clothing products load
+21. Assert: Correct category loaded
+```
+
+**Why Swipe With Condition is essential**: Category lists vary by store and region. Finding categories by name makes tests work across different configurations.
+
+### Scenario 6: Testing Restaurant Swipe Feed
+
+You're testing a restaurant discovery app where users swipe through restaurant cards to find dining options.
+
+```
+Test: "Find Italian restaurant in swipe feed"
+
+Navigate to Restaurant Feed:
+1. Open app
+2. Navigate to Discover tab
+3. Wait until: Restaurant card stack loads
+4. Assert: First restaurant card is visible
+
+Swipe to Find Italian:
+5. Swipe on the restaurant feed until card with text 'Italian' is visible
+6. Direction: left
+7. Wait until: Italian restaurant card appears
+
+Verify Restaurant Found:
+8. Assert: "Italian" cuisine label is displayed
+9. Extract restaurant name with key RESTAURANT_NAME
+10. Extract restaurant rating with key RESTAURANT_RATING
+11. Assert: Restaurant image is visible
+12. Assert: Distance or location is shown
+
+Test Restaurant Details:
+13. Tap on restaurant card
+14. Wait until: Restaurant details page loads
+15. Assert: Restaurant name {{key:RESTAURANT_NAME}} shown
+16. Assert: Rating {{key:RESTAURANT_RATING}} matches card
+17. Assert: Menu is available
+18. Assert: "Reserve" or "Order" button present
+
+Test Swipe Past:
+19. Navigate back to feed
+20. Swipe on the restaurant feed until Italian restaurant card appears again
+21. Swipe once more to move past it
+22. Assert: Next restaurant card appears
+23. Assert: Feed progresses correctly
+```
+
+**Why Swipe With Condition is essential**: Restaurant feeds are personalized and dynamic. Finding specific restaurants by cuisine or name rather than position ensures test reliability.
+
+## Interaction Metadata Requirements
+
+The Swipe With Condition interaction has specific metadata requirements:
+
+### Element Index (Required)
+
+The index of the element to swipe on (0-based):
+```
+Swipe on element at index 0
+Swipe on element at index 1
+Swipe on element at index 2
+```
+
+### Direction (Required)
+
+The direction to swipe, specified in metadata:
+- `left` - Swipe content leftward
+- `right` - Swipe content rightward
+- `up` - Swipe content upward
+- `down` - Swipe content downward
+
+### Condition (Required)
+
+The condition to check after each swipe, specified in your prompt:
+```
+until the last card is visible
+until the card with text 'Bank of America' is visible
+until the last product is visible
+until the promotion with 'Flash Sale' appears
+```
+
+## Example Prompts
+
+Here are effective ways to phrase Swipe With Condition commands:
+
+**Swipe until end:**
+```
+swipe on the carousel until the last card is visible
+swipe on the gallery until the last image is visible
+swipe on the list until the end is reached
+```
+
+**Swipe to find specific content:**
+```
+swipe on the carousel until the card with text 'Bank of America' is visible
+swipe the carousel until the card with text 'Savings Account' is visible
+swipe on the products list until the last product is visible
+swipe on the promotions list until the shake shack promotion is visible
+```
+
+**Swipe with element context:**
+```
+swipe on element 0 until 'Last' appears
+swipe the first carousel until 'Summer Sale' is found
+swipe on the category strip until 'Electronics' is visible
+```
+
+## Best Practices
+
+### 1. Specify Clear Conditions
+
+Make conditions specific and testable:
+
+**Vague:**
+```
+swipe until done
+swipe until finished
+```
+
+**Clear:**
+```
+swipe on the carousel until the last card is visible
+swipe on the list until 'No more items' text appears
+```
+
+### 2. Use Content-Based Conditions
+
+Find items by what they contain, not position:
+
+**Fragile (position-based):**
+```
+Swipe 5 times to reach savings account
+```
+
+**Resilient (content-based):**
+```
+swipe on the carousel until the card with text 'Savings Account' is visible
+```
+
+### 3. Specify Direction in Metadata
+
+Always specify swipe direction:
+
+```
+Swipe on carousel until last card
+Direction: left  ← Required in metadata
+
+Swipe on list until target item found
+Direction: up  ← Required in metadata
+```
+
+### 4. Set Reasonable Limits
+
+Consider maximum swipe attempts:
+
+```
+Swipe on carousel until last card
+Direction: left
+Maximum attempts: 20  ← Prevents infinite loops
+
+If condition not met after 20 swipes:
+- Test fails with clear message
+- Indicates content issue or condition problem
+```
+
+### 5. Wait After Swipe Completes
+
+Allow time for content to settle:
+
+```
+1. Swipe on carousel until 'Savings Account' visible
+2. Wait 500ms for swipe animation to complete
+3. Assert: Savings Account card is fully displayed
+4. Extract account information
+```
+
+### 6. Verify Condition After Swipe
+
+Confirm the condition was truly met:
+
+```
+1. Swipe on the carousel until the last card is visible
+2. Wait 500ms
+3. Assert: Last card indicator shows
+4. Assert: Cannot swipe further
+5. Extract last card information
+```
+
+### 7. Handle Both Success and Failure
+
+Plan for when condition isn't met:
+
+```
+1. Swipe on carousel until 'Premium Account' visible
+2. If found:
+3.   Proceed with Premium Account test
+4. If not found after all swipes:
+5.   Assert: User doesn't have Premium Account
+6.   Test alternative flow
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Vague Condition
+
+**Problem:**
+```
+swipe on the list until finished
+```
+
+What does "finished" mean? How does the system know?
+
+**Solution:**
+```
+swipe on the list until the text 'No more items' is visible
+swipe on the carousel until the last card indicator shows '5/5'
+```
+
+### Pitfall 2: Wrong Direction
+
+**Problem:**
+```
+swipe on carousel until target found
+Direction: right
+```
+
+Target is to the left, but swiping right moves away from it.
+
+**Solution:**
+```
+# To reveal content on the right:
+swipe on carousel until target found
+Direction: left
+
+# To reveal content on the left:
+swipe on carousel until target found
+Direction: right
+```
+
+### Pitfall 3: Not Specifying Element Index
+
+**Problem:**
+```
+swipe until card found
+```
+
+Which element to swipe on? Multiple swipeable elements may exist.
+
+**Solution:**
+```
+swipe on element 0 (the carousel) until card found
+swipe on element 1 (the banner) until promotion found
+
+Specify element index in metadata
+```
+
+### Pitfall 4: Condition Never Met
+
+**Problem:**
+```
+swipe on carousel until 'Premium Card' visible
+```
+
+Premium Card doesn't exist in this user's carousel. Swipes forever or hits limit.
+
+**Solution:**
+```
+1. Swipe with reasonable maximum attempts
+2. Handle case where condition isn't met:
+
+If condition met:
+  Continue with test
+
+If condition not met:
+  Assert: Premium Card not available (expected)
+  Test alternative scenario
+```
+
+### Pitfall 5: Swiping Past Target
+
+**Problem:**
+```
+Swipe too fast, target appears but is immediately swiped past
+```
+
+**Solution:**
+```
+1. Swipe with condition checks after each swipe
+2. System detects when condition is met
+3. Stops swiping at correct moment
+
+Add assertion after swipe completes:
+Assert: Target is still visible and hasn't been swiped past
+```
+
+### Pitfall 6: Not Waiting for Animation
+
+**Problem:**
+```
+1. Swipe on carousel until last card visible
+2. Immediately tap on card ← Animation still happening!
+```
+
+**Solution:**
+```
+1. Swipe on carousel until last card visible
+2. Wait 500ms for animation to complete
+3. Assert: Card is settled and fully visible
+4. Tap on card
+```
+
+## Advanced Patterns
+
+### Pattern 1: Bidirectional Carousel Navigation
+
+```
+Test: "Navigate carousel forwards and backwards"
+
+Navigate Forward to End:
+1. Swipe on carousel until last card visible
+2. Direction: left
+3. Wait 500ms
+4. Assert: Last card indicator present
+
+Navigate Backward to Beginning:
+5. Swipe on carousel until first card visible
+6. Direction: right
+7. Wait 500ms
+8. Assert: First card indicator present
+
+Navigate to Middle Card:
+9. Swipe on carousel until 'Checking Account' visible
+10. Direction: left
+11. Assert: Checking Account card displayed
+```
+
+### Pattern 2: Progressive Content Discovery
+
+```
+Test: "Discover all items in carousel"
+
+Initialize Discovery:
+1. Create empty list of discovered items
+2. Swipe to first card (starting position)
+
+Discover All Items:
+3. Extract current card name
+4. Add to discovered items list
+5. Swipe on carousel until next card visible
+6. Direction: left
+7. Repeat steps 3-6 until last card reached
+
+Verify Complete Discovery:
+8. Assert: Discovered items list has expected count
+9. Assert: All expected items were found
+10. Assert: No duplicates in list
+```
+
+### Pattern 3: Conditional Testing Based on Content
+
+```
+Test: "Test features based on available accounts"
+
+Find Account Types:
+1. Swipe on carousel to discover all accounts
+2. Build list of account types found
+
+Test Based on Accounts:
+If 'Savings Account' found:
+3. Test savings-specific features
+4. Test interest rate display
+5. Test transfer to savings
+
+If 'Credit Card' found:
+6. Test credit-specific features
+7. Test payment functionality
+8. Test credit limit display
+
+If 'Investment Account' found:
+9. Test investment features
+10. Test portfolio view
+```
+
+### Pattern 4: Infinite Scroll with Condition
+
+```
+Test: "Scroll feed until specific post found"
+
+Start Scrolling:
+1. Swipe on feed until post by 'John Doe' is visible
+2. Direction: up
+3. Maximum attempts: 50
+
+If Found Within Limit:
+4. Assert: Post by John Doe is displayed
+5. Interact with post
+6. Test post features
+
+If Not Found:
+7. Assert: Reached end of feed or attempt limit
+8. Document: John Doe post not in first 50 items
+9. Test alternative scenario
+```
+
+## Debugging Swipe With Condition Issues
+
+### Issue: Condition Never Met
+
+**Error:**
+```
+Swipe condition not met after maximum attempts
+```
+
+**Possible causes:**
+1. Content you're looking for doesn't exist
+2. Condition description doesn't match actual content
+3. Swipe direction is wrong
+4. Content hasn't loaded yet
+
+**Solutions:**
+```
+# Verify content exists:
+Check that target actually appears in the carousel
+
+# Verify condition description:
+Ensure text exactly matches what appears
+"Savings Account" vs "Savings" vs "Savings Acct"
+
+# Check direction:
+Swipe left to reveal content on right
+Swipe right to reveal content on left
+
+# Increase maximum attempts:
+Content might be further than expected
+```
+
+### Issue: Swipes Too Fast
+
+**Problem:**
+```
+Swipes so quickly that target is missed
+```
+
+**Solution:**
+```
+# System automatically checks after each swipe
+# But you can add delays:
+
+1. Swipe on carousel until target visible
+2. Wait 300ms between swipes (if needed)
+3. Allows content to settle
+```
+
+### Issue: Wrong Element Swiped
+
+**Error:**
+```
+Swipe performed on wrong element
+```
+
+**Solution:**
+```
+# Specify element index explicitly:
+Swipe on element 0 until condition met
+Element index: 0 in metadata
+
+# Verify element before swiping:
+1. Assert: Carousel element is visible
+2. Assert: Element is swipeable
+3. Swipe on element until condition met
+```
+
+### Issue: Swipe Goes Too Far
+
+**Problem:**
+```
+Found target but swiped past it
+```
+
+**Solution:**
+```
+# System checks after each swipe
+# If target detected, swipe stops
+
+# Verify after swipe:
+1. Swipe until target visible
+2. Assert: Target is displayed and centered
+3. Assert: Target hasn't been swiped past
+```
+
+## What's Next
+
+Now that you understand Swipe With Condition, you can:
+- Test horizontal carousels and galleries effectively
+- Find specific content in swipeable lists
+- Test infinite scroll mobile feeds
+- Navigate card-based interfaces programmatically
+- Test swipe-based tutorial flows
+
+Swipe With Condition is an essential mobile testing interaction for any application using swipeable content navigation.
+
+Explore related interactions:
+- **Scroll With Condition**: For vertical scrolling until condition met
+- **Click**: Tap on elements after swiping to them
+- **Assert**: Verify content after swipe completes
+- **Extract Information**: Capture data from swiped content
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

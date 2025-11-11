@@ -1,0 +1,752 @@
+---
+title: "Math Assert"
+description: "Validate mathematical calculations and numeric comparisons in your application with precision."
+---
+
+# Math Assert
+
+## The Numeric Validation Challenge
+
+Your e-commerce app displays a shopping cart. You've added three items:
+- Item 1: $29.99
+- Item 2: $15.50
+- Item 3: $42.00
+
+The cart shows: "Subtotal: $87.49"
+
+**Is that correct?** As a human, you can quickly verify: 29.99 + 15.50 + 42.00 = 87.49. Yes, it's correct.
+
+But how do you test this automatically? With a regular assertion?
+
+```
+Assert: Subtotal shows "$87.49"
+```
+
+That works for this specific test. But what if the prices change? What if you're using random product data? What if you need to verify:
+- Tax calculations
+- Discount percentages
+- Shipping cost logic
+- Total price calculations
+- Balance updates
+- Quantity arithmetic
+
+**You need a way to verify mathematical correctness, not just specific values.**
+
+That's what `Math Assert` does. It validates that calculations in your application are mathematically correct.
+
+## What Math Assert Does
+
+The `Math Assert` interaction verifies mathematical equations and numeric comparisons. Instead of checking for specific values, it evaluates whether a mathematical statement is true.
+
+**Basic syntax**:
+```
+Math Assert: <equation or comparison as a string>
+```
+
+**Examples**:
+```
+Math Assert: "10 + 20 = 30"
+Math Assert: "100 - 25 = 75"
+Math Assert: "5 * 6 = 30"
+Math Assert: "100 / 4 = 25"
+Math Assert: "50 > 25"
+Math Assert: "10 + 5 * 2 = 20"
+```
+
+The interaction evaluates the mathematical expression. If it's true, the test continues. If it's false, the test fails.
+
+**Important formatting rule**: Return the equation as a string. The metadata should be the equation itself, nothing more.
+
+**Correct**:
+```
+Math Assert: "10 + 20 = 30"
+```
+
+**Incorrect**:
+```
+Math Assert: {equation: "10 + 20 = 30"}  ← Don't use object format
+Math Assert: equation is "10 + 20 = 30"  ← Don't add extra text
+```
+
+## When to Use Math Assert vs Other Verification Methods
+
+Autonoma provides multiple verification approaches. Here's when to use math assertions:
+
+### Use `Math Assert` when:
+- **Verifying calculations** - Testing that prices, totals, or balances calculate correctly
+- **Validating arithmetic** - Ensuring sums, differences, products, or divisions are accurate
+- **Checking numeric comparisons** - Verifying quantities, amounts, or values meet criteria
+- **Testing formula-based logic** - Validating discount calculations, tax computations, conversions
+
+**Example scenarios**:
+```
+Shopping cart total:
+Math Assert: "29.99 + 15.50 + 42.00 = 87.49"
+
+Tax calculation:
+Math Assert: "100 * 0.08 = 8.00"
+
+Discount application:
+Math Assert: "50 - (50 * 0.20) = 40"
+
+Quantity multiplication:
+Math Assert: "3 * 15.99 = 47.97"
+```
+
+### Use `Assert` (general) when:
+- **Checking if numbers appear** - Verifying a price is displayed
+- **Validating text content** - Ensuring labels or messages show
+- **Confirming elements exist** - Checking that numeric displays are present
+
+**Example scenarios**:
+```
+Assert: Price shows "$29.99"
+Assert: Total balance displays
+Assert: Quantity shows "3"
+Assert: Discount badge appears
+```
+
+### Use `Extract Information` then `Math Assert` when:
+- **Validating dynamic calculations** - When values change each test run
+- **Testing complex flows** - Multi-step calculations with intermediate values
+- **Verifying related values** - Ensuring multiple numbers are consistent
+
+**Example scenario**:
+```
+1. Extract information about subtotal with key SUBTOTAL
+2. Extract information about tax with key TAX
+3. Extract information about total with key TOTAL
+4. Math Assert: "{{key:SUBTOTAL}} + {{key:TAX}} = {{key:TOTAL}}"
+```
+
+### The Key Distinction
+
+**`Math Assert`** validates **mathematical correctness** (relationships between numbers).
+
+**`Assert`** validates **presence or appearance** (that something shows on screen).
+
+**`Extract Information`** captures **dynamic values** for later use (including in math assertions).
+
+## Real-World Scenarios
+
+### Scenario 1: Shopping Cart Calculation
+
+**The test**:
+```
+Test: "Cart subtotal calculates correctly"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Add product priced at $25.00 to cart
+3. Add product priced at $15.00 to cart
+4. Add product priced at $10.00 to cart
+5. Click: Cart icon
+6. Wait until: Cart page loads
+7. Extract information about subtotal with key SUBTOTAL
+8. Math Assert: "{{key:SUBTOTAL}} = 25.00 + 15.00 + 10.00"
+9. Math Assert: "{{key:SUBTOTAL}} = 50.00"
+```
+
+**Why this works**:
+- Step 7 extracts the subtotal the application calculated
+- Step 8 verifies it equals the sum of item prices
+- Step 9 confirms the exact amount
+
+### Scenario 2: Tax Calculation Validation
+
+**The test**:
+```
+Test: "Tax calculates correctly at 8%"
+
+1. Navigate to checkout with $100 order
+2. Wait until: Checkout loads
+3. Extract information about subtotal with key SUBTOTAL
+4. Extract information about tax with key TAX
+5. Extract information about total with key TOTAL
+6. Math Assert: "{{key:TAX}} = {{key:SUBTOTAL}} * 0.08"
+7. Math Assert: "{{key:TOTAL}} = {{key:SUBTOTAL}} + {{key:TAX}}"
+8. Math Assert: "{{key:TOTAL}} = {{key:SUBTOTAL}} * 1.08"
+```
+
+**Multi-level validation**:
+- Step 6: Tax is 8% of subtotal
+- Step 7: Total equals subtotal plus tax
+- Step 8: Total is subtotal times 1.08 (alternative verification)
+
+### Scenario 3: Discount Application
+
+**The test**:
+```
+Test: "20% discount applies correctly"
+
+1. Navigate to {{variable:APP_URL}}/products
+2. Add $50 product to cart
+3. Click: Cart icon
+4. Extract information about original price with key ORIGINAL
+5. Apply coupon code "SAVE20"
+6. Wait until: Discount applies
+7. Extract information about discount amount with key DISCOUNT
+8. Extract information about final price with key FINAL
+9. Math Assert: "{{key:DISCOUNT}} = {{key:ORIGINAL}} * 0.20"
+10. Math Assert: "{{key:FINAL}} = {{key:ORIGINAL}} - {{key:DISCOUNT}}"
+11. Math Assert: "{{key:FINAL}} = {{key:ORIGINAL}} * 0.80"
+12. Math Assert: "{{key:FINAL}} = 40.00"
+```
+
+**Comprehensive validation**:
+- Step 9: Discount is 20% of original
+- Step 10: Final equals original minus discount
+- Step 11: Final is 80% of original (20% off)
+- Step 12: Specific value check
+
+### Scenario 4: Quantity Price Calculation
+
+**The test**:
+```
+Test: "Item quantity affects line total correctly"
+
+1. Navigate to product priced at $15.99
+2. Set quantity to 3
+3. Extract information about unit price with key UNIT_PRICE
+4. Extract information about quantity with key QUANTITY
+5. Extract information about line total with key LINE_TOTAL
+6. Math Assert: "{{key:LINE_TOTAL}} = {{key:UNIT_PRICE}} * {{key:QUANTITY}}"
+7. Math Assert: "{{key:LINE_TOTAL}} = 15.99 * 3"
+8. Math Assert: "{{key:LINE_TOTAL}} = 47.97"
+```
+
+**Why all three assertions**:
+- Step 6: General formula validation
+- Step 7: Specific calculation for this test
+- Step 8: Exact value verification
+
+### Scenario 5: Balance Update After Transaction
+
+**The test**:
+```
+Test: "Account balance updates correctly after purchase"
+
+1. Navigate to {{variable:APP_URL}}/account
+2. Extract information about starting balance with key START_BALANCE
+3. Navigate to products
+4. Purchase item for $25.50
+5. Navigate back to account
+6. Extract information about new balance with key NEW_BALANCE
+7. Math Assert: "{{key:NEW_BALANCE}} = {{key:START_BALANCE}} - 25.50"
+8. Extract information about transaction amount with key TRANSACTION
+9. Math Assert: "{{key:TRANSACTION}} = 25.50"
+```
+
+**Balance integrity verification**:
+The test ensures the account balance decreased by exactly the purchase amount.
+
+### Scenario 6: Shipping Cost Logic
+
+**The test**:
+```
+Test: "Free shipping applies over $50"
+
+Scenario A: Under threshold
+1. Add $30 product to cart
+2. Proceed to checkout
+3. Extract information about subtotal with key SUBTOTAL_A
+4. Extract information about shipping with key SHIPPING_A
+5. Math Assert: "{{key:SHIPPING_A}} = 5.00"
+6. Math Assert: "{{key:SUBTOTAL_A}} < 50"
+
+Scenario B: Over threshold
+7. Add another $25 product
+8. Extract information about new subtotal with key SUBTOTAL_B
+9. Extract information about new shipping with key SHIPPING_B
+10. Math Assert: "{{key:SUBTOTAL_B}} > 50"
+11. Math Assert: "{{key:SHIPPING_B}} = 0"
+```
+
+**Conditional logic validation**:
+The test verifies shipping costs apply correctly based on order amount thresholds.
+
+## Platform Support
+
+The `Math Assert` interaction is currently in development:
+
+**Web**: Under development
+**Mobile**: Under development
+
+**Current Status**: This interaction is designed for numeric validation but is not yet connected to specific platforms. The validation logic works, but integration with web and mobile engines is pending.
+
+### Alternative Approaches
+
+Until `Math Assert` is fully integrated, you can validate calculations using extracted values with regular assertions:
+
+```
+1. Extract information about subtotal with key SUBTOTAL
+2. Extract information about tax with key TAX
+3. Extract information about total with key TOTAL
+4. Assert: Total shows expected amount
+```
+
+Or calculate expected values in test setup:
+```
+1. Set variable: EXPECTED_TOTAL = "87.49"
+2. Extract information about actual total with key ACTUAL_TOTAL
+3. Assert: Total shows {{variable:EXPECTED_TOTAL}}
+```
+
+## Example Prompts with Context
+
+Here are real-world math assertion examples:
+
+### Basic Arithmetic Validation
+```
+Math Assert: "10 + 20 = 30"
+Math Assert: "100 - 25 = 75"
+Math Assert: "5 * 6 = 30"
+Math Assert: "100 / 4 = 25"
+Math Assert: "10 + 5 + 15 = 30"
+```
+
+### Price and Total Calculations
+```
+Math Assert: "29.99 + 15.50 + 42.00 = 87.49"
+Math Assert: "3 * 15.99 = 47.97"
+Math Assert: "199.99 - 20.00 = 179.99"
+Math Assert: "100.00 * 1.08 = 108.00"
+```
+
+### Percentage Calculations
+```
+Math Assert: "100 * 0.20 = 20"
+Math Assert: "50 - (50 * 0.15) = 42.50"
+Math Assert: "200 * 1.10 = 220"
+Math Assert: "75 / 100 * 80 = 60"
+```
+
+### Discount Validations
+```
+Math Assert: "100 - 20 = 80"
+Math Assert: "50 * 0.80 = 40"
+Math Assert: "29.99 * 0.70 = 20.99"
+```
+
+### Comparisons
+```
+Math Assert: "100 > 50"
+Math Assert: "25 < 50"
+Math Assert: "50 >= 50"
+Math Assert: "30 <= 100"
+```
+
+### Complex Calculations
+```
+Math Assert: "10 + 5 * 2 = 20"
+Math Assert: "(10 + 5) * 2 = 30"
+Math Assert: "100 - 20 + 5 = 85"
+Math Assert: "50 / 2 + 25 = 50"
+```
+
+### With Extracted Values
+```
+Math Assert: "{{key:PRICE}} * {{key:QUANTITY}} = {{key:TOTAL}}"
+Math Assert: "{{key:SUBTOTAL}} + {{key:TAX}} = {{key:GRAND_TOTAL}}"
+Math Assert: "{{key:ORIGINAL}} - {{key:DISCOUNT}} = {{key:FINAL}}"
+Math Assert: "{{key:BALANCE_BEFORE}} - {{key:TRANSACTION}} = {{key:BALANCE_AFTER}}"
+```
+
+## Best Practices for Math Assertions
+
+### 1. Format as String, Not Object
+
+**Wrong**:
+```
+Math Assert: {equation: "10 + 20 = 30"}
+```
+
+**Correct**:
+```
+Math Assert: "10 + 20 = 30"
+```
+
+The interaction expects a simple string containing the equation.
+
+### 2. Extract Dynamic Values First
+
+Don't hardcode expected values if they might change:
+
+**Fragile**:
+```
+Math Assert: "25.00 + 15.00 + 10.00 = 50.00"
+```
+
+**Robust**:
+```
+1. Extract information about item 1 price with key PRICE1
+2. Extract information about item 2 price with key PRICE2
+3. Extract information about item 3 price with key PRICE3
+4. Extract information about total with key TOTAL
+5. Math Assert: "{{key:PRICE1}} + {{key:PRICE2}} + {{key:PRICE3}} = {{key:TOTAL}}"
+```
+
+### 3. Use Decimal Precision Appropriately
+
+**For currency** (two decimal places):
+```
+Math Assert: "10.50 + 5.25 = 15.75"
+```
+
+**For percentages** (as decimals):
+```
+Math Assert: "100 * 0.08 = 8.00"
+```
+
+**For whole numbers**:
+```
+Math Assert: "3 * 5 = 15"
+```
+
+### 4. Validate Multiple Ways
+
+When possible, verify the same calculation differently:
+
+```
+Tax validation:
+Math Assert: "{{key:TAX}} = {{key:SUBTOTAL}} * 0.08"
+Math Assert: "{{key:TOTAL}} = {{key:SUBTOTAL}} + {{key:TAX}}"
+Math Assert: "{{key:TOTAL}} = {{key:SUBTOTAL}} * 1.08"
+```
+
+If all three pass, you have high confidence the calculation is correct.
+
+### 5. Test Boundary Conditions
+
+Test calculations at important thresholds:
+
+```
+Free shipping threshold ($50):
+- Test with $49.99 (shipping should apply)
+- Test with $50.00 (free shipping)
+- Test with $50.01 (free shipping)
+```
+
+### 6. Include Comparison Assertions
+
+Don't just check equality—verify comparisons:
+
+```
+After discount:
+Math Assert: "{{key:FINAL_PRICE}} < {{key:ORIGINAL_PRICE}}"
+Math Assert: "{{key:DISCOUNT}} > 0"
+Math Assert: "{{key:FINAL_PRICE}} >= 0"
+```
+
+### 7. Order of Operations Matters
+
+Use parentheses to clarify complex calculations:
+
+**Ambiguous**:
+```
+Math Assert: "10 + 5 * 2 = 20"  ← Is this (10+5)*2 or 10+(5*2)?
+```
+
+**Clear**:
+```
+Math Assert: "10 + (5 * 2) = 20"  ← Explicitly: 10 + 10 = 20
+Math Assert: "(10 + 5) * 2 = 30"  ← Explicitly: 15 * 2 = 30
+```
+
+## Common Pitfalls and How to Avoid Them
+
+### Pitfall 1: Using Object Format
+
+**Problem**:
+```
+Math Assert: {equation: "10 + 20 = 30", description: "sum validation"}
+```
+
+**Why it fails**: The interaction expects a simple string, not an object.
+
+**Solution**:
+```
+Math Assert: "10 + 20 = 30"
+```
+
+### Pitfall 2: Including Extra Text
+
+**Problem**:
+```
+Math Assert: "The equation is 10 + 20 = 30"
+```
+
+**Why it fails**: The string should be just the equation, nothing else.
+
+**Solution**:
+```
+Math Assert: "10 + 20 = 30"
+```
+
+### Pitfall 3: Floating Point Precision Issues
+
+**Problem**:
+```
+Math Assert: "0.1 + 0.2 = 0.3"
+```
+
+**Why it might fail**: Floating point arithmetic can introduce tiny precision errors (0.1 + 0.2 might equal 0.30000000000000004).
+
+**Solution**: Round to reasonable precision:
+```
+Math Assert: "0.10 + 0.20 = 0.30"
+```
+
+For currency, use two decimal places consistently.
+
+### Pitfall 4: Incorrect Operator Usage
+
+**Problem**:
+```
+Math Assert: "10 plus 20 equals 30"
+```
+
+**Why it fails**: Use mathematical operators, not words.
+
+**Solution**:
+```
+Math Assert: "10 + 20 = 30"
+```
+
+**Supported operators**: `+`, `-`, `*`, `/`, `=`, `>`, `<`, `>=`, `<=`
+
+### Pitfall 5: Missing Extracted Values
+
+**Problem**:
+```
+Math Assert: "{{key:SUBTOTAL}} + {{key:TAX}} = {{key:TOTAL}}"
+```
+
+But you never extracted these values.
+
+**Why it fails**: The keys don't have values yet.
+
+**Solution**:
+```
+1. Extract information about subtotal with key SUBTOTAL
+2. Extract information about tax with key TAX
+3. Extract information about total with key TOTAL
+4. Math Assert: "{{key:SUBTOTAL}} + {{key:TAX}} = {{key:TOTAL}}"
+```
+
+Always extract before asserting.
+
+### Pitfall 6: Hardcoding Variable Values
+
+**Problem**:
+```
+Testing with different products but hardcoding prices:
+Math Assert: "25.00 + 15.00 = 40.00"
+```
+
+**Why it's problematic**: Breaks when products or prices change.
+
+**Solution**:
+```
+Extract dynamic prices and use them:
+Math Assert: "{{key:PRICE1}} + {{key:PRICE2}} = {{key:TOTAL}}"
+```
+
+### Pitfall 7: Incorrect Comparison Direction
+
+**Problem**:
+```
+Testing discount applied:
+Math Assert: "{{key:FINAL}} > {{key:ORIGINAL}}"
+```
+
+**Why it's wrong**: Final price should be LESS than original after a discount.
+
+**Solution**:
+```
+Math Assert: "{{key:FINAL}} < {{key:ORIGINAL}}"
+```
+
+Always verify the comparison logic matches your expectation.
+
+## Debugging Math Assertion Failures
+
+When a math assertion fails, you'll see details about the expression and why it failed.
+
+### Example Failure Message
+
+```
+Step 7: Math Assert: "{{key:SUBTOTAL}} + {{key:TAX}} = {{key:TOTAL}}"
+Failed: 87.49 + 7.00 ≠ 95.00 (actual: 94.49)
+```
+
+### Interpreting This Failure
+
+**The assertion evaluated**: 87.49 + 7.00 = 94.49
+**The assertion expected**: 94.49 = 95.00
+**Result**: False (numbers don't match)
+
+**Possible causes**:
+1. **Extraction error**: One of the values was extracted incorrectly
+2. **Application bug**: The app calculated the total wrong
+3. **Rounding difference**: Precision or rounding logic differs
+4. **Wrong assertion**: You asserted the wrong calculation
+
+### Debugging Steps
+
+**1. Check extracted values**:
+Review the screenshots to confirm extracted values match what's visible.
+
+**2. Verify the formula**:
+Is this the correct calculation? Maybe tax is calculated differently.
+
+**3. Check for additional fees**:
+Is there a processing fee, tip, or other charge affecting the total?
+
+**4. Test manually**:
+Calculate by hand: 87.49 + 7.00 = 94.49. The assertion is correct, so the app might be wrong (or adding something you didn't account for).
+
+**5. Look for currency formatting issues**:
+Did you extract "$95.00" instead of "95.00"? The dollar sign would cause issues.
+
+## Advanced Math Validation Patterns
+
+### Pattern 1: Multi-Item Cart Validation
+
+```
+Test: "Cart with multiple quantities calculates correctly"
+
+1. Add 3 units of $15.99 item
+2. Add 2 units of $25.50 item
+3. Add 1 unit of $10.00 item
+4. Extract information about line 1 total with key LINE1
+5. Extract information about line 2 total with key LINE2
+6. Extract information about line 3 total with key LINE3
+7. Extract information about cart subtotal with key SUBTOTAL
+
+Validate line totals:
+8. Math Assert: "{{key:LINE1}} = 3 * 15.99"
+9. Math Assert: "{{key:LINE2}} = 2 * 25.50"
+10. Math Assert: "{{key:LINE3}} = 1 * 10.00"
+
+Validate subtotal:
+11. Math Assert: "{{key:SUBTOTAL}} = {{key:LINE1}} + {{key:LINE2}} + {{key:LINE3}}"
+12. Math Assert: "{{key:SUBTOTAL}} = 47.97 + 51.00 + 10.00"
+13. Math Assert: "{{key:SUBTOTAL}} = 108.97"
+```
+
+### Pattern 2: Progressive Discount Tiers
+
+```
+Test: "Discount tiers apply correctly"
+
+10% off $100+, 15% off $200+, 20% off $300+
+
+Tier 1 ($150 order):
+1. Create $150 order
+2. Extract information about discount with key DISCOUNT_T1
+3. Math Assert: "{{key:DISCOUNT_T1}} = 150 * 0.10"
+4. Math Assert: "{{key:DISCOUNT_T1}} = 15.00"
+
+Tier 2 ($250 order):
+5. Add items to reach $250
+6. Extract information about discount with key DISCOUNT_T2
+7. Math Assert: "{{key:DISCOUNT_T2}} = 250 * 0.15"
+8. Math Assert: "{{key:DISCOUNT_T2}} = 37.50"
+
+Tier 3 ($350 order):
+9. Add items to reach $350
+10. Extract information about discount with key DISCOUNT_T3
+11. Math Assert: "{{key:DISCOUNT_T3}} = 350 * 0.20"
+12. Math Assert: "{{key:DISCOUNT_T3}} = 70.00"
+```
+
+### Pattern 3: Balance Through Multiple Transactions
+
+```
+Test: "Account balance remains consistent through transactions"
+
+1. Extract information about starting balance with key BALANCE_0
+2. Make $25 purchase
+3. Extract information about balance with key BALANCE_1
+4. Math Assert: "{{key:BALANCE_1}} = {{key:BALANCE_0}} - 25"
+
+5. Add $50 to account
+6. Extract information about balance with key BALANCE_2
+7. Math Assert: "{{key:BALANCE_2}} = {{key:BALANCE_1}} + 50"
+
+8. Make $15 purchase
+9. Extract information about balance with key BALANCE_3
+10. Math Assert: "{{key:BALANCE_3}} = {{key:BALANCE_2}} - 15"
+
+Overall validation:
+11. Math Assert: "{{key:BALANCE_3}} = {{key:BALANCE_0}} - 25 + 50 - 15"
+12. Math Assert: "{{key:BALANCE_3}} = {{key:BALANCE_0}} + 10"
+```
+
+### Pattern 4: Currency Conversion
+
+```
+Test: "Currency conversion calculates correctly"
+
+1. Select product priced at $100 USD
+2. Switch currency to EUR (rate: 0.85)
+3. Extract information about EUR price with key EUR_PRICE
+4. Math Assert: "{{key:EUR_PRICE}} = 100 * 0.85"
+5. Math Assert: "{{key:EUR_PRICE}} = 85.00"
+
+6. Switch to GBP (rate: 0.73)
+7. Extract information about GBP price with key GBP_PRICE
+8. Math Assert: "{{key:GBP_PRICE}} = 100 * 0.73"
+9. Math Assert: "{{key:GBP_PRICE}} = 73.00"
+```
+
+## Combining Math Assert with Other Interactions
+
+### With API Calls
+
+Validate that UI calculations match backend:
+
+```
+1. Complete checkout
+2. Extract information about UI total with key UI_TOTAL
+3. Extract information about order ID with key ORDER_ID
+4. Make API call: GET /api/orders/{{key:ORDER_ID}}
+5. Extract information about API total from response with key API_TOTAL
+6. Math Assert: "{{key:UI_TOTAL}} = {{key:API_TOTAL}}"
+```
+
+### With Loop Testing
+
+Validate calculations across multiple iterations:
+
+```
+For each product in cart:
+1. Extract information about unit price with key UNIT_PRICE
+2. Extract information about quantity with key QUANTITY
+3. Extract information about line total with key LINE_TOTAL
+4. Math Assert: "{{key:LINE_TOTAL}} = {{key:UNIT_PRICE}} * {{key:QUANTITY}}"
+```
+
+### With Conditional Assertions
+
+Test different calculation paths:
+
+```
+If order includes subscription:
+1. Extract information about monthly price with key MONTHLY
+2. Extract information about annual price with key ANNUAL
+3. Math Assert: "{{key:ANNUAL}} = {{key:MONTHLY}} * 12 * 0.90"  ← 10% annual discount
+
+Else:
+4. Math Assert: "{{key:ANNUAL}} = {{key:MONTHLY}} * 12"  ← No discount
+```
+
+## What's Next
+
+You now understand how to validate mathematical calculations in your application—ensuring prices, totals, discounts, and numeric logic work correctly through automated assertions.
+
+Math assertions handle numeric validation, but there's another critical verification capability: extracting information from your application to use later in your tests. That's where information extraction comes in.
+
+---
+
+*Ready to capture and reuse data? Continue to [Extract Information →](/interactions-reference/extract-information)*

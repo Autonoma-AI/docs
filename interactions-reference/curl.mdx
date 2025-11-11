@@ -1,0 +1,1108 @@
+---
+title: "cURL"
+description: "Execute command-line style HTTP requests with fine-grained control—ideal for testing complex API scenarios, debugging integrations, and replicating exact cURL commands."
+---
+
+## What is cURL?
+
+The cURL interaction allows you to execute pre-configured HTTP requests using command-line cURL syntax that you've stored in Autonoma's database. If you're familiar with making API calls from the terminal using `curl`, this interaction brings that same power and flexibility into your Autonoma tests.
+
+Like the Fetch interaction, cURL lets you save complex HTTP requests with all their configuration details and then execute them with a simple natural language command. The key difference is that cURL gives you command-line level control with access to all cURL's features and flags.
+
+This is particularly valuable when:
+- You need very specific HTTP request configurations
+- You're working with legacy APIs that have unusual requirements
+- You're debugging API integrations and need fine-grained control
+- You have existing cURL commands from API documentation you want to replicate
+- You need features specific to cURL (custom protocols, complex authentication, etc.)
+
+## When to Use cURL vs Other Approaches
+
+Understanding when cURL is the right choice helps you build more maintainable tests.
+
+### Use cURL when:
+
+**Replicating existing cURL commands**
+```
+Your API documentation provides cURL examples
+You want to use them directly in your tests without translation
+```
+
+**Complex authentication schemes**
+```
+APIs requiring client certificates
+Custom authentication headers not standard in REST APIs
+Multi-step authentication flows
+```
+
+**Fine-grained HTTP control**
+```
+Need to set specific HTTP version
+Require custom timeouts or retry logic
+Need to control cookies, redirects, or caching
+```
+
+**Binary data or file uploads**
+```
+Testing file upload functionality
+Multipart form data submissions
+Binary protocol testing
+```
+
+**Debugging API issues**
+```
+Need to see exact headers sent and received
+Want to test specific edge cases
+Investigating integration problems
+```
+
+**Non-standard HTTP scenarios**
+```
+Custom protocols beyond HTTP/HTTPS
+Unusual header requirements
+Legacy system integration
+```
+
+### Use Fetch instead when:
+
+**Standard REST API testing**
+```
+Modern JSON-based APIs
+Standard authentication (Bearer tokens, API keys)
+Typical CRUD operations
+```
+
+**Simplicity is preferred**
+```
+You don't need command-line specific features
+Standard Fetch API patterns work fine
+Team is more familiar with Fetch than cURL
+```
+
+**Promise-based async patterns**
+```
+Your application uses Fetch API natively
+You want modern JavaScript-style syntax
+```
+
+## cURL vs Fetch: Technical Comparison
+
+### cURL (Command-line style)
+
+**Strengths:**
+- Complete control over HTTP request details
+- Access to all cURL command-line flags
+- Native file upload support
+- Certificate and security options
+- Follows redirects with full control
+- Cookie handling
+- Verbose debug output
+
+**Best for:**
+- Complex scenarios requiring fine control
+- Replicating documentation examples
+- Legacy API integration
+- File uploads and downloads
+- Certificate-based authentication
+
+**Example cURL commands:**
+```bash
+curl -X POST https://api.example.com/upload \
+  -H "Authorization: Bearer token" \
+  -F "file=@document.pdf" \
+  -F "title=My Document"
+
+curl -X GET https://api.example.com/users \
+  --cert client.pem \
+  --key client.key \
+  -v
+
+curl -X PUT https://api.example.com/resource \
+  -H "Content-Type: application/json" \
+  -d '{"name":"value"}' \
+  --max-time 30 \
+  --retry 3
+```
+
+### Fetch (JavaScript style)
+
+**Strengths:**
+- Clean, modern syntax
+- JSON-first approach
+- Standard web API patterns
+- Simpler for typical REST operations
+- Better for teams unfamiliar with cURL
+
+**Best for:**
+- Standard REST APIs
+- JSON request/response patterns
+- Modern web application testing
+- Simple CRUD operations
+
+**When to switch from Fetch to cURL:**
+- Fetch is failing for complex scenarios
+- API documentation only provides cURL examples
+- You need cURL-specific features (certificates, advanced options)
+- File uploads require multipart/form-data
+- You need verbose debugging output
+
+## How It Works
+
+When you use the cURL interaction:
+
+1. **Script Lookup**: Autonoma retrieves your stored cURL command by name
+2. **Configuration Loading**: The complete cURL command with all flags and options is loaded
+3. **Request Execution**: Autonoma executes the cURL command exactly as configured
+4. **Response Capture**: Headers, body, and status codes are captured
+5. **Validation**: You can extract data from the response and verify results
+
+### Typical cURL Script Structure
+
+A cURL script you've stored might look like this:
+
+```bash
+curl -X POST https://api.example.com/orders \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {"product_id": "{{key:PRODUCT_ID}}", "quantity": 1}
+    ],
+    "customer_id": "{{key:CUSTOMER_ID}}"
+  }'
+```
+
+When you execute this with "execute the cURL command called CREATE_ORDER", Autonoma runs this exact command.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+cURL works identically across platforms. Whether testing web or mobile applications, your cURL scripts execute the same way, making API validation consistent across your test suite.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing File Upload Feature
+
+You're testing a document management system where users upload files through the UI.
+
+```
+Test: "Upload document and verify processing"
+
+Prepare Test File:
+1. Navigate to {{variable:APP_URL}}/documents
+2. Wait until: Upload page loads
+
+Upload via UI:
+3. Click "Upload Document" button
+4. Set file to upload: "test-document.pdf"
+5. Input text: "Q4 Report" in title field
+6. Click "Upload" button
+7. Wait until: Upload completes
+
+Verify Upload via API:
+8. Execute the cURL command called VERIFY_DOCUMENT_UPLOADED
+9. Extract information about document ID from response with key DOC_ID
+10. Extract information about file size from response with key FILE_SIZE
+11. Extract information about upload status from response with key UPLOAD_STATUS
+
+Validate Results:
+12. Assert: Upload status {{key:UPLOAD_STATUS}} is "complete"
+13. Assert: Document ID {{key:DOC_ID}} is displayed in UI
+14. Assert: File size {{key:FILE_SIZE}} matches uploaded file
+```
+
+**Why cURL is perfect here**: File uploads typically use multipart/form-data, which cURL handles natively with the `-F` flag. The stored cURL command might be:
+
+```bash
+curl -X POST https://api.example.com/documents \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -F "file=@{{variable:TEST_FILE_PATH}}" \
+  -F "title={{key:DOC_TITLE}}"
+```
+
+### Scenario 2: Certificate-Based Authentication
+
+Testing an enterprise API that requires client certificates for authentication.
+
+```
+Test: "Access secure API endpoint with certificates"
+
+Authenticate via Certificate:
+1. Execute the cURL command called AUTH_WITH_CERTIFICATE
+2. Extract information about session token from response with key SESSION_TOKEN
+3. Assert: Session token {{key:SESSION_TOKEN}} is not empty
+
+Access Protected Resource:
+4. Execute the cURL command called GET_PROTECTED_DATA
+5. Extract information about user permissions from response with key PERMISSIONS
+6. Assert: Permissions include "read", "write"
+
+Test in UI:
+7. Navigate to {{variable:APP_URL}}/dashboard
+8. Wait until: Dashboard loads
+9. Assert: Protected data is displayed correctly
+10. Assert: User has appropriate access level
+```
+
+**Why cURL is perfect here**: Client certificate authentication requires specific cURL flags that aren't available in standard Fetch:
+
+```bash
+curl -X GET https://api.example.com/secure \
+  --cert client.pem:{{variable:CERT_PASSWORD}} \
+  --key client.key \
+  -H "Accept: application/json"
+```
+
+### Scenario 3: Debugging API Integration Issues
+
+Your application's API calls are failing intermittently, and you need detailed debugging information.
+
+```
+Test: "Debug checkout API integration"
+
+Enable Verbose Logging:
+1. Execute the cURL command called CHECKOUT_WITH_DEBUG
+2. Extract information about request headers from verbose output with key REQUEST_HEADERS
+3. Extract information about response headers from verbose output with key RESPONSE_HEADERS
+4. Extract information about response time from output with key RESPONSE_TIME
+
+Analyze Response:
+5. Assert: Response time {{key:RESPONSE_TIME}} is less than 2000ms
+6. Extract information about response status from output with key STATUS_CODE
+7. Assert: Status code {{key:STATUS_CODE}} is 200 or 201
+
+Verify in UI:
+8. Navigate to order confirmation
+9. Assert: Order was processed successfully
+```
+
+**Why cURL is perfect here**: The `-v` (verbose) flag provides detailed debugging information:
+
+```bash
+curl -X POST https://api.example.com/checkout \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Content-Type: application/json" \
+  -d '{"cart_id": "{{key:CART_ID}}"}' \
+  -v \
+  -w "\nResponse time: %{time_total}s\n"
+```
+
+The verbose output shows:
+- Exact headers sent
+- SSL handshake details
+- Redirect information
+- Timing breakdown
+- Response headers received
+
+### Scenario 4: Testing API Rate Limiting
+
+Verifying your API properly implements rate limiting and returns appropriate error codes.
+
+```
+Test: "API rate limiting behavior"
+
+Make Normal Requests:
+1. Execute the cURL command called GET_PRODUCTS
+2. Assert: Response status is 200
+3. Execute the cURL command called GET_PRODUCTS
+4. Assert: Response status is 200
+
+Trigger Rate Limit:
+5. Loop 10 times:
+6.   Execute the cURL command called GET_PRODUCTS_RAPID
+7.   Wait 0.1 seconds
+
+Verify Rate Limit Response:
+8. Execute the cURL command called GET_PRODUCTS
+9. Extract information about status code from response with key STATUS_CODE
+10. Extract information about retry-after header from response with key RETRY_AFTER
+11. Assert: Status code {{key:STATUS_CODE}} is 429
+12. Assert: Retry-After header {{key:RETRY_AFTER}} exists
+
+Test UI Handling:
+13. Navigate to products page
+14. Assert: "Too many requests" message is displayed
+15. Assert: Retry option is available
+```
+
+**Why cURL is perfect here**: You need to make rapid-fire requests and capture specific response headers:
+
+```bash
+curl -X GET https://api.example.com/products \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -i \
+  --max-time 5 \
+  --retry 0
+```
+
+The `-i` flag includes headers in output, and `--max-time` and `--retry` give fine control over request behavior.
+
+### Scenario 5: Testing Webhook Delivery
+
+Verifying that your application correctly sends webhook payloads to configured endpoints.
+
+```
+Test: "Webhook payload delivery"
+
+Configure Webhook:
+1. Navigate to settings
+2. Enter webhook URL: {{variable:WEBHOOK_TEST_URL}}
+3. Select events: "order.created", "order.updated"
+4. Click "Save Webhook Configuration"
+
+Trigger Webhook Event:
+5. Navigate to orders
+6. Create new order
+7. Extract information about order ID with key ORDER_ID
+
+Verify Webhook Received:
+8. Wait 3 seconds for webhook delivery
+9. Execute the cURL command called GET_WEBHOOK_DELIVERIES
+10. Extract information about latest webhook payload with key WEBHOOK_PAYLOAD
+11. Extract information about delivery status with key DELIVERY_STATUS
+
+Validate Webhook Data:
+12. Assert: Delivery status {{key:DELIVERY_STATUS}} is "delivered"
+13. Assert: Webhook payload contains order ID {{key:ORDER_ID}}
+14. Assert: Webhook payload contains event "order.created"
+```
+
+**Why cURL is perfect here**: You might need to inspect webhook delivery logs that require specific authentication or custom headers:
+
+```bash
+curl -X GET https://webhook-inspector.example.com/deliveries \
+  -H "X-Inspector-Key: {{variable:INSPECTOR_KEY}}" \
+  -H "Accept: application/json" \
+  --max-time 10
+```
+
+### Scenario 6: Testing Download Endpoints
+
+Verifying file download functionality and checking downloaded content.
+
+```
+Test: "Report download functionality"
+
+Generate Report:
+1. Navigate to reports
+2. Select date range: Last 30 days
+3. Select format: CSV
+4. Click "Generate Report"
+5. Wait until: "Report ready" message appears
+6. Extract information about report ID with key REPORT_ID
+
+Download via UI:
+7. Click "Download Report" button
+8. Wait until: Download completes
+
+Verify Download via API:
+9. Execute the cURL command called DOWNLOAD_REPORT
+10. Extract information about downloaded file size with key FILE_SIZE
+11. Extract information about content type from headers with key CONTENT_TYPE
+12. Extract information about file content with key FILE_CONTENT
+
+Validate Download:
+13. Assert: Content type {{key:CONTENT_TYPE}} is "text/csv"
+14. Assert: File size {{key:FILE_SIZE}} is greater than 0
+15. Assert: File content includes expected headers
+```
+
+**Why cURL is perfect here**: cURL can save downloaded content and extract response headers:
+
+```bash
+curl -X GET https://api.example.com/reports/{{key:REPORT_ID}}/download \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -o downloaded_report.csv \
+  -w "Size: %{size_download}\nType: %{content_type}\n" \
+  -D response_headers.txt
+```
+
+The `-o` flag saves the file, `-w` formats output data, and `-D` dumps headers.
+
+## Setting Up cURL Scripts
+
+Before using cURL in your tests, configure your scripts in Autonoma.
+
+### Basic cURL Script Structure
+
+```bash
+curl -X [METHOD] [URL] \
+  -H "Header-Name: Header-Value" \
+  -d 'request body' \
+  [additional flags]
+```
+
+### Common cURL Flags and Options
+
+**Request method:**
+```bash
+-X GET     # GET request (default)
+-X POST    # POST request
+-X PUT     # PUT request
+-X PATCH   # PATCH request
+-X DELETE  # DELETE request
+```
+
+**Headers:**
+```bash
+-H "Authorization: Bearer token"
+-H "Content-Type: application/json"
+-H "Accept: application/json"
+-H "User-Agent: Autonoma-Test/1.0"
+```
+
+**Request body:**
+```bash
+-d '{"key":"value"}'           # JSON data
+-d @file.json                   # Data from file
+-F "field=value"                # Form field
+-F "file=@document.pdf"         # File upload
+```
+
+**Authentication:**
+```bash
+-u username:password            # Basic auth
+--cert client.pem              # Client certificate
+--key client.key               # Private key
+-H "Authorization: Bearer token" # Token auth
+```
+
+**Output control:**
+```bash
+-o filename                     # Save output to file
+-O                              # Save with remote filename
+-i                              # Include headers in output
+-I                              # Show headers only
+-v                              # Verbose output
+-s                              # Silent mode
+-S                              # Show errors in silent mode
+```
+
+**Connection control:**
+```bash
+--max-time 30                   # Timeout after 30 seconds
+--connect-timeout 10            # Connection timeout
+--retry 3                       # Retry 3 times on failure
+--retry-delay 2                 # Wait 2 seconds between retries
+```
+
+**Cookie handling:**
+```bash
+-b cookies.txt                  # Send cookies from file
+-c cookies.txt                  # Save cookies to file
+-b "name=value"                 # Send specific cookie
+```
+
+**Redirect handling:**
+```bash
+-L                              # Follow redirects
+--max-redirs 5                  # Maximum redirects to follow
+```
+
+**Custom options:**
+```bash
+-A "User-Agent string"          # Custom user agent
+-e "https://referrer.com"       # Set referrer
+--compressed                    # Request compressed response
+```
+
+### Using Variables in cURL Scripts
+
+Make your cURL scripts flexible with Autonoma variables:
+
+```bash
+curl -X GET {{variable:API_BASE_URL}}/users/{{key:USER_ID}} \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Accept: application/json"
+```
+
+**Variable types:**
+- `{{variable:NAME}}` - Set before test runs (configuration)
+- `{{key:NAME}}` - Extracted during test execution (dynamic data)
+- `{{random:type}}` - Generated by Autonoma (test data)
+
+### Common cURL Script Patterns
+
+**GET request with authentication:**
+```bash
+curl -X GET {{variable:API_URL}}/profile \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Accept: application/json"
+```
+
+**POST request with JSON:**
+```bash
+curl -X POST {{variable:API_URL}}/orders \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": "{{key:CUSTOMER_ID}}",
+    "items": [
+      {"product_id": "{{key:PRODUCT_ID}}", "quantity": 1}
+    ]
+  }'
+```
+
+**File upload:**
+```bash
+curl -X POST {{variable:API_URL}}/documents \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -F "file=@{{variable:TEST_FILE}}" \
+  -F "title={{key:DOC_TITLE}}" \
+  -F "tags={{key:DOC_TAGS}}"
+```
+
+**PUT with data from file:**
+```bash
+curl -X PUT {{variable:API_URL}}/resources/{{key:RESOURCE_ID}} \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Content-Type: application/json" \
+  -d @update_data.json
+```
+
+**DELETE with confirmation:**
+```bash
+curl -X DELETE {{variable:API_URL}}/items/{{key:ITEM_ID}} \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "X-Confirm: true"
+```
+
+**Certificate-based authentication:**
+```bash
+curl -X GET {{variable:API_URL}}/secure/data \
+  --cert {{variable:CERT_PATH}} \
+  --key {{variable:KEY_PATH}} \
+  -H "Accept: application/json"
+```
+
+**Verbose debugging:**
+```bash
+curl -X POST {{variable:API_URL}}/transaction \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -H "Content-Type: application/json" \
+  -d '{"amount": {{key:AMOUNT}}}' \
+  -v \
+  -w "\nHTTP Code: %{http_code}\nTime: %{time_total}s\n"
+```
+
+## Example Prompts
+
+Here are effective ways to phrase cURL commands in your tests:
+
+**Basic execution:**
+```
+execute the cURL command called SCRIPT_1
+run the SCRIPT_1 cURL command
+use the cURL script SCRIPT_1
+execute cURL SCRIPT_1
+```
+
+**With descriptive names:**
+```
+execute the cURL command called GET_USER_PROFILE
+use UPLOAD_DOCUMENT to send file via cURL
+run the CREATE_ORDER_WITH_CERTIFICATE cURL script
+execute the DEBUG_CHECKOUT_VERBOSE cURL command
+```
+
+**In workflow context:**
+```
+use VERIFY_UPLOAD to check file via cURL
+execute the AUTHENTICATE_WITH_CERT cURL command
+run DOWNLOAD_REPORT_CSV to get file
+use CHECK_WEBHOOK_DELIVERY to verify callback
+```
+
+## Best Practices
+
+### 1. Use Descriptive Script Names
+
+**Poor naming:**
+```
+CURL_1
+CURL_2
+API_TEST
+CURL_COMMAND
+```
+
+**Good naming:**
+```
+UPLOAD_PDF_WITH_METADATA
+GET_USER_WITH_CERTIFICATE
+DEBUG_CHECKOUT_VERBOSE
+VERIFY_WEBHOOK_DELIVERY
+DOWNLOAD_MONTHLY_REPORT
+```
+
+### 2. Store Complex cURL Commands
+
+If a cURL command is long or complex, store it rather than recreate it:
+
+**Instead of:**
+```
+Rewriting a 10-line cURL command in every test
+```
+
+**Do this:**
+```
+Store once as "UPLOAD_DOCUMENT_FULL"
+Use in all tests with:
+"execute the cURL command called UPLOAD_DOCUMENT_FULL"
+```
+
+### 3. Use Variables for Flexibility
+
+Make cURL scripts work across environments:
+
+```bash
+curl -X GET {{variable:API_BASE_URL}}/data \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  --cert {{variable:CERT_PATH}} \
+  --max-time {{variable:API_TIMEOUT}}
+```
+
+Configure variables per environment:
+- **Development**: Fast timeouts, local certificates
+- **Staging**: Longer timeouts, staging certificates
+- **Production**: Production timeouts and certificates
+
+### 4. Include Error Handling
+
+Use cURL flags that help with error scenarios:
+
+```bash
+curl -X POST {{variable:API_URL}}/order \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -d '{"items": [{{key:CART_ITEMS}}]}' \
+  --max-time 30 \
+  --retry 3 \
+  --retry-delay 2 \
+  -f \
+  -S
+```
+
+Flags explained:
+- `--max-time 30`: Fail if request takes over 30 seconds
+- `--retry 3`: Retry up to 3 times on failure
+- `--retry-delay 2`: Wait 2 seconds between retries
+- `-f`: Fail silently on HTTP errors
+- `-S`: Show errors even in silent mode
+
+### 5. Use Verbose Mode for Debugging
+
+When creating or debugging cURL scripts, use verbose output:
+
+```bash
+curl -X POST {{variable:API_URL}}/endpoint \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -d '{"data": "value"}' \
+  -v
+```
+
+Remove `-v` once the script works correctly to reduce output noise.
+
+### 6. Handle File Paths Properly
+
+When uploading files, use absolute paths or variables:
+
+```bash
+# Good: Using variable
+-F "file=@{{variable:TEST_FILE_PATH}}"
+
+# Good: Absolute path
+-F "file=@/path/to/test-files/document.pdf"
+
+# Risky: Relative path (depends on working directory)
+-F "file=@./document.pdf"
+```
+
+### 7. Extract and Verify Responses
+
+Always capture and validate cURL responses:
+
+```
+1. Execute the cURL command called CREATE_ORDER
+2. Extract information about order ID from response with key ORDER_ID
+3. Extract information about status code from response with key STATUS
+4. Assert: Status {{key:STATUS}} is 201
+5. Assert: Order ID {{key:ORDER_ID}} exists
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Escaping Special Characters
+
+**Problem:**
+```bash
+curl -X POST https://api.example.com/data \
+  -d '{"message": "Don't forget"}' # Single quote breaks the command
+```
+
+**Solution:**
+```bash
+curl -X POST https://api.example.com/data \
+  -d '{"message": "Don'\''t forget"}' # Escape the quote
+
+# Or use double quotes:
+curl -X POST https://api.example.com/data \
+  -d "{\"message\": \"Don't forget\"}"
+```
+
+### Pitfall 2: Hardcoding Environment-Specific Values
+
+**Problem:**
+```bash
+curl -X GET https://staging-api.example.com/users \
+  -H "Authorization: Bearer abc123token"
+```
+
+This only works in staging with that specific token.
+
+**Solution:**
+```bash
+curl -X GET {{variable:API_BASE_URL}}/users \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}"
+```
+
+### Pitfall 3: Not Handling Timeouts
+
+**Problem:**
+```bash
+curl -X POST https://api.example.com/long-process \
+  -d '{"data": "value"}'
+```
+
+If the API is slow, this might hang indefinitely.
+
+**Solution:**
+```bash
+curl -X POST https://api.example.com/long-process \
+  -d '{"data": "value"}' \
+  --max-time 60 \
+  --connect-timeout 10
+```
+
+### Pitfall 4: Ignoring Response Status Codes
+
+**Problem:**
+```
+1. Execute the cURL command called UPDATE_PROFILE
+2. Navigate to profile page
+3. Assume update succeeded
+```
+
+The API might have returned an error.
+
+**Solution:**
+```
+1. Execute the cURL command called UPDATE_PROFILE
+2. Extract information about HTTP status from response with key STATUS_CODE
+3. Assert: Status code {{key:STATUS_CODE}} is 200
+4. Navigate to profile page
+5. Verify changes applied
+```
+
+### Pitfall 5: Not Testing cURL Scripts Independently
+
+**Problem:**
+```
+Creating complex cURL scripts and only testing them within full test flows
+```
+
+**Solution:**
+```
+Test cURL scripts independently first:
+1. Execute the cURL command called NEW_SCRIPT
+2. Extract and verify response
+3. Confirm it works as expected
+
+Then integrate into full test flows
+```
+
+### Pitfall 6: Overly Complex Single Commands
+
+**Problem:**
+```bash
+curl -X POST https://api.example.com/complex \
+  -H "Header1: value" \
+  -H "Header2: value" \
+  -H "Header3: value" \
+  -d '{"huge": "json", "with": "many", "nested": {"objects": "values"}}' \
+  --cert cert.pem --key key.pem \
+  -v -L --retry 3 --retry-delay 2 --max-time 30 \
+  -w "Status: %{http_code}\n"
+```
+
+This is hard to read and maintain.
+
+**Solution:**
+Break into multiple scripts:
+- `AUTH_WITH_CERT`: Handle certificate authentication
+- `POST_COMPLEX_DATA`: Post the data
+- `DEBUG_RESPONSE`: Debug version with verbose output
+
+Or store data in a file:
+```bash
+curl -X POST https://api.example.com/complex \
+  -H "Authorization: Bearer {{variable:TOKEN}}" \
+  -d @complex_data.json
+```
+
+## Advanced Patterns
+
+### Pattern 1: Multi-Step API Workflow
+
+```
+Test: "Complete order workflow via API"
+
+Create Order:
+1. Execute the cURL command called CREATE_DRAFT_ORDER
+2. Extract order ID with key ORDER_ID
+
+Add Items:
+3. Execute the cURL command called ADD_ITEM_TO_ORDER
+4. Execute the cURL command called ADD_ITEM_TO_ORDER
+5. Execute the cURL command called ADD_ITEM_TO_ORDER
+
+Apply Discount:
+6. Execute the cURL command called APPLY_COUPON
+7. Extract discount amount with key DISCOUNT
+
+Calculate Total:
+8. Execute the cURL command called CALCULATE_ORDER_TOTAL
+9. Extract total with key CALCULATED_TOTAL
+
+Submit Order:
+10. Execute the cURL command called SUBMIT_ORDER
+11. Extract confirmation with key CONFIRMATION_CODE
+
+Verify in UI:
+12. Navigate to order history
+13. Assert: Order {{key:ORDER_ID}} appears
+14. Assert: Confirmation code {{key:CONFIRMATION_CODE}} is displayed
+```
+
+### Pattern 2: Certificate Rotation Testing
+
+```
+Test: "Handle certificate expiration gracefully"
+
+Test with Valid Certificate:
+1. Execute the cURL command called AUTH_WITH_VALID_CERT
+2. Assert: Authentication successful
+
+Simulate Certificate Expiration:
+3. Execute the cURL command called AUTH_WITH_EXPIRED_CERT
+4. Extract error message with key ERROR_MESSAGE
+5. Assert: Error message indicates certificate expired
+
+Test Certificate Renewal:
+6. Execute the cURL command called AUTH_WITH_NEW_CERT
+7. Assert: Authentication successful with renewed certificate
+
+Verify UI Handling:
+8. Navigate to application
+9. Assert: Certificate warning displayed appropriately
+10. Assert: Renewal instructions are provided
+```
+
+### Pattern 3: Performance Testing
+
+```
+Test: "API response time under load"
+
+Baseline Measurement:
+1. Execute the cURL command called GET_PRODUCTS_WITH_TIMING
+2. Extract response time with key BASELINE_TIME
+3. Assert: Response time {{key:BASELINE_TIME}} is less than 500ms
+
+Simulate Load:
+4. Loop 20 times:
+5.   Execute the cURL command called GET_PRODUCTS_WITH_TIMING
+6.   Wait 0.1 seconds
+
+Measure Under Load:
+7. Execute the cURL command called GET_PRODUCTS_WITH_TIMING
+8. Extract response time with key LOAD_TIME
+9. Assert: Response time {{key:LOAD_TIME}} is less than 2000ms
+
+Verify Degradation Acceptable:
+10. Math Assert: "{{key:LOAD_TIME}} < {{key:BASELINE_TIME}} * 4"
+```
+
+The cURL script with timing might be:
+```bash
+curl -X GET {{variable:API_URL}}/products \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -w "\nTime: %{time_total}s\n" \
+  -s -o /dev/null
+```
+
+### Pattern 4: Webhook Testing End-to-End
+
+```
+Test: "Webhook delivery and retry mechanism"
+
+Register Webhook:
+1. Execute the cURL command called REGISTER_WEBHOOK
+2. Extract webhook ID with key WEBHOOK_ID
+
+Trigger Event:
+3. Create order via UI
+4. Extract order ID with key ORDER_ID
+
+Verify Initial Delivery Attempt:
+5. Wait 3 seconds for webhook delivery
+6. Execute the cURL command called GET_WEBHOOK_DELIVERY_LOG
+7. Extract delivery status with key DELIVERY_1_STATUS
+8. Assert: First delivery attempted
+
+Simulate Delivery Failure:
+9. Execute the cURL command called SIMULATE_WEBHOOK_FAILURE
+10. Create another order
+11. Extract order ID with key ORDER_ID_2
+
+Verify Retry Logic:
+12. Wait 5 seconds for first retry
+13. Execute the cURL command called GET_WEBHOOK_DELIVERY_LOG
+14. Extract retry count with key RETRY_COUNT
+15. Assert: Retry count is at least 1
+
+Verify Eventually Succeeds:
+16. Wait 30 seconds for retries to complete
+17. Execute the cURL command called GET_WEBHOOK_DELIVERY_LOG
+18. Extract final status with key FINAL_STATUS
+19. Assert: Final status is "delivered"
+```
+
+## Debugging cURL Issues
+
+### Issue: Command Syntax Error
+
+**Error message:**
+```
+cURL command failed: syntax error near unexpected token
+```
+
+**Common causes:**
+- Unescaped special characters
+- Unclosed quotes
+- Invalid JSON in request body
+
+**Solution:**
+```bash
+# Check for:
+1. Matching quotes: '...' or "..."
+2. Escaped special characters: \' or \"
+3. Valid JSON: Use a JSON validator
+4. Proper line continuations: \
+
+# Test the command manually first:
+curl -X POST https://api.example.com/test \
+  -H "Content-Type: application/json" \
+  -d '{"valid": "json"}'
+```
+
+### Issue: SSL Certificate Problems
+
+**Error message:**
+```
+SSL certificate problem: unable to get local issuer certificate
+```
+
+**Common causes:**
+- Self-signed certificates
+- Certificate chain issues
+- Missing CA certificates
+
+**Solution:**
+```bash
+# For testing only (not production):
+curl -X GET https://api.example.com/endpoint \
+  -k  # or --insecure to bypass certificate validation
+
+# Proper solution:
+curl -X GET https://api.example.com/endpoint \
+  --cacert ca-bundle.crt  # Specify CA certificate
+```
+
+### Issue: Authentication Failed
+
+**Error message:**
+```
+HTTP 401 Unauthorized
+```
+
+**Common causes:**
+- Token expired or invalid
+- Wrong authentication method
+- Missing authorization header
+
+**Solution:**
+```bash
+# Verify token is correct:
+echo "{{variable:AUTH_TOKEN}}"  # Check token value
+
+# Test authentication:
+curl -X GET https://api.example.com/protected \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -v  # Verbose mode shows auth headers sent
+
+# Check response headers:
+curl -X GET https://api.example.com/protected \
+  -H "Authorization: Bearer {{variable:AUTH_TOKEN}}" \
+  -i  # Include response headers
+```
+
+### Issue: Request Timeout
+
+**Error message:**
+```
+Operation timed out after 30000 milliseconds
+```
+
+**Common causes:**
+- API endpoint is slow or unresponsive
+- Network connectivity issues
+- Too short timeout setting
+
+**Solution:**
+```bash
+# Increase timeout:
+curl -X GET https://api.example.com/slow \
+  --max-time 120  # 120 seconds timeout
+
+# Test connectivity:
+curl -X GET https://api.example.com/health \
+  --connect-timeout 5 \
+  -v
+
+# Add retry logic:
+curl -X GET https://api.example.com/endpoint \
+  --max-time 30 \
+  --retry 3 \
+  --retry-delay 5
+```
+
+## What's Next
+
+Now that you understand the cURL interaction, you can:
+- Test complex API scenarios with full HTTP control
+- Replicate exact cURL commands from API documentation
+- Debug API integration issues with verbose output
+- Handle advanced authentication like client certificates
+- Test file uploads and binary data transfers
+
+cURL is one of the Advanced Features in Autonoma that provides command-line level power for API testing within your automated test flows.
+
+Explore related interactions:
+- **Fetch**: For standard REST API testing with simpler syntax
+- **Extract Information**: To capture and reuse data from API responses
+- **Assert**: To verify API responses match expected values
+- **Variables**: To configure URLs, tokens, and paths across environments
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

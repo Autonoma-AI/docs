@@ -1,0 +1,361 @@
+---
+title: "Interactions Reference"
+description: "A comprehensive guide to all available interactions in Autonoma—from clicks and inputs to advanced features like API calls and OCR."
+---
+
+## What Are Interactions?
+
+Interactions are the building blocks of your Autonoma tests. Each interaction represents a specific action you want to perform or verify in your application—clicking a button, typing text, scrolling to find content, or verifying that an element appears.
+
+Think of interactions as the vocabulary you use to communicate with Autonoma. Just as you'd tell a person "click the login button" or "scroll down until you see the footer," you use interactions to describe the same actions in your tests.
+
+## How Interactions Work
+
+When you create a test in Autonoma, you're essentially chaining together interactions in a sequence:
+
+```
+Test: "Complete user registration"
+
+1. Input text: "john@example.com" in email field
+2. Input text: "SecurePass123!" in password field
+3. Click: "Sign Up" button
+4. Wait until: Dashboard loads
+5. Assert: "Welcome" message appears
+```
+
+Each line is an interaction. Autonoma's AI interprets your intent and executes the appropriate action on your application—whether it's web or mobile.
+
+## The Power of Natural Language
+
+Unlike traditional testing tools that require you to write code with precise selectors, Autonoma interactions work with natural language. You describe what you want to do, and the AI figures out how to do it.
+
+**Traditional testing approach**:
+```javascript
+await page.click('button[data-testid="submit-btn"][class*="primary"]');
+```
+
+**Autonoma approach**:
+```
+Click: "Submit" button
+```
+
+The AI understands context, visual appearance, and user intent—making your tests more resilient to UI changes.
+
+## Types of Interactions
+
+Interactions in Autonoma fall into several categories:
+
+### Navigation & Interaction
+The most common interactions—clicking elements, tapping buttons, and interacting with UI components. These form the core of most tests.
+
+**When to use**: Simulating user clicks, taps, and direct interactions with your application.
+
+**Example**: Testing a login flow, navigating through menus, clicking buttons.
+
+### Input & Text Entry
+Interactions for typing text, entering data into fields, and submitting forms.
+
+**When to use**: Filling out forms, entering search queries, typing passwords.
+
+**Example**: Completing a registration form, searching for products, entering payment information.
+
+### Scrolling
+Interactions for scrolling through content, finding elements below the fold, and navigating long pages.
+
+**When to use**: Finding content that's not immediately visible, testing infinite scroll, navigating long forms.
+
+**Example**: Scrolling to the footer, finding a specific product in a long list, loading more content.
+
+### Assertions & Verification
+Interactions that verify your application is behaving correctly—checking that elements exist, text appears, or URLs change.
+
+**When to use**: Confirming that actions produced the expected results.
+
+**Example**: Verifying a success message appears, checking that a product was added to cart, confirming navigation occurred.
+
+### Waiting & Timing
+Interactions that handle asynchronous behavior, loading states, and timing issues.
+
+**When to use**: Dealing with dynamic content, API calls, animations, and loading indicators.
+
+**Example**: Waiting for a page to load, waiting for data to appear, giving animations time to complete.
+
+### Browser & Navigation
+Interactions for controlling browser behavior—opening new tabs, navigating back, controlling page state.
+
+**When to use**: Testing multi-page workflows, handling pop-ups, simulating back button navigation.
+
+**Example**: Opening links in new tabs, going back to the previous page, returning to the homepage.
+
+### File & Media Operations
+Interactions for uploading files, selecting images, and handling media content.
+
+**When to use**: Testing file uploads, profile picture changes, document submissions.
+
+**Example**: Uploading a resume, selecting a profile photo, attaching documents to forms.
+
+### Authentication & Security
+Specialized interactions for handling authentication flows, including social logins and biometric authentication.
+
+**When to use**: Testing login flows that use OAuth, Google sign-in, or biometric verification.
+
+**Example**: Logging in with Google, authenticating with Face ID, testing SSO flows.
+
+### Network & State
+Interactions that control network conditions and application state—going offline, restarting apps, testing network resilience.
+
+**When to use**: Testing offline functionality, app restart behavior, network error handling.
+
+**Example**: Simulating network loss, testing app recovery after restart, verifying offline mode.
+
+### Advanced Features
+Powerful interactions for complex scenarios—making API calls, extracting data, using OCR, and more.
+
+**When to use**: Advanced testing scenarios requiring data extraction, external API calls, or visual text recognition.
+
+**Example**: Validating API responses, extracting order numbers, reading text from images, testing email notifications.
+
+## Choosing the Right Interaction
+
+With so many interactions available, how do you know which one to use?
+
+### Start with the Basics
+
+For most tests, you'll primarily use:
+- **Click** - For clicking buttons, links, and UI elements
+- **Input Text** - For typing into fields
+- **Assert** - For verifying results
+- **Wait Until** - For handling loading states
+
+These four interactions cover 80% of testing scenarios.
+
+### Use Specialized Interactions When Needed
+
+As your tests become more sophisticated, you'll discover specialized interactions that solve specific problems:
+
+- **Scroll With Condition** - When you need to find content by scrolling
+- **Extract Information** - When you need to capture and reuse data
+- **Set File to Upload** - When testing file uploads
+- **Assert URL Location** - When verifying navigation
+
+### Ask Yourself These Questions
+
+**"What am I trying to do?"**
+- Interact with something → Navigation & Interaction
+- Enter information → Input & Text Entry
+- Verify something works → Assertions & Verification
+- Handle loading/timing → Waiting & Timing
+
+**"Is there a basic interaction that works?"**
+Always prefer simpler interactions when they'll work. Use `Click` before trying `Smart Click` or `Visual Click`.
+
+**"Do I need platform-specific behavior?"**
+Some interactions are optimized for web or mobile. Check the "Supported Engines" section in each interaction guide.
+
+## Platform Support
+
+Autonoma supports testing on multiple platforms, and most interactions work across all of them:
+
+**Web** - Testing web applications in browsers
+**Mobile** - Testing iOS and Android applications
+
+Each interaction guide specifies which platforms it supports. Most interactions work on both web and mobile, but some are platform-specific.
+
+## Real-World Example: Building a Test
+
+Let's see how interactions come together in a real test:
+
+```
+Test: "Complete product purchase"
+
+Setup:
+1. Input text: "test@example.com" in email field
+2. Input text: "password123" in password field
+3. Click: "Login" button
+4. Wait until: Dashboard appears
+5. Assert: User is logged in
+
+Browse and Add to Cart:
+6. Click: "Products" in navigation
+7. Wait until: Product grid loads
+8. Scroll with condition: Until "Blue T-Shirt" appears
+9. Click: "Blue T-Shirt" product
+10. Wait until: Product page loads
+11. Assert: Product details are visible
+12. Click: "Add to Cart" button
+13. Assert: Cart badge shows "1"
+
+Checkout:
+14. Click: Cart icon
+15. Wait until: Cart page loads
+16. Assert: "Blue T-Shirt" appears in cart
+17. Click: "Checkout" button
+18. Wait until: Checkout form appears
+19. Set file to upload: "profile.jpg" for avatar
+20. Click: "Complete Purchase"
+21. Wait until: Confirmation page loads
+22. Assert: "Thank you for your order" message appears
+23. Extract information: Order number for future use
+```
+
+This test uses interactions from multiple categories:
+- **Input & Text Entry** (steps 1-2)
+- **Navigation & Interaction** (steps 3, 6, 9, 12, 14, 17, 20)
+- **Waiting & Timing** (steps 4, 7, 10, 15, 18, 21)
+- **Assertions & Verification** (steps 5, 11, 13, 16, 22)
+- **Scrolling** (step 8)
+- **File & Media Operations** (step 19)
+- **Advanced Features** (step 23)
+
+Each interaction is chosen specifically for what it needs to accomplish.
+
+## Best Practices for Using Interactions
+
+### 1. Be Specific in Your Descriptions
+
+**Vague**:
+```
+Click: button
+```
+
+**Specific**:
+```
+Click: "Submit Order" button
+```
+
+The more specific you are, the more reliable your test becomes.
+
+### 2. Always Verify After Actions
+
+Don't just perform actions—verify they worked:
+
+```
+1. Click: "Add to Cart" button
+2. Assert: Cart badge updates to "1" ← Verification!
+```
+
+### 3. Use Waits Liberally
+
+Better to wait unnecessarily than to have a flaky test:
+
+```
+1. Click: "Load More"
+2. Wait until: Loading spinner disappears ← Important!
+3. Assert: More products appear
+```
+
+### 4. Combine Interactions Strategically
+
+Some scenarios require combining multiple interactions:
+
+```
+1. Scroll with condition: Until "Footer" appears
+2. Click: "Privacy Policy" link in footer
+3. Wait until: New page loads
+4. Assert: "Privacy Policy" heading appears
+```
+
+### 5. Choose the Simplest Interaction That Works
+
+Don't overcomplicate. If `Click` works, use it instead of `Smart Click` or `Visual Click`.
+
+## Understanding Interaction Metadata
+
+Some interactions require additional information called "metadata." This is extra context that tells Autonoma exactly what to do.
+
+**Example with metadata**:
+```
+Input text: "john@example.com"
+```
+
+Here, "john@example.com" is the metadata—the actual text to input.
+
+**Example with wait metadata**:
+```
+Wait: 5 seconds
+```
+
+Here, "5 seconds" is the metadata—how long to wait.
+
+Each interaction guide explains what metadata it expects and how to format it.
+
+## How to Use This Reference
+
+This reference is organized into logical groups based on what you're trying to accomplish. Here's how to navigate it:
+
+**Starting a new test?** Browse the "Navigation & Interaction" and "Input & Text Entry" sections—these form the foundation of most tests.
+
+**Test is flaky or timing out?** Check "Waiting & Timing" for interactions that handle asynchronous behavior.
+
+**Need to verify results?** Explore "Assertions & Verification" for all the ways to check that things work correctly.
+
+**Facing a specific challenge?** Use the search or browse the specialized categories like "File & Media Operations" or "Advanced Features."
+
+**Each interaction guide includes**:
+- **What it does** - Clear explanation of the interaction's purpose
+- **When to use it** - Scenarios where this interaction is the right choice
+- **Platform support** - Whether it works on web, mobile, or both
+- **Example prompts** - Real examples you can use in your tests
+- **Real-world scenarios** - How teams actually use this interaction
+- **Common pitfalls** - Mistakes to avoid
+
+## What Makes Autonoma Interactions Different
+
+Traditional testing tools require you to specify *exactly how* to interact with elements—precise selectors, coordinates, or technical identifiers.
+
+Autonoma interactions are different:
+
+**1. Intent-Based**
+You describe what you want to do, not how to do it. The AI figures out the implementation.
+
+**2. Self-Healing**
+When your UI changes, Autonoma's AI adapts. Button moved? Text changed? Tests still work.
+
+**3. Visual Understanding**
+Autonoma can see your application like a human does—recognizing buttons, fields, and content visually.
+
+**4. Natural Language**
+Write interactions in plain language. No programming knowledge required.
+
+**5. Cross-Platform**
+Most interactions work identically on web and mobile—one approach, all platforms.
+
+## Getting Started
+
+Ready to build better tests? Start exploring the interaction categories:
+
+<CardGroup cols={2}>
+  <Card title="Navigation & Interaction" icon="mouse-pointer" href="/interactions-reference/click">
+    Click, tap, and interact with UI elements
+  </Card>
+  <Card title="Input & Text Entry" icon="keyboard" href="/interactions-reference/input-text">
+    Type text and enter data into fields
+  </Card>
+  <Card title="Assertions & Verification" icon="check-circle" href="/interactions-reference/assert">
+    Verify your application behaves correctly
+  </Card>
+  <Card title="Waiting & Timing" icon="clock" href="/interactions-reference/wait">
+    Handle asynchronous behavior and loading states
+  </Card>
+</CardGroup>
+
+## Quick Reference
+
+**Most commonly used interactions**:
+- `Click` - Click buttons, links, and elements
+- `Input Text` - Type into fields
+- `Assert` - Verify elements exist
+- `Wait Until` - Wait for conditions
+- `Scroll With Condition` - Scroll to find content
+
+**For advanced scenarios**:
+- `Extract Information` - Capture data for reuse
+- `Fetch` / `Curl` - Make API calls
+- `Set File to Upload` - Handle file uploads
+- `Email Information Retriever` - Test email flows
+
+Start with the basics, and explore advanced interactions as your testing needs grow.
+
+---
+
+**Ready to dive in?** Choose an interaction category and start building more robust tests.

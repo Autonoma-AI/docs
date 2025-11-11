@@ -1,0 +1,603 @@
+---
+title: "Input Text"
+description: "Enter text into input fields, text areas, and editable elements using natural language prompts in your Autonoma tests."
+---
+
+## What is Input Text?
+
+Input Text is the most common interaction in Autonoma—it lets you type text into input fields, text areas, and any editable element on your application. Whether you're filling out forms, entering search queries, or typing messages, this interaction handles all your text input needs.
+
+Think of it as the equivalent of clicking into a field and typing, just like a real user would. The key difference is that you specify **what** to type and **where** to type it in a single, natural language prompt.
+
+## When to Use Input Text
+
+Input Text is your go-to interaction whenever you need to enter data into your application. Use it for:
+
+- **Form fields**: Email, password, name, address, phone number
+- **Search boxes**: Product searches, site-wide search, filtering
+- **Text areas**: Comments, descriptions, notes, messages
+- **Chat interfaces**: Sending messages, commands
+- **Content editors**: Simple text editors (not rich text editors)
+- **Filter inputs**: Date pickers, number inputs, dropdown search
+
+### When NOT to Use Input Text
+
+There are a few scenarios where you should use a different interaction:
+
+- **Input on Focus**: When a field is already focused and you just want to type (rare)
+- **Keypad**: When dealing with mobile numeric keypads on-screen
+- **Direct interaction**: Sometimes clicking and typing directly on the canvas is simpler for single-field scenarios
+
+## How It Works
+
+Input Text works by:
+
+1. Locating the specified input element on the page
+2. Clicking into the field to focus it
+3. Clearing any existing content (if present)
+4. Typing the specified text character by character
+5. Maintaining focus on the field (doesn't auto-submit)
+
+### The Anatomy of an Input Text Prompt
+
+A good Input Text prompt has two parts:
+
+1. **The text to input**: The actual content you want to type
+2. **The field identifier**: How to find the input field
+
+```
+input [TEXT] on the [FIELD IDENTIFIER]
+```
+
+**Examples**:
+- `input tom@autonoma.app on the email field`
+- `input SecurePassword123! on the password input`
+- `input John Smith on the name field`
+- `input San Francisco on the city input`
+
+## Platform Support
+
+- **Web**: Fully supported
+- **Mobile**: Fully supported
+
+Input Text works consistently across both platforms, though the visual behavior differs slightly:
+- **Web**: Types character by character, like keyboard input
+- **Mobile**: Simulates mobile keyboard input, respecting on-screen keyboards
+
+## Understanding Metadata
+
+In Autonoma's architecture, the "metadata" for Input Text is simply the text to be typed. This is important to understand when looking at technical documentation or debugging tests.
+
+### Key Rule: Return Only the Text
+
+The metadata should contain **only** the text to be inputted—nothing else:
+
+**Correct metadata**:
+- Prompt: `input the email tom@autonoma.app on the email input`
+- Metadata: `tom@autonoma.app` ✅
+
+**Incorrect metadata**:
+- Prompt: `input the email tom@autonoma.app on the email input`
+- Metadata: `input the email tom@autonoma.app` ❌
+- Metadata: `email: tom@autonoma.app` ❌
+
+The metadata is used directly for typing—it's the raw text that will appear in the field.
+
+## Example Scenarios
+
+### Scenario 1: Registration Form
+
+You're testing a user registration flow with multiple fields.
+
+**Test structure**:
+```
+Step 1: input John on the first name field
+Step 2: input Smith on the last name field
+Step 3: input john.smith@example.com on the email field
+Step 4: input SecurePass123! on the password field
+Step 5: input SecurePass123! on the confirm password field
+Step 6: Click the submit button
+Step 7: Verify I see the welcome message
+```
+
+**Why this works**: Each input action is atomic, making it easy to debug if one field fails to accept input.
+
+### Scenario 2: Login Flow
+
+The most common use case for Input Text.
+
+**Test structure**:
+```
+Step 1: Navigate to the login page
+Step 2: input test-user@autonoma.app on the email field
+Step 3: input TestPassword123 on the password field
+Step 4: Click the login button
+Step 5: Verify I see the dashboard
+```
+
+**Pro tip**: For login flows that you'll reuse across many tests, consider using Autonoma's authentication configuration instead of testing login every time.
+
+### Scenario 3: Search Functionality
+
+Testing a search feature with multiple queries.
+
+**Test structure**:
+```
+Step 1: input running shoes on the search field
+Step 2: Verify I see search results
+Step 3: Click the search clear button
+Step 4: input nike air max on the search field
+Step 5: Verify I see filtered results
+```
+
+**Common pattern**: Clear between searches to test different queries.
+
+### Scenario 4: Multi-line Text Area
+
+Entering longer content into a text area or editor.
+
+**Prompt**: `input This is my comment about the product. It was exactly what I needed! on the comment text area`
+
+**Note**: Input Text handles multi-line content, but for very long text, consider using test variables or memory features.
+
+### Scenario 5: Dynamic Form with Conditional Fields
+
+Testing a form that shows/hides fields based on input.
+
+**Test structure**:
+```
+Step 1: input United States on the country field
+Step 2: Wait until I see the state field
+Step 3: input California on the state field
+Step 4: input 94102 on the zip code field
+```
+
+**Key insight**: Use `Wait until` between inputs when fields appear dynamically.
+
+## Example Prompts
+
+### Basic Input Prompts
+
+```
+input test@example.com on the email field
+input password123 on the password input
+input John Doe on the name field
+input 1234567890 on the phone number input
+input New York on the city field
+```
+
+### Searching and Filtering
+
+```
+input product search query on the search box
+input macbook pro on the search field
+input january 2024 on the date filter
+input 100 on the minimum price input
+```
+
+### Forms with Multiple Fields
+
+```
+input 123 Main Street on the street address field
+input Apt 4B on the apartment number input
+input 10001 on the zip code field
+input United States on the country field
+```
+
+### Dynamic Content
+
+```
+input user@test.com on the email field
+input verification code on the verification input
+input new password on the password field
+```
+
+### Using Memory/Variables
+
+When using Autonoma's memory feature to recall previously stored values:
+
+```
+input the email from memory on the email field
+input the stored password on the password input
+input the test username from memory on the username field
+```
+
+**How this works**: Autonoma retrieves the stored value and uses it as the metadata. If the stored email is `nico@autonoma.app`, that's what will be typed.
+
+## Field Identifiers: How to Describe Fields
+
+The success of Input Text depends on how well you describe the field. Here are effective strategies:
+
+### Strategy 1: Use Visible Labels
+
+The most reliable approach is to use the label that a user would see:
+
+- `the email field` (if labeled "Email")
+- `the password input` (if labeled "Password")
+- `the search box` (if labeled "Search")
+- `the comment text area` (if labeled "Comment")
+
+### Strategy 2: Use Placeholder Text
+
+If there's no visible label, use the placeholder:
+
+- `the field that says "Enter your email"`
+- `the input with placeholder "Search products"`
+
+### Strategy 3: Use Field Position
+
+When labels aren't unique:
+
+- `the first email field`
+- `the second password input`
+- `the email field at the top`
+- `the password field in the login form`
+
+### Strategy 4: Use Context
+
+Describe the field's location or purpose:
+
+- `the email field in the registration form`
+- `the search input in the header`
+- `the password field below the email`
+
+## Best Practices
+
+### 1. Keep It Atomic
+
+Each Input Text action should handle one field only.
+
+**Good**:
+```
+Step 1: input john@example.com on the email field
+Step 2: input password123 on the password field
+```
+
+**Bad**:
+```
+Step 1: input email and password ❌
+```
+
+### 2. Be Specific About Field Identifiers
+
+Make it crystal clear which field you're targeting:
+
+**Good**: `input test@example.com on the email field in the login form`
+
+**Vague**: `input test@example.com in the field`
+
+### 3. Use Realistic Test Data
+
+Use data that looks real to catch validation issues:
+
+**Good**:
+- Email: `test-user@example.com` (valid format)
+- Phone: `(415) 555-0123` (formatted)
+- Name: `John Smith` (realistic)
+
+**Bad**:
+- Email: `asdf` (invalid format)
+- Phone: `1` (too short)
+- Name: `x` (unrealistic)
+
+### 4. Consider Data Sensitivity
+
+For tests running in production or staging:
+
+- **Use test accounts**: `test-user-123@example.com`
+- **Avoid real data**: Don't use real emails, names, or credit cards
+- **Use obvious test data**: Make it clear it's test data (`TEST-`, `QA-` prefixes)
+
+### 5. Clear Fields When Needed
+
+If a field has pre-filled content and you need to replace it:
+
+**Option 1**: Input Text clears by default, so just input the new value:
+```
+input new.email@example.com on the email field
+```
+
+**Option 2**: If clearing doesn't work, use backspace first:
+```
+Step 1: Click the email field
+Step 2: Backspace 20 times
+Step 3: input new.email@example.com on the email field
+```
+
+### 6. Wait for Dynamic Fields
+
+If fields load asynchronously:
+
+```
+Step 1: Click the show additional fields button
+Step 2: Wait until I see the phone number field
+Step 3: input 5555555555 on the phone number field
+```
+
+### 7. Verify Input Success
+
+After critical inputs, verify the text was accepted:
+
+```
+Step 1: input test@example.com on the email field
+Step 2: Verify the email field contains test@example.com
+```
+
+This catches validation issues or fields that don't accept input.
+
+## Common Pitfalls
+
+### Pitfall 1: Typing Too Fast for Dynamic Validation
+
+**Problem**: Some forms validate as you type, causing issues if you type too fast.
+
+**Example**: Email validation that checks if the email exists.
+
+**Solution**: This is usually not an issue in Autonoma, as typing is simulated naturally. If you encounter problems, split the input or add a brief wait after.
+
+### Pitfall 2: Fields That Don't Accept Direct Input
+
+**Problem**: Some "inputs" are actually custom dropdowns or date pickers.
+
+**Example**: A styled dropdown that looks like an input but requires clicking options.
+
+**Solution**: Don't use Input Text for these. Use click interactions to select from the dropdown.
+
+### Pitfall 3: Autofill Interference
+
+**Problem**: Browser autofill suggestions appear and block input.
+
+**Example**: Chrome suggesting saved email addresses.
+
+**Solution**: Autonoma typically handles this, but if issues occur:
+- Use the `Send enter on input` interaction to dismiss autocomplete
+- Click away and click back into the field
+- Use Input on Focus as an alternative
+
+### Pitfall 4: Copy-Paste Restrictions
+
+**Problem**: Some fields don't allow pasted content (common for password confirmation).
+
+**Example**: "Confirm password" fields that disable paste.
+
+**Solution**: Input Text simulates typing, not pasting, so this typically isn't an issue. But be aware that the field might have other restrictions.
+
+### Pitfall 5: Character Limits
+
+**Problem**: Trying to input more characters than the field allows.
+
+**Example**: A field with `maxlength="50"` but you're inputting 100 characters.
+
+**Solution**:
+- Check field constraints in your UI
+- Use appropriate length test data
+- Verify the full text was accepted if critical
+
+### Pitfall 6: Special Character Encoding
+
+**Problem**: Special characters might not render correctly.
+
+**Example**: Emoji, non-Latin characters, or symbols.
+
+**Solution**: Autonoma handles most Unicode characters, but test with your specific characters to ensure they work:
+```
+input Hello 👋 on the message field
+input Nico Piaggio on the name field
+input test+alias@example.com on the email field
+```
+
+### Pitfall 7: Ambiguous Field Descriptions
+
+**Problem**: Multiple fields match your description.
+
+**Example**: "input text on the input field" when there are 10 input fields.
+
+**Solution**: Be more specific:
+- `input text on the email input field`
+- `input text on the first input field`
+- `input text on the input field in the login form`
+
+## Advanced Patterns
+
+### Pattern 1: Form with Dependent Fields
+
+When one field's value affects what appears next:
+
+```
+Step 1: input United States on the country dropdown
+Step 2: Wait until the state field appears
+Step 3: input California on the state field
+Step 4: Wait until the city field appears
+Step 5: input San Francisco on the city field
+```
+
+### Pattern 2: Multi-Step Forms
+
+Breaking down complex forms across pages:
+
+```
+// Page 1
+Step 1: input john@example.com on the email field
+Step 2: Click the Next button
+Step 3: Wait until I see the password page
+
+// Page 2
+Step 4: input SecurePass123 on the password field
+Step 5: Click the Continue button
+```
+
+### Pattern 3: Dynamic Validation Feedback
+
+Handling fields that show validation as you type:
+
+```
+Step 1: input test@example.com on the email field
+Step 2: Verify I see the checkmark icon
+Step 3: input password on the password field
+Step 4: Verify I don't see the error message
+```
+
+### Pattern 4: Search with Autocomplete
+
+Testing search suggestions:
+
+```
+Step 1: input mac on the search field
+Step 2: Wait until I see search suggestions
+Step 3: Verify I see MacBook in the suggestions
+Step 4: input macbook pro on the search field
+Step 5: Send enter on input
+```
+
+## Combining with Other Interactions
+
+Input Text rarely works alone—it's typically part of a larger flow:
+
+### Input Text + Click + Verify
+
+The most common pattern:
+
+```
+Step 1: input username on the username field
+Step 2: input password on the password field
+Step 3: Click the submit button
+Step 4: Verify I see the success message
+```
+
+### Input Text + Wait + Input Text
+
+For forms with dynamic loading:
+
+```
+Step 1: input user@example.com on the email field
+Step 2: Wait until the verification code field appears
+Step 3: input 123456 on the verification code field
+```
+
+### Input Text + Scroll + Click
+
+For long forms:
+
+```
+Step 1: input data in the top field
+Step 2: Scroll until I see the submit button
+Step 3: Click the submit button
+```
+
+## Comparing Input Text vs Input on Focus
+
+Both interactions type text, but they work differently:
+
+| Feature | Input Text | Input on Focus |
+|---------|-----------|----------------|
+| **Finds field** | Yes, locates the field | No, uses focused field |
+| **Clicks field** | Yes, focuses automatically | No, assumes already focused |
+| **Use case** | Standard input scenarios | Special cases only |
+| **Reliability** | High—explicitly targets field | Lower—depends on focus state |
+
+**When to use Input Text**: 99% of scenarios
+
+**When to use Input on Focus**:
+- When explicitly told to
+- When the field is already focused from a previous step
+- When Input Text isn't working due to unusual field behavior
+
+## Testing Different Input Types
+
+### Text Inputs
+```
+input John Smith on the name field
+```
+
+### Email Inputs
+```
+input test@example.com on the email field
+```
+
+### Password Inputs
+```
+input SecurePass123! on the password field
+```
+
+### Number Inputs
+```
+input 42 on the age field
+input 99.99 on the price field
+```
+
+### Date Inputs (Text-Based)
+```
+input 01/15/2024 on the date field
+```
+
+Note: For date pickers that require clicking, use click interactions instead.
+
+### URL Inputs
+```
+input https://example.com on the website field
+```
+
+### Search Inputs
+```
+input search query on the search box
+```
+
+### Text Areas
+```
+input This is a longer message that spans multiple concepts on the message text area
+```
+
+## Debugging Input Text Issues
+
+### Issue: Field Not Found
+
+**Error**: "Could not find the email field"
+
+**Debugging steps**:
+1. Check if the field is visible on the page
+2. Verify your field description matches the actual label
+3. Try a more specific description: `the email field in the form`
+4. Check if the field loads dynamically—add a wait step before
+
+### Issue: Input Doesn't Appear
+
+**Error**: Text is typed but doesn't show up in the field
+
+**Debugging steps**:
+1. Verify the field accepts input (not disabled)
+2. Check if there's JavaScript interfering with input
+3. Try Input on Focus as an alternative
+4. Check if the field has character restrictions
+
+### Issue: Wrong Field Receives Input
+
+**Error**: Text appears in a different field than expected
+
+**Debugging steps**:
+1. Make your field identifier more specific
+2. Add positional context: `the email field at the top`
+3. Use form context: `the email field in the login form`
+4. Check if multiple fields match your description
+
+## Key Takeaways
+
+1. **Input Text is your primary tool** for entering data in Autonoma tests
+2. **Be specific about field identifiers** to ensure the right field is targeted
+3. **Keep prompts atomic**—one input per step for better debugging
+4. **Use realistic test data** to catch validation issues
+5. **Verify critical inputs** to ensure data was accepted correctly
+6. **Wait for dynamic fields** before attempting to input
+7. **The metadata is just the text**—nothing more, nothing less
+8. **Works consistently across Web and Mobile** platforms
+
+## Related Interactions
+
+- **Input on Focus**: Type into the currently focused field without locating it
+- **Send Enter on Input**: Submit a form by pressing enter on the focused input
+- **Backspace**: Delete characters from an input field
+- **Keypad**: Input numbers using mobile on-screen keypads
+- **Click**: Focus fields before inputting (sometimes needed for unusual fields)
+
+---
+
+**Next Steps**: Now that you understand Input Text, explore **Input on Focus** for special cases where a field is already focused, or learn about **Send Enter on Input** to submit forms without clicking a button.

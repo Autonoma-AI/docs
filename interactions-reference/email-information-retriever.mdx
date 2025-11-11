@@ -1,0 +1,950 @@
+---
+title: "Email Information Retriever"
+description: "Extract specific information from generated test emails—essential for testing registration flows, OTP validation, password resets, and email-based verification workflows."
+---
+
+## What is Email Information Retriever?
+
+The Email Information Retriever interaction extracts specific pieces of information from emails generated during your test execution. When your application sends emails containing verification codes, magic links, account numbers, or other dynamic data, this interaction captures that information so you can use it in subsequent test steps.
+
+Think of it as reading your email inbox and pulling out exactly what you need—whether that's a 6-digit OTP code, a password reset link, an invoice number, or any other information your application sends via email.
+
+This interaction is specifically designed to work with emails generated through Autonoma's email testing system, providing a seamless way to test complete workflows that involve email communication.
+
+## The Email Testing Problem
+
+Modern applications rely heavily on email for critical workflows:
+
+**Registration and Verification**
+```
+User signs up → Receives verification email → Clicks link or enters code → Account activated
+```
+
+**Password Reset**
+```
+User requests reset → Receives reset email → Clicks magic link → Sets new password
+```
+
+**Two-Factor Authentication**
+```
+User logs in → Receives OTP code → Enters code → Access granted
+```
+
+**Transaction Notifications**
+```
+User completes purchase → Receives confirmation email → Views order number and details
+```
+
+**Without email testing**, these workflows are impossible to test end-to-end. You'd have to:
+- Manually check real inboxes during test execution
+- Skip email steps entirely (incomplete testing)
+- Mock email sending (doesn't test actual email delivery)
+- Use brittle workarounds (database queries, API calls to bypass email)
+
+**With Email Information Retriever**, you can test these workflows completely:
+```
+1. Generate test email address
+2. Complete registration with that email
+3. Retrieve verification code from email
+4. Enter code to complete registration
+5. Verify account is activated
+```
+
+## When to Use Email Information Retriever
+
+### Use Email Information Retriever when:
+
+**Testing OTP/verification code flows**
+```
+Application sends 6-digit codes for 2FA
+Need to extract code and enter it in the UI
+```
+
+**Testing magic link authentication**
+```
+Application sends passwordless login links
+Need to extract and navigate to the link
+```
+
+**Testing password reset flows**
+```
+User requests password reset
+Need to extract reset link from email
+Click link and set new password
+```
+
+**Validating email content**
+```
+Application sends confirmation emails
+Need to verify specific information appears correctly
+Extract order numbers, account balances, transaction IDs
+```
+
+**Testing multi-step verification**
+```
+Registration requires email verification
+Then phone verification
+Then document upload with confirmation
+Extract data from each step's notification email
+```
+
+**Testing notification accuracy**
+```
+User completes action
+Receives notification email
+Verify email contains correct, dynamic information
+```
+
+### Use alternatives when:
+
+**Testing email sending itself**
+```
+If you only need to verify an email was sent
+Use email delivery verification
+Don't need to extract information from the email
+```
+
+**Testing static email content**
+```
+If email content doesn't contain dynamic data
+Use standard email content verification
+No need to extract specific values
+```
+
+**Testing without email generation**
+```
+If you haven't generated a test email
+Use Email Information Retriever Generator first
+```
+
+## How It Works
+
+When you use Email Information Retriever:
+
+1. **Email Context**: You must have previously generated a test email using Email Information Retriever Generator
+2. **Email Retrieval**: Autonoma accesses the inbox for that generated email address
+3. **Content Analysis**: AI analyzes the email content to find what you're looking for
+4. **Information Extraction**: The specific information (OTP, link, number, etc.) is extracted
+5. **Value Return**: The extracted value is returned for use in subsequent steps
+
+### Typical Flow
+
+```
+Setup:
+1. Generate an email for OTP with Email Information Retriever Generator
+2. Use that email address in registration form
+
+Action:
+3. Submit registration form
+4. Wait for email to arrive
+
+Retrieval:
+5. Retrieve the OTP from the email
+6. Extract the code
+
+Verification:
+7. Enter the OTP code in the application
+8. Complete registration
+```
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Full support (Android and iOS)
+
+Email Information Retriever works identically across platforms since email delivery and content are platform-independent.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing Two-Factor Authentication
+
+You're testing login with 2FA where users receive a verification code via email.
+
+```
+Test: "Login with email 2FA code"
+
+Setup Test Email:
+1. Generate an email for otp
+2. Extract generated email address with key TEST_EMAIL
+
+Start Login:
+3. Navigate to {{variable:APP_URL}}/login
+4. Input text: {{key:TEST_EMAIL}} in email field
+5. Input text: {{variable:TEST_PASSWORD}} in password field
+6. Click "Sign In" button
+
+Handle 2FA:
+7. Wait until: "Enter verification code" page loads
+8. Wait 5 seconds for email delivery
+
+Retrieve and Enter Code:
+9. Retrieve the otp from the email
+10. Extract information about the verification code with key OTP_CODE
+11. Input text: {{key:OTP_CODE}} in verification code field
+12. Click "Verify" button
+
+Verify Success:
+13. Wait until: Dashboard loads
+14. Assert: User is successfully logged in
+15. Assert: Session is authenticated
+```
+
+**Why this works**: The email generator created a test inbox, your app sent the OTP to that inbox, and the retriever extracted the code for automated entry.
+
+### Scenario 2: Testing Password Reset Flow
+
+You're testing the complete password reset workflow from request to completion.
+
+```
+Test: "Complete password reset via email"
+
+Setup Test Email:
+1. Generate an email for magic link
+2. Extract generated email address with key USER_EMAIL
+
+Request Password Reset:
+3. Navigate to {{variable:APP_URL}}/forgot-password
+4. Input text: {{key:USER_EMAIL}} in email field
+5. Click "Send Reset Link" button
+6. Wait until: "Check your email" confirmation appears
+
+Retrieve Reset Link:
+7. Wait 5 seconds for email delivery
+8. Retrieve the magic link from the email
+9. Extract information about the reset link with key RESET_LINK
+
+Access Reset Page:
+10. Navigate to {{key:RESET_LINK}}
+11. Wait until: Password reset form loads
+12. Assert: Email {{key:USER_EMAIL}} is pre-filled or displayed
+
+Set New Password:
+13. Input text: {{random:password}} in new password field
+14. Extract the new password value with key NEW_PASSWORD
+15. Input text: {{key:NEW_PASSWORD}} in confirm password field
+16. Click "Reset Password" button
+
+Verify Reset Success:
+17. Wait until: "Password updated" confirmation appears
+18. Navigate to login page
+
+Test New Password:
+19. Input text: {{key:USER_EMAIL}} in email field
+20. Input text: {{key:NEW_PASSWORD}} in password field
+21. Click "Sign In" button
+22. Wait until: Dashboard loads
+23. Assert: Login successful with new password
+```
+
+**Why this works**: You tested the entire password reset workflow end-to-end, including email delivery, link extraction, and verification that the new password works.
+
+### Scenario 3: Testing Registration with Email Verification
+
+You're testing user registration that requires email address verification before account activation.
+
+```
+Test: "Register account with email verification"
+
+Setup Test Email:
+1. Generate an email for otp
+2. Extract generated email address with key REGISTRATION_EMAIL
+
+Complete Registration Form:
+3. Navigate to {{variable:APP_URL}}/register
+4. Input text: {{random:first_name}} in first name field
+5. Extract entered first name with key FIRST_NAME
+6. Input text: {{random:last_name}} in last name field
+7. Extract entered last name with key LAST_NAME
+8. Input text: {{key:REGISTRATION_EMAIL}} in email field
+9. Input text: {{random:password}} in password field
+10. Extract password with key USER_PASSWORD
+11. Click "Create Account" button
+
+Verify Email Sent:
+12. Wait until: "Verify your email" page loads
+13. Assert: Message indicates email sent to {{key:REGISTRATION_EMAIL}}
+
+Retrieve Verification Code:
+14. Wait 5 seconds for email delivery
+15. Retrieve the otp from the email
+16. Extract information about the verification code with key VERIFICATION_CODE
+
+Enter Verification Code:
+17. Input text: {{key:VERIFICATION_CODE}} in verification field
+18. Click "Verify Email" button
+
+Verify Account Activated:
+19. Wait until: Welcome page or dashboard loads
+20. Assert: "Welcome {{key:FIRST_NAME}}" message appears
+21. Assert: Account is fully activated
+
+Test Login with New Account:
+22. Log out
+23. Navigate to login page
+24. Input text: {{key:REGISTRATION_EMAIL}} in email field
+25. Input text: {{key:USER_PASSWORD}} in password field
+26. Click "Sign In" button
+27. Assert: Login successful
+```
+
+**Why this works**: The complete registration flow including email verification is tested automatically, simulating real user behavior.
+
+### Scenario 4: Testing Account Balance Notification
+
+You're testing that account balance updates trigger emails with correct information.
+
+```
+Test: "Account balance notification email accuracy"
+
+Setup Test User:
+1. Generate an email for account balance
+2. Extract generated email with key USER_EMAIL
+3. Create account with {{key:USER_EMAIL}}
+4. Log in to account
+
+Check Initial Balance:
+5. Navigate to account dashboard
+6. Extract information about current balance with key BALANCE_BEFORE
+7. Assert: Balance is displayed
+
+Make Transaction:
+8. Navigate to send money page
+9. Input text: "50.00" in amount field
+10. Input text: "test@recipient.com" in recipient field
+11. Click "Send Money" button
+12. Wait until: Transaction completes
+
+Verify Updated Balance:
+13. Navigate to account dashboard
+14. Extract information about new balance with key BALANCE_AFTER
+15. Math Assert: "{{key:BALANCE_AFTER}} = {{key:BALANCE_BEFORE}} - 50.00"
+
+Retrieve Balance from Email:
+16. Wait 10 seconds for notification email
+17. Retrieve the account balance from the email
+18. Extract information about balance from email with key EMAIL_BALANCE
+
+Verify Email Accuracy:
+19. Assert: Email balance {{key:EMAIL_BALANCE}} matches dashboard {{key:BALANCE_AFTER}}
+20. Retrieve the account number from the email
+21. Extract information about account number with key EMAIL_ACCOUNT_NUMBER
+22. Extract information about account number from dashboard with key DASHBOARD_ACCOUNT_NUMBER
+23. Assert: Account numbers match
+```
+
+**Why this works**: You verified that notification emails contain accurate, up-to-date information matching the actual account state.
+
+### Scenario 5: Testing Invoice Email Details
+
+You're testing that invoice emails contain complete and accurate order information.
+
+```
+Test: "Invoice email completeness"
+
+Setup and Create Order:
+1. Generate an email for account balance
+2. Extract generated email with key CUSTOMER_EMAIL
+3. Log in as test user with email {{key:CUSTOMER_EMAIL}}
+4. Add products to cart totaling $127.50
+5. Proceed to checkout
+6. Complete checkout
+
+Capture Order Information:
+7. Wait until: Order confirmation page loads
+8. Extract information about order number with key ORDER_NUMBER
+9. Extract information about order total with key ORDER_TOTAL
+10. Extract information about order date with key ORDER_DATE
+
+Wait for Invoice Email:
+11. Wait 10 seconds for email delivery
+
+Retrieve Invoice Details:
+12. Find the account number from the email
+13. Extract information about invoice account number with key INVOICE_ACCOUNT_NUMBER
+14. Find the account balance from the email
+15. Extract information about invoice balance with key INVOICE_BALANCE
+16. Find the account name from the email
+17. Extract information about account holder name with key ACCOUNT_NAME
+18. Find the account type from the email
+19. Extract information about account type with key ACCOUNT_TYPE
+
+Verify Invoice Accuracy:
+20. Assert: Invoice contains order number {{key:ORDER_NUMBER}}
+21. Assert: Invoice shows correct total {{key:ORDER_TOTAL}}
+22. Assert: Invoice date matches {{key:ORDER_DATE}}
+23. Assert: Account holder name is correct
+24. Assert: All required invoice fields are present
+
+Test Invoice Link:
+25. Retrieve the magic link from the email
+26. Extract invoice link with key INVOICE_LINK
+27. Navigate to {{key:INVOICE_LINK}}
+28. Wait until: Invoice page loads
+29. Assert: Invoice displays all order details
+```
+
+**Why this works**: You comprehensively tested that invoice emails contain all necessary information and that links work correctly.
+
+### Scenario 6: Testing Order Confirmation Email
+
+You're testing that order confirmation emails arrive with correct order details.
+
+```
+Test: "Order confirmation email validation"
+
+Setup:
+1. Generate an email for account number
+2. Extract generated email with key ORDER_EMAIL
+
+Place Order:
+3. Log in with test account using {{key:ORDER_EMAIL}}
+4. Add product "Laptop" to cart
+5. Add product "Mouse" to cart
+6. Proceed to checkout
+7. Complete shipping information
+8. Complete payment information
+9. Click "Place Order" button
+
+Capture Order Details:
+10. Wait until: Order confirmation page loads
+11. Extract information about order number with key UI_ORDER_NUMBER
+12. Extract information about order total with key UI_ORDER_TOTAL
+13. Extract information about item count with key UI_ITEM_COUNT
+
+Wait for Email:
+14. Wait 10 seconds for confirmation email
+
+Retrieve Email Information:
+15. Find the account number from the email
+16. Extract order number from email with key EMAIL_ORDER_NUMBER
+17. Find the account balance from the email
+18. Extract order total from email with key EMAIL_ORDER_TOTAL
+
+Verify Email Matches UI:
+19. Assert: Email order number {{key:EMAIL_ORDER_NUMBER}} matches UI {{key:UI_ORDER_NUMBER}}
+20. Assert: Email order total {{key:EMAIL_ORDER_TOTAL}} matches UI {{key:UI_ORDER_TOTAL}}
+
+Verify Email Completeness:
+21. Assert: Email contains "Laptop"
+22. Assert: Email contains "Mouse"
+23. Assert: Email contains shipping address
+24. Assert: Email contains tracking information or estimate
+```
+
+**Why this works**: You verified that the order confirmation email contains accurate information matching what the user sees on screen.
+
+## Example Prompts
+
+Here are effective ways to phrase Email Information Retriever commands:
+
+**Retrieving OTP codes:**
+```
+retrieve the otp from the email
+get the verification code from the email
+find the otp from the email
+extract the otp from the email
+```
+
+**Retrieving magic links:**
+```
+retrieve the magic link from the email
+get the password reset link from the email
+find the verification link from the email
+extract the activation link from the email
+```
+
+**Retrieving account information:**
+```
+get the account balance from the email
+retrieve the account number from the email
+find the account name from the email
+extract the account type from the email
+```
+
+**Retrieving order information:**
+```
+find the order number from the email
+get the invoice number from the email
+retrieve the tracking number from the email
+extract the confirmation code from the email
+```
+
+**Retrieving financial information:**
+```
+get the balance from the email
+retrieve the transaction amount from the email
+find the payment details from the email
+extract the invoice total from the email
+```
+
+## Best Practices
+
+### 1. Generate Email First
+
+Always use Email Information Retriever Generator before attempting to retrieve information:
+
+**Wrong order:**
+```
+1. Submit registration form
+2. Retrieve the otp from the email ← No email was generated!
+```
+
+**Correct order:**
+```
+1. Generate an email for otp
+2. Extract generated email address with key TEST_EMAIL
+3. Submit registration form with {{key:TEST_EMAIL}}
+4. Wait for email delivery
+5. Retrieve the otp from the email
+```
+
+### 2. Wait for Email Delivery
+
+Add appropriate wait time between sending and retrieving:
+
+**Too fast:**
+```
+1. Click "Send Code" button
+2. Retrieve the otp from the email ← Email hasn't arrived yet!
+```
+
+**Good timing:**
+```
+1. Click "Send Code" button
+2. Wait until: "Code sent" confirmation appears
+3. Wait 5 seconds for email delivery
+4. Retrieve the otp from the email
+```
+
+Email delivery typically takes 3-10 seconds. Add a wait to ensure the email has arrived.
+
+### 3. Be Specific About What to Retrieve
+
+Clear descriptions help the AI find the right information:
+
+**Vague:**
+```
+get the code from the email
+```
+
+**Specific:**
+```
+retrieve the otp from the email
+retrieve the 6-digit verification code from the email
+```
+
+**Very specific when multiple codes exist:**
+```
+retrieve the email verification otp from the email
+retrieve the phone verification code from the email
+```
+
+### 4. Extract Retrieved Information
+
+Always extract the retrieved information for later use:
+
+**Missing extraction:**
+```
+1. Retrieve the otp from the email
+2. Input text in verification field ← What text? No extraction!
+```
+
+**Proper extraction:**
+```
+1. Retrieve the otp from the email
+2. Extract information about the verification code with key OTP_CODE
+3. Input text: {{key:OTP_CODE}} in verification field
+```
+
+### 5. Handle Different Email Content Types
+
+Be aware that emails can contain different types of information:
+
+**For codes:**
+```
+retrieve the otp from the email
+retrieve the verification code from the email
+retrieve the 2FA code from the email
+```
+
+**For links:**
+```
+retrieve the magic link from the email
+retrieve the verification link from the email
+retrieve the reset link from the email
+```
+
+**For data:**
+```
+get the account balance from the email
+get the order number from the email
+get the invoice total from the email
+```
+
+### 6. Test Email Content Accuracy
+
+Don't just retrieve—verify the content is correct:
+
+```
+1. Place order with total $99.99
+2. Extract order total from UI with key UI_TOTAL
+3. Wait for confirmation email
+4. Get the account balance from the email
+5. Extract order total from email with key EMAIL_TOTAL
+6. Assert: Email total {{key:EMAIL_TOTAL}} matches UI total {{key:UI_TOTAL}}
+```
+
+### 7. Handle Multiple Emails
+
+If your workflow sends multiple emails, retrieve from the correct one:
+
+```
+1. Generate an email for registration otp
+2. Extract registration email with key REG_EMAIL
+3. Generate an email for login otp
+4. Extract login email with key LOGIN_EMAIL
+
+5. Register with {{key:REG_EMAIL}}
+6. Retrieve the otp from the email ← Gets registration OTP
+
+7. Log in with {{key:LOGIN_EMAIL}}
+8. Retrieve the otp from the email ← Gets login OTP
+```
+
+The retriever understands context and retrieves from the appropriate email.
+
+## Common Pitfalls
+
+### Pitfall 1: Not Generating Email First
+
+**Problem:**
+```
+1. Navigate to registration page
+2. Retrieve the otp from the email ← No email address was generated!
+```
+
+**Solution:**
+```
+1. Generate an email for otp
+2. Extract generated email with key TEST_EMAIL
+3. Navigate to registration page
+4. Use {{key:TEST_EMAIL}} in form
+5. Submit form
+6. Retrieve the otp from the email
+```
+
+### Pitfall 2: Not Waiting for Email Delivery
+
+**Problem:**
+```
+1. Click "Send Verification Code"
+2. Retrieve the otp from the email ← Email hasn't arrived yet!
+```
+
+**Solution:**
+```
+1. Click "Send Verification Code"
+2. Wait until: "Code sent" message appears
+3. Wait 5 seconds for email delivery
+4. Retrieve the otp from the email
+```
+
+### Pitfall 3: Ambiguous Retrieval Requests
+
+**Problem:**
+```
+get the number from the email
+```
+
+Which number? Order number? Account number? Phone number? OTP code?
+
+**Solution:**
+```
+retrieve the order number from the email
+get the account number from the email
+retrieve the otp verification code from the email
+```
+
+### Pitfall 4: Not Extracting Retrieved Data
+
+**Problem:**
+```
+1. Retrieve the otp from the email
+2. Input text: ??? in verification field
+```
+
+You retrieved it but didn't extract it for use.
+
+**Solution:**
+```
+1. Retrieve the otp from the email
+2. Extract information about the otp code with key OTP_CODE
+3. Input text: {{key:OTP_CODE}} in verification field
+```
+
+### Pitfall 5: Assuming Email Format
+
+**Problem:**
+```
+retrieve the 6-digit otp from the email
+```
+
+What if your application sends a 4-digit or 8-digit code?
+
+**Solution:**
+```
+retrieve the otp from the email
+retrieve the verification code from the email
+```
+
+Let the AI find whatever format the email actually uses.
+
+### Pitfall 6: Not Verifying Email Content
+
+**Problem:**
+```
+1. Complete purchase
+2. Retrieve the order number from the email
+3. Done
+```
+
+You retrieved the order number but didn't verify it's correct or that the email contains other expected information.
+
+**Solution:**
+```
+1. Complete purchase
+2. Extract order number from UI with key UI_ORDER_NUMBER
+3. Wait for confirmation email
+4. Get the account number from the email
+5. Extract order number from email with key EMAIL_ORDER_NUMBER
+6. Assert: {{key:EMAIL_ORDER_NUMBER}} matches {{key:UI_ORDER_NUMBER}}
+7. Assert: Email contains order total
+8. Assert: Email contains shipping information
+```
+
+## Advanced Patterns
+
+### Pattern 1: Multi-Step Verification Workflow
+
+```
+Test: "Complete multi-factor verification"
+
+Setup:
+1. Generate an email for otp
+2. Extract email with key USER_EMAIL
+
+Email Verification:
+3. Register with {{key:USER_EMAIL}}
+4. Wait for email
+5. Retrieve the otp from the email
+6. Extract code with key EMAIL_OTP
+7. Enter {{key:EMAIL_OTP}} to verify email
+
+Phone Verification:
+8. Enter phone number
+9. Wait for SMS code
+10. Retrieve phone verification code
+11. Extract code with key PHONE_OTP
+12. Enter {{key:PHONE_OTP}} to verify phone
+
+Final Email Confirmation:
+13. Wait for welcome email
+14. Get the account number from the email
+15. Extract account number with key ACCOUNT_NUMBER
+16. Verify account {{key:ACCOUNT_NUMBER}} is active
+```
+
+### Pattern 2: Testing Email Content Changes
+
+```
+Test: "Email content updates based on user preferences"
+
+Setup Default:
+1. Generate an email for account balance
+2. Create account with default preferences
+3. Make transaction
+4. Wait for notification email
+5. Get the account balance from the email
+6. Extract balance format with key BALANCE_FORMAT_DEFAULT
+7. Assert: Balance format is standard
+
+Update Preferences:
+8. Change language to Spanish
+9. Change currency to EUR
+10. Save preferences
+
+Test Updated Content:
+11. Make another transaction
+12. Wait for notification email
+13. Get the account balance from the email
+14. Extract balance format with key BALANCE_FORMAT_UPDATED
+15. Assert: Balance shows EUR
+16. Get the account name from the email
+17. Assert: Email content is in Spanish
+```
+
+### Pattern 3: Email Link Validation
+
+```
+Test: "Email links are valid and secure"
+
+Generate and Send:
+1. Generate an email for magic link
+2. Request password reset
+3. Wait for email
+
+Extract Link:
+4. Retrieve the magic link from the email
+5. Extract link with key RESET_LINK
+
+Validate Link Properties:
+6. Assert: {{key:RESET_LINK}} starts with "https://"
+7. Assert: {{key:RESET_LINK}} contains "token="
+8. Assert: {{key:RESET_LINK}} links to correct domain
+
+Test Link Functionality:
+9. Navigate to {{key:RESET_LINK}}
+10. Wait until: Password reset form loads
+11. Assert: Form is accessible
+12. Complete password reset
+
+Test Link Expiration:
+13. Wait 3600 seconds (or appropriate expiration time)
+14. Navigate to {{key:RESET_LINK}} again
+15. Assert: "Link expired" message appears
+```
+
+### Pattern 4: Concurrent Email Testing
+
+```
+Test: "Multiple users receive correct emails"
+
+Setup User A:
+1. Generate an email for otp
+2. Extract email A with key EMAIL_A
+3. Register user A with {{key:EMAIL_A}}
+
+Setup User B:
+4. Generate an email for otp
+5. Extract email B with key EMAIL_B
+6. Register user B with {{key:EMAIL_B}}
+
+Verify User A Email:
+7. Switch to user A context
+8. Retrieve the otp from the email
+9. Extract code with key CODE_A
+10. Assert: Code A received correctly
+
+Verify User B Email:
+11. Switch to user B context
+12. Retrieve the otp from the email
+13. Extract code with key CODE_B
+14. Assert: Code B received correctly
+
+Verify Isolation:
+15. Assert: {{key:CODE_A}} is different from {{key:CODE_B}}
+16. Verify user A cannot use code B
+17. Verify user B cannot use code A
+```
+
+## Debugging Retrieval Issues
+
+### Issue: Email Not Found
+
+**Error:**
+```
+Failed to retrieve information: No email found
+```
+
+**Possible causes:**
+1. Email hasn't arrived yet (wait longer)
+2. Email wasn't generated (use Email Information Retriever Generator first)
+3. Application didn't send the email (check application logs)
+
+**Solutions:**
+```
+# Add more wait time:
+Wait 10 seconds for email delivery
+
+# Verify email was generated:
+1. Generate an email for otp FIRST
+2. Then proceed with test
+
+# Check email address was used:
+Verify the generated email was actually used in the form
+```
+
+### Issue: Information Not Found in Email
+
+**Error:**
+```
+Failed to retrieve information: Could not find OTP in email
+```
+
+**Possible causes:**
+1. Email doesn't contain what you're looking for
+2. Description doesn't match email content
+3. Email format is different than expected
+
+**Solutions:**
+```
+# Be more flexible:
+Instead of: "retrieve the 6-digit otp from the email"
+Use: "retrieve the otp from the email"
+
+# Check email content:
+Verify what the email actually contains
+Update retrieval description to match
+
+# Be more specific if multiple codes:
+"retrieve the email verification code from the email"
+"retrieve the phone verification code from the email"
+```
+
+### Issue: Wrong Information Retrieved
+
+**Error:**
+```
+Retrieved code doesn't work when entered
+```
+
+**Possible causes:**
+1. Retrieved wrong code from email
+2. Email contains multiple codes
+3. Code expired before entry
+
+**Solutions:**
+```
+# Be more specific:
+"retrieve the otp from the email"
+"retrieve the password reset code from the email"
+
+# Extract immediately after retrieval:
+1. Retrieve the otp from the email
+2. Extract information about otp with key CODE
+3. Use {{key:CODE}} immediately
+
+# Reduce delay:
+Minimize time between retrieval and usage
+```
+
+## What's Next
+
+Now that you understand Email Information Retriever, you can:
+- Test complete registration and verification flows
+- Validate OTP and 2FA workflows end-to-end
+- Test password reset and magic link authentication
+- Verify email content accuracy and completeness
+- Test any workflow involving email communication
+
+Email Information Retriever works with Email Information Retriever Generator to provide complete email testing capabilities in Autonoma.
+
+Explore related interactions:
+- **Email Information Retriever Generator**: Generate test email addresses for testing
+- **Extract Information**: Capture data from your application's UI
+- **Assert**: Verify email content and behavior
+- **Wait Until**: Wait for emails to arrive before retrieving
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

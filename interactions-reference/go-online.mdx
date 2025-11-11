@@ -1,0 +1,867 @@
+---
+title: "Go Online"
+description: "Restore network connectivity in your mobile app tests to simulate recovery from offline mode, test network-dependent features, and validate online-only functionality."
+---
+
+## What is Go Online?
+
+Go Online is a mobile-specific interaction that re-enables network connectivity after it has been disabled. Think of it as turning airplane mode off, re-enabling WiFi, or restoring your data connection—bringing your device back to a fully connected state.
+
+This interaction is the counterpart to Go Offline, and together they form a powerful testing duo that lets you simulate the full spectrum of network conditions users experience in the real world.
+
+When you use Go Online, Autonoma restores both WiFi and cellular data connections, returning your test device to normal network operation. This allows you to test how your application recovers from offline states, handles data synchronization, and responds to network restoration.
+
+## Why Network State Control Matters
+
+In the real world, users don't always have perfect network connectivity. They walk through tunnels, enter buildings with poor reception, toggle airplane mode, or experience intermittent connectivity. Your app needs to handle these scenarios gracefully.
+
+Consider these common user experiences:
+
+**Scenario 1: The Subway User**
+A user is reading articles in your app during their commute. They go underground, lose signal, then emerge at their stop. When they come back online, they expect:
+- Queued actions to process (liked posts, saved articles)
+- New content to load seamlessly
+- No data loss from their offline interactions
+
+**Scenario 2: The Airplane Mode Toggle**
+A user enables airplane mode during a flight, makes changes to their profile offline, then disables airplane mode after landing. They expect:
+- Changes to sync automatically
+- Conflicts to be handled intelligently
+- No duplicate data or errors
+
+**Scenario 3: The Poor Connection Recovery**
+A user's app becomes unresponsive due to network issues. They force-close it, check their connection, then reopen the app. They expect:
+- The app to detect the restored connection
+- Pending operations to resume
+- A smooth transition back to normal operation
+
+**Testing these scenarios** ensures your app handles network state changes the way real users expect.
+
+## When to Use Go Online
+
+Go Online should be used whenever you need to restore connectivity during a test flow. Here are the key scenarios:
+
+**Perfect for:**
+- Testing recovery from offline mode
+- Validating data synchronization when connectivity returns
+- Verifying queued actions process correctly after coming back online
+- Testing real-time feature behavior when network is restored
+- Simulating airplane mode being disabled
+- Testing network reconnection flows
+- Validating online-only features become available again
+
+**Essential patterns:**
+- **Offline → Online transitions**: Test what happens when users regain connectivity
+- **Sync validation**: Ensure data created offline syncs when connection returns
+- **Queue processing**: Verify pending operations execute after going online
+- **Feature availability**: Confirm online-only features re-enable properly
+
+**Test sequence example:**
+```
+1. Perform actions while online
+2. Go offline
+3. Attempt offline interactions
+4. Go online ← Restore connectivity
+5. Verify sync and recovery behavior
+```
+
+## How It Works
+
+When you trigger Go Online in a test, here's what happens:
+
+1. **Network Stack Restoration**: Autonoma re-enables both WiFi and cellular data at the system level
+2. **Connection Establishment**: The device re-establishes network connections
+3. **Application Notification**: Your app receives network state change events
+4. **Sync Trigger**: Network-dependent operations can now proceed
+5. **Test Continuation**: Your test continues with network connectivity restored
+
+This mirrors what happens when a user manually re-enables their network connections or moves back into coverage.
+
+## Platform Support
+
+**Web**: Not supported (use browser dev tools for network throttling)
+**Mobile**: Full support (Android and iOS)
+
+Go Online is specifically designed for mobile testing because:
+- Mobile devices frequently experience network state changes
+- Mobile apps need offline-first capabilities
+- Mobile users toggle airplane mode regularly
+- Mobile connectivity is less stable than desktop/web environments
+
+## Real-World Testing Scenarios
+
+### Scenario 1: Offline Content Creation with Sync
+
+You're testing a note-taking app where users can create notes offline and expect them to sync when they come back online.
+
+```
+Test: "Notes created offline sync when network restored"
+
+Setup:
+1. Navigate to notes section
+2. Wait until: Notes list loads
+3. Assert: Network indicator shows "Online"
+
+Create baseline note:
+4. Click: "New Note" button
+5. Type "Online Note" in title field
+6. Type "This note was created while online" in content field
+7. Click: "Save" button
+8. Wait until: Note saves
+9. Assert: "Online Note" appears in notes list
+
+Go offline and create note:
+10. Go offline
+11. Wait until: Network indicator shows "Offline"
+12. Assert: Offline mode banner appears
+13. Click: "New Note" button
+14. Type "Offline Note" in title field
+15. Type "This note was created while offline" in content field
+16. Click: "Save" button
+17. Wait until: Note saves locally
+18. Assert: "Offline Note" appears in notes list
+19. Assert: Sync pending indicator shows on note
+
+Restore connectivity and verify sync:
+20. Go online ← Key step
+21. Wait until: Network indicator shows "Online"
+22. Wait until: Sync completes
+23. Assert: Both notes appear in list
+24. Assert: "Offline Note" no longer shows sync pending indicator
+25. Assert: Timestamp updated on synced note
+
+Verify persistence:
+26. Restart app
+27. Wait until: Notes list loads
+28. Assert: Both "Online Note" and "Offline Note" are present
+29. Assert: Both notes show synced status
+```
+
+**Why this matters**: This tests the complete offline-to-online lifecycle that real users experience constantly with note-taking, task management, and content creation apps.
+
+### Scenario 2: E-commerce Cart Synchronization
+
+You're testing a shopping app where users can add items to their cart offline, then have those changes sync when they regain connectivity.
+
+```
+Test: "Cart updates sync after network restoration"
+
+Setup online baseline:
+1. Navigate to products page
+2. Wait until: Product grid loads
+3. Assert: Cart badge shows "0"
+
+Add items while online:
+4. Click: First product
+5. Click: "Add to Cart" button
+6. Wait until: Cart updates
+7. Assert: Cart badge shows "1"
+8. Navigate back to products
+
+Simulate losing connection:
+9. Go offline
+10. Wait until: Offline banner appears
+11. Assert: App shows "You're offline" message
+
+Add items while offline:
+12. Click: Second product
+13. Click: "Add to Cart" button
+14. Wait until: Local cart updates
+15. Assert: Cart badge shows "2"
+16. Assert: "Will sync when online" indicator appears
+
+Restore connectivity:
+17. Go online ← Restore network
+18. Wait until: "You're online" message appears
+19. Wait until: Sync indicator shows syncing
+20. Wait until: Sync completes
+
+Verify synchronization:
+21. Click: Cart icon
+22. Wait until: Cart page loads
+23. Assert: First product appears (added while online)
+24. Assert: Second product appears (added while offline)
+25. Assert: Cart total shows correct sum
+26. Assert: Both items show as in stock
+
+Verify backend consistency:
+27. Navigate to account on different device
+28. Wait until: Cart loads
+29. Assert: Both items present across devices
+30. Assert: Quantities match
+```
+
+**Why this matters**: E-commerce apps must handle offline cart additions gracefully to avoid lost sales. This test ensures the offline-online transition preserves user intent.
+
+### Scenario 3: Message Queue Processing
+
+You're testing a messaging app where messages sent offline should be delivered once connectivity returns.
+
+```
+Test: "Queued messages send after going back online"
+
+Setup conversation:
+1. Navigate to messages
+2. Wait until: Conversation list loads
+3. Click: Test conversation
+4. Wait until: Message thread loads
+5. Assert: Connection status shows "Connected"
+
+Send message while online:
+6. Type "Online message" in message field
+7. Click: Send button
+8. Wait until: Message shows "Delivered" status
+9. Assert: Message appears in thread with checkmark
+
+Disconnect and queue messages:
+10. Go offline
+11. Wait until: Status shows "Disconnected"
+12. Type "Offline message 1" in message field
+13. Click: Send button
+14. Assert: Message appears with "Queued" status
+15. Type "Offline message 2" in message field
+16. Click: Send button
+17. Assert: Second message appears with "Queued" status
+18. Assert: Both messages show clock icon
+
+Restore connection and verify delivery:
+19. Go online ← Restore connectivity
+20. Wait until: Status shows "Connected"
+21. Wait until: First message status changes to "Sending"
+22. Wait until: First message status changes to "Delivered"
+23. Wait until: Second message status changes to "Delivered"
+24. Assert: Both offline messages now show checkmark
+25. Assert: Message order preserved (offline messages appear in send order)
+
+Verify recipient side:
+26. Switch to recipient device
+27. Wait until: Messages sync
+28. Assert: All three messages received
+29. Assert: Timestamps reflect actual send time
+30. Assert: No duplicate messages
+```
+
+**Why this matters**: Users expect messages to be delivered reliably, even if they temporarily lose connectivity. This pattern is critical for chat, email, and communication apps.
+
+### Scenario 4: Real-Time Feature Re-Activation
+
+You're testing a live sports app where real-time scores stop updating offline and should resume when connectivity returns.
+
+```
+Test: "Live scores resume updating after network restoration"
+
+Verify online functionality:
+1. Navigate to live games section
+2. Wait until: Games list loads
+3. Click: Active game
+4. Wait until: Live score view loads
+5. Assert: "LIVE" indicator is active
+6. Assert: Score shows current state
+7. Wait: 5 seconds
+8. Assert: Score or game time has updated (proving live updates work)
+
+Simulate connection loss:
+9. Go offline
+10. Wait until: "Connection lost" banner appears
+11. Assert: "LIVE" indicator changes to "Updates paused"
+12. Wait: 5 seconds
+13. Assert: Score has NOT updated (frozen state)
+14. Assert: Retry message displays
+
+Restore connectivity and verify resumption:
+15. Go online ← Restore connection
+16. Wait until: "Connection restored" message appears
+17. Wait until: "Reconnecting..." indicator shows
+18. Wait until: "LIVE" indicator returns to active state
+19. Wait: 5 seconds
+20. Assert: Score has updated (live updates resumed)
+21. Assert: Game time reflects current state
+22. Assert: Play-by-play updates streaming again
+
+Verify no data loss:
+23. Scroll through play-by-play history
+24. Assert: Updates from offline period are present
+25. Assert: No gaps in game timeline
+26. Assert: All plays visible in chronological order
+```
+
+**Why this matters**: Real-time apps must gracefully pause during offline periods and seamlessly resume when connectivity returns, without confusing users or losing data.
+
+### Scenario 5: Airplane Mode Simulation During Checkout
+
+You're testing an e-commerce app to ensure users don't lose their checkout progress if they accidentally enable airplane mode.
+
+```
+Test: "Checkout recovers gracefully after airplane mode"
+
+Setup checkout flow:
+1. Add product to cart
+2. Navigate to cart
+3. Click: "Checkout" button
+4. Wait until: Checkout page loads
+5. Fill: Shipping information
+
+Simulate accidental airplane mode:
+6. Go offline
+7. Wait until: Offline warning appears
+8. Assert: "No internet connection" message displays
+9. Assert: Form data still visible
+10. Assert: "Continue" button is disabled
+
+Attempt to continue offline:
+11. Click: "Continue" button
+12. Assert: Error message "Please check your connection" appears
+13. Assert: Form remains on current step
+14. Assert: Entered data is preserved
+
+Restore connection and complete checkout:
+15. Go online ← User disables airplane mode
+16. Wait until: "Connection restored" appears
+17. Wait until: "Continue" button becomes enabled
+18. Assert: All form data still populated
+19. Click: "Continue" button
+20. Wait until: Payment step loads
+21. Fill: Payment information
+22. Click: "Place Order" button
+23. Wait until: Order confirmation appears
+24. Assert: Order successful
+25. Assert: Order number displayed
+26. Assert: No data loss occurred
+```
+
+**Why this matters**: Users may accidentally toggle airplane mode during critical flows. Your app should preserve state and allow seamless continuation after connectivity returns.
+
+## Example Prompts
+
+Here are effective ways to phrase the Go Online action in your tests:
+
+**Standard usage:**
+```
+go online
+go back online
+enable network connection
+restore connectivity
+turn network on
+re-enable wifi and data
+```
+
+**With context in test flow:**
+```
+After performing offline actions, go online
+Go online to trigger sync
+Restore network connection and verify sync
+Re-enable connectivity to test recovery
+Go back online and wait for sync to complete
+```
+
+**In sequential patterns:**
+```
+1. Go offline
+2. Perform offline actions
+3. Go online ← Network restoration point
+4. Wait for sync
+5. Verify results
+```
+
+## Best Practices for Network State Testing
+
+### 1. Always Verify State Changes
+
+When you go online, confirm the network state actually changed:
+
+**Good:**
+```
+1. Go online
+2. Wait until: Network indicator shows "Online"
+3. Assert: Offline banner disappears
+```
+
+**Incomplete:**
+```
+1. Go online
+2. Continue with test ← Might fail if network didn't restore yet
+```
+
+### 2. Allow Time for Synchronization
+
+Network restoration doesn't mean immediate sync. Give operations time to complete:
+
+**Good:**
+```
+1. Go online
+2. Wait until: "Syncing..." indicator appears
+3. Wait until: Sync completes
+4. Assert: Data updated
+```
+
+**Too fast:**
+```
+1. Go online
+2. Assert: Data updated ← May fail, sync takes time
+```
+
+### 3. Test Complete Offline-Online Cycles
+
+Don't just test going online in isolation—test the full cycle:
+
+**Complete test:**
+```
+Start online:
+1. Perform baseline actions
+2. Verify online functionality
+
+Go offline:
+3. Go offline
+4. Perform offline actions
+5. Verify offline behavior
+
+Return online:
+6. Go online
+7. Wait for sync
+8. Verify data integrity
+9. Verify no data loss
+```
+
+### 4. Handle Intermediate States
+
+Between offline and fully-online, apps often show "reconnecting" or "syncing" states:
+
+**Good:**
+```
+1. Go online
+2. Wait until: Shows "Reconnecting..."
+3. Wait until: Shows "Syncing data..."
+4. Wait until: Shows "Sync complete"
+5. Assert: Fully operational
+```
+
+**Oversimplified:**
+```
+1. Go online
+2. Assert: Everything works ← Might catch intermediate error state
+```
+
+### 5. Verify Data Integrity
+
+After going online, ensure data created offline is preserved and synced correctly:
+
+**Good:**
+```
+1. Go online
+2. Wait until: Sync completes
+3. Assert: Offline data present
+4. Assert: Online data present
+5. Assert: No duplicates
+6. Assert: Correct timestamps
+7. Assert: No data corruption
+```
+
+### 6. Test with Multiple Offline Actions
+
+Don't just test one offline action—test realistic usage:
+
+**Realistic:**
+```
+Offline period:
+1. Create 3 items
+2. Update 2 items
+3. Delete 1 item
+4. Like 5 posts
+5. Send 4 messages
+
+Back online:
+6. Go online
+7. Wait for all sync operations
+8. Verify all changes propagated
+```
+
+### 7. Include Cross-Device Verification
+
+When possible, verify synced data appears on other devices:
+
+**Good:**
+```
+Device 1:
+1. Go offline
+2. Create data
+3. Go online
+4. Wait for sync
+
+Device 2:
+5. Refresh
+6. Assert: New data appears
+7. Assert: Changes visible
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting for Sync
+
+**Problem:**
+```
+1. Go online
+2. Assert: Data synced ← Fails, sync takes time
+```
+
+**Solution:**
+```
+1. Go online
+2. Wait until: Sync indicator appears
+3. Wait until: Sync completes
+4. Assert: Data synced
+```
+
+### Pitfall 2: Assuming Instant Connectivity
+
+**Problem:**
+```
+1. Go online
+2. Make API call ← Might fail, connection not fully established
+```
+
+**Solution:**
+```
+1. Go online
+2. Wait until: Connection indicator shows "Connected"
+3. Wait: 2 seconds (for connection to stabilize)
+4. Make API call
+```
+
+### Pitfall 3: Not Testing Sync Conflicts
+
+**Problem:**
+```
+Only test simple offline→online scenarios with no conflicts
+```
+
+**Solution:**
+```
+Test conflict scenarios:
+1. Modify same item offline on two devices
+2. Go online on both
+3. Verify conflict resolution
+4. Assert: App handles conflicts gracefully
+```
+
+### Pitfall 4: Ignoring Network Error Recovery
+
+**Problem:**
+```
+1. Go online
+2. Assume everything works perfectly
+```
+
+**Solution:**
+```
+1. Go online
+2. Wait for sync attempt
+3. If errors occur, verify retry logic
+4. Assert: Error messages are clear
+5. Assert: Manual retry option available
+```
+
+### Pitfall 5: Testing Only Perfect Scenarios
+
+**Problem:**
+```
+Only test:
+- Go offline
+- Perform one action
+- Go online
+- Success
+```
+
+**Solution:**
+```
+Test realistic complexity:
+- Multiple offline actions
+- Partial sync failures
+- Network flapping (on/off/on)
+- Large data sets
+- Concurrent users
+- Edge cases
+```
+
+### Pitfall 6: Not Verifying Backend State
+
+**Problem:**
+```
+1. Go online
+2. Assert: UI shows synced
+3. Test complete ← Didn't verify backend actually received data
+```
+
+**Solution:**
+```
+1. Go online
+2. Assert: UI shows synced
+3. Make API call to verify backend state
+4. Assert: Data actually persisted server-side
+```
+
+## Network Testing Strategies
+
+### Strategy 1: The Quick Toggle Pattern
+
+Test rapid network state changes:
+
+```
+Test: "App handles rapid connectivity changes"
+
+1. Start online
+2. Go offline
+3. Wait: 1 second
+4. Go online ← Quick restoration
+5. Wait: 1 second
+6. Go offline
+7. Wait: 1 second
+8. Go online ← Test flapping connection
+9. Wait until: App stabilizes
+10. Assert: No crashes or errors
+11. Assert: Data integrity maintained
+```
+
+### Strategy 2: The Long Offline Period
+
+Test extended offline usage:
+
+```
+Test: "Extended offline period syncs successfully"
+
+1. Go online (ensure starting state)
+2. Go offline
+3. Create 10 items over multiple steps
+4. Update 5 existing items
+5. Delete 2 items
+6. Perform complex workflows
+7. Wait: 30 seconds (simulate long offline period)
+8. Go online ← Restore after extended offline
+9. Wait until: All sync operations complete
+10. Verify: All 10 new items synced
+11. Verify: All 5 updates propagated
+12. Verify: 2 deletions processed
+13. Assert: No data loss
+```
+
+### Strategy 3: The Partial Completion Test
+
+Test going online mid-operation:
+
+```
+Test: "Network restoration during operation"
+
+1. Start large file upload
+2. Wait until: Upload 50% complete
+3. Go offline
+4. Wait until: "Upload paused" appears
+5. Wait: 5 seconds
+6. Go online ← Restore during operation
+7. Wait until: Upload resumes
+8. Wait until: Upload completes
+9. Assert: File uploaded successfully
+10. Assert: No corruption
+```
+
+### Strategy 4: The Cross-Device Sync Test
+
+Test synchronization across multiple devices:
+
+```
+Test: "Changes sync across devices after going online"
+
+Device 1 (offline):
+1. Go offline
+2. Create item "Offline Item A"
+3. Stay offline
+
+Device 2 (online):
+4. Create item "Online Item B"
+5. Wait until: Item syncs to server
+
+Device 1 (back online):
+6. Go online ← Device 1 restores connectivity
+7. Wait until: Sync completes
+8. Assert: "Offline Item A" synced to server
+9. Assert: "Online Item B" synced to Device 1
+10. Assert: Both items visible on Device 1
+
+Device 2 (verify):
+11. Refresh Device 2
+12. Assert: "Offline Item A" now visible
+13. Assert: Both devices show identical state
+```
+
+### Strategy 5: The Error Recovery Test
+
+Test going online when backend is unavailable:
+
+```
+Test: "Graceful handling when backend unavailable"
+
+1. Go offline
+2. Create data
+3. Configure backend to return errors
+4. Go online ← Network restored but backend fails
+5. Wait until: Sync attempts
+6. Assert: Error message displays
+7. Assert: Retry option available
+8. Assert: Data preserved locally
+9. Restore backend availability
+10. Trigger manual retry
+11. Wait until: Sync succeeds
+12. Assert: Data finally synced
+```
+
+## Integration with Other Interactions
+
+### Go Online + Wait Until
+
+Always combine with wait conditions:
+
+```
+1. Go online
+2. Wait until: Network indicator shows "Connected"
+3. Wait until: Sync indicator appears
+4. Wait until: "Sync complete" shows
+5. Continue test
+```
+
+### Go Online + Assert
+
+Verify the network state change:
+
+```
+1. Assert: Currently offline
+2. Go online
+3. Assert: Network indicator shows "Online"
+4. Assert: Offline banner disappeared
+5. Assert: Online features available
+```
+
+### Go Online + Extract Information
+
+Verify synced data:
+
+```
+1. Go offline
+2. Create item and extract ID
+3. Go online
+4. Wait until: Sync completes
+5. Navigate to server-side view
+6. Assert: Item with extracted ID exists
+```
+
+### Go Online + Restart App
+
+Test persistence across app restart:
+
+```
+1. Go offline
+2. Create data
+3. Restart app
+4. Assert: Data still in local storage
+5. Go online
+6. Wait until: Sync occurs
+7. Assert: Data synced to server
+```
+
+## Understanding Network State in Mobile Testing
+
+### What "Online" Actually Means
+
+When you trigger Go Online, you're restoring:
+
+**WiFi connectivity:**
+- Connection to local network
+- Internet access via WiFi
+- Higher bandwidth operations possible
+
+**Cellular data:**
+- Mobile network connection
+- Fallback when WiFi unavailable
+- Potentially metered connection
+
+**Both connections allow:**
+- API calls to succeed
+- WebSocket connections to establish
+- Real-time updates to flow
+- Media downloads to proceed
+- Push notifications to be received
+
+### Network State Events Your App Receives
+
+When connectivity is restored, your app typically receives:
+
+1. **Connection state change events** - System notifies app of network availability
+2. **Reachability notifications** - App detects internet is accessible
+3. **Background sync triggers** - OS may trigger pending sync operations
+4. **WebSocket reconnection** - Real-time connections re-establish
+5. **Push notification registration** - Notification services reconnect
+
+Your tests should account for the time these operations take.
+
+## Comparison with Alternatives
+
+### Go Online vs Manual Network Configuration
+
+**Go Online (Autonoma):**
+```
+1. Go online
+2. Network immediately restored
+3. App receives state change events
+4. Test continues
+```
+
+**Manual approach:**
+```
+1. Access device settings
+2. Navigate to network settings
+3. Toggle WiFi on
+4. Toggle cellular data on
+5. Wait for connections to establish
+6. Return to app
+7. App may need refresh
+```
+
+**Why Go Online is better**: It's instant, reliable, and doesn't require navigating away from your app.
+
+### Go Online vs Waiting for Network Recovery
+
+**Proactive approach:**
+```
+1. Go online (controlled timing)
+2. Wait for known state change
+3. Verify sync behavior
+```
+
+**Passive approach:**
+```
+1. Wait for network to randomly return
+2. Hope timing is right for test
+3. Results unpredictable
+```
+
+**Why control is essential**: Testing requires reproducibility. Going online on command ensures consistent test execution.
+
+## Key Takeaways
+
+1. **Go Online restores connectivity** - Re-enables both WiFi and cellular data
+2. **It's mobile-only** - Designed for iOS and Android testing
+3. **Always pair with Go Offline** - Test complete offline→online cycles
+4. **Wait for sync** - Network restoration doesn't mean instant data sync
+5. **Verify state changes** - Confirm network indicator shows online
+6. **Test realistic patterns** - Multiple actions offline, then sync
+7. **Check data integrity** - Ensure offline data syncs correctly
+8. **Handle edge cases** - Test conflicts, failures, and retries
+9. **Cross-device validation** - Verify synced data appears everywhere
+10. **Think like users** - Test scenarios users actually experience
+
+## What's Next
+
+Now that you understand how to restore network connectivity with Go Online, you should also learn about its counterpart:
+
+- **Go Offline**: Discover how to simulate losing network connectivity and test offline functionality
+- **Restart App**: Learn how to test app restart scenarios combined with network state changes
+- **Wait Until**: Master timing controls for asynchronous sync operations
+
+Together, these interactions let you build comprehensive network resilience tests that ensure your mobile app works reliably in the real world's unpredictable connectivity conditions.

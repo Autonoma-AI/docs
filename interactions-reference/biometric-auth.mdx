@@ -1,0 +1,991 @@
+---
+title: "Biometric Auth"
+description: "Automate fingerprint and facial recognition authentication in mobile applications. Handle Touch ID, Face ID, and Android biometric prompts seamlessly in your tests."
+---
+
+## What is Biometric Auth?
+
+Biometric Auth is a mobile-specific interaction that automates fingerprint and facial recognition authentication in your mobile application tests. When your app prompts users to authenticate with Touch ID, Face ID, or Android biometric authentication, this interaction simulates the user successfully providing their biometric credentials.
+
+Think of it as pressing your finger on a fingerprint sensor or looking at the camera for face recognition—except it's automated for testing. The interaction tells the device simulator or emulator to simulate a successful biometric authentication, allowing your test to proceed past biometric security gates.
+
+This is essential for testing modern mobile applications that use biometrics for:
+- Initial app login
+- Payment authorization
+- Sensitive feature access
+- Transaction confirmation
+- Security-enhanced actions
+- Password manager unlocking
+
+Without this interaction, your tests would get stuck at every biometric prompt, unable to proceed. Biometric Auth makes these security features testable and automatable.
+
+## When to Use Biometric Auth
+
+Biometric Auth is specifically designed for mobile biometric prompts. Use it when:
+
+**Perfect for:**
+- Login screens requiring fingerprint/face authentication
+- Payment confirmation dialogs with biometric verification
+- App unlock screens after returning from background
+- Settings changes requiring biometric confirmation
+- Banking app transaction approvals
+- Password manager unlocking
+- Sensitive data access requiring biometric verification
+- Multi-factor authentication using biometrics
+
+**Choose an alternative when:**
+- Testing web applications (biometrics work differently on web)
+- Using PIN/password authentication instead of biometrics
+- Testing biometric enrollment flows (this interaction simulates success, not enrollment)
+- Testing biometric authentication failures (this simulates success only)
+
+## How It Works
+
+When you use Biometric Auth, here's what happens:
+
+1. **Prompt Detection**: Autonoma identifies when the OS-level biometric prompt appears
+2. **Biometric Type Recognition**: Determines if it's Face ID, Touch ID, or Android fingerprint
+3. **Success Simulation**: Sends the appropriate success signal to the device
+4. **Dialog Dismissal**: The biometric prompt dismisses as if authentication succeeded
+5. **Flow Continuation**: Your app continues as if the user authenticated successfully
+6. **State Verification**: Autonoma confirms the app accepted the biometric authentication
+
+The key difference from manual testing: instead of actually scanning a fingerprint or face, the simulator/emulator receives a success signal directly. This allows for reliable, repeatable biometric testing without physical biometric sensors.
+
+## Platform Support
+
+- **Web**: Not supported (web biometrics use different APIs)
+- **Mobile**: Full support (iOS and Android)
+  - iOS: Face ID, Touch ID
+  - Android: Fingerprint, Face Unlock, Iris Scanner
+
+This interaction is exclusively for mobile platforms where OS-level biometric authentication is used.
+
+## Understanding Mobile Biometric Authentication
+
+### iOS Biometric Authentication
+
+**Face ID (iPhone X and newer):**
+- Camera-based facial recognition
+- Appears as a prompt: "Face ID" with animation
+- User looks at the device to authenticate
+- In tests: Biometric Auth simulates successful face scan
+
+**Touch ID (iPhone 8 and older, some iPads):**
+- Fingerprint sensor on home button or power button
+- Appears as prompt: "Touch ID"
+- User places finger on sensor
+- In tests: Biometric Auth simulates successful fingerprint scan
+
+### Android Biometric Authentication
+
+**Fingerprint:**
+- Most common Android biometric method
+- Prompt: "Confirm fingerprint" or app-specific message
+- Sensor location varies by device
+- In tests: Biometric Auth simulates successful scan
+
+**Face Unlock:**
+- Available on newer Android devices
+- Camera-based facial recognition
+- Prompt varies by manufacturer
+- In tests: Biometric Auth simulates successful face recognition
+
+**Iris Scanner:**
+- Less common, on select devices
+- Camera-based iris recognition
+- In tests: Treated like other biometric methods
+
+## Example Scenarios
+
+### Scenario 1: Biometric Login for Banking App
+
+You're testing a banking app where users log in with Face ID instead of entering a password.
+
+```
+Test: "Login with Face ID"
+
+1. Launch: Banking app
+2. Wait until: Welcome screen loads
+3. Click "Login with Face ID" button
+4. Wait until: Face ID prompt appears
+5. Add prompt: biometric-auth
+6. Wait until: Face ID prompt dismisses
+7. Wait until: Account dashboard loads
+8. Verify: Account balance is visible
+9. Verify: User name is displayed
+```
+
+**What happens:**
+- App requests Face ID authentication
+- iOS shows the Face ID prompt
+- Biometric Auth simulates successful face scan
+- Prompt dismisses
+- App accepts authentication and logs user in
+- Dashboard loads with user data
+
+**Why this works**: The interaction simulates what would happen if a real user successfully authenticated with their face, allowing the test to validate the complete login flow.
+
+### Scenario 2: Payment Confirmation with Fingerprint
+
+Testing an e-commerce checkout flow that requires fingerprint confirmation for payment.
+
+```
+Test: "Complete purchase with fingerprint confirmation"
+
+1. Navigate through: Product selection
+2. Add: Item to cart
+3. Click "Checkout" button
+4. Fill in: Shipping information
+5. Select: Payment method
+6. Click "Pay Now" button
+7. Wait until: Fingerprint prompt appears
+8. Add prompt: accept fingerprint
+9. Wait until: Fingerprint prompt dismisses
+10. Wait until: Order confirmation screen loads
+11. Verify: Payment successful message
+12. Verify: Order number is displayed
+```
+
+**What happens:**
+- User proceeds through checkout
+- App requests fingerprint for payment authorization
+- Android shows fingerprint prompt
+- Biometric Auth simulates successful fingerprint scan
+- Payment is authorized
+- Order is completed
+- Confirmation is shown
+
+**Why this works**: Financial transactions often require biometric confirmation. This interaction allows you to test the complete payment flow including security verification.
+
+### Scenario 3: App Unlock After Background
+
+Testing the behavior when a user returns to the app after it's been backgrounded.
+
+```
+Test: "App locks and requires Face ID on return"
+
+1. Login to: App (initial authentication)
+2. Navigate to: Account page
+3. Background: App for 5 minutes
+4. Bring app to: Foreground
+5. Wait until: Face ID prompt appears
+6. Add prompt: faceId,true
+7. Wait until: App unlocks
+8. Verify: Still on account page
+9. Verify: Session is maintained
+```
+
+**What happens:**
+- User is logged into the app
+- App goes to background (user switches to another app)
+- Time passes (triggering security timeout)
+- User returns to app
+- App requires re-authentication
+- Biometric Auth unlocks the app
+- User continues where they left off
+
+**Why this works**: Many apps lock after being backgrounded for security. This tests that the lock mechanism works and can be unlocked.
+
+### Scenario 4: Accessing Sensitive Information
+
+Testing access to sensitive features like saved passwords or private documents.
+
+```
+Test: "Access password vault with Touch ID"
+
+1. Open: Password manager app
+2. Click "View saved passwords" button
+3. Wait until: Touch ID prompt appears
+4. Verify: Prompt message says "Authenticate to view passwords"
+5. Add prompt: touchId,true
+6. Wait until: Touch ID prompt dismisses
+7. Wait until: Password list loads
+8. Verify: Passwords are visible
+9. Verify: Can copy password to clipboard
+```
+
+**What happens:**
+- User attempts to access sensitive data
+- App requires additional authentication
+- Touch ID prompt appears with context-specific message
+- Biometric Auth simulates successful authentication
+- Sensitive data becomes accessible
+- User can interact with the data
+
+**Why this works**: Biometric gates protect sensitive features. This tests both the security gate and the functionality behind it.
+
+### Scenario 5: Biometric Authentication for Settings Changes
+
+Testing a security feature where critical settings changes require biometric confirmation.
+
+```
+Test: "Change security settings with biometric confirmation"
+
+1. Navigate to: Settings
+2. Click "Security" section
+3. Click "Change PIN" option
+4. Wait until: Fingerprint prompt appears
+5. Verify: Prompt says "Confirm identity to change PIN"
+6. Add prompt: input the fingerprint/face to authorize an action
+7. Wait until: Prompt dismisses
+8. Wait until: PIN change screen loads
+9. Input: New PIN
+10. Verify: PIN changed successfully
+```
+
+**What happens:**
+- User attempts to change security settings
+- App requires biometric confirmation before allowing changes
+- Biometric prompt appears
+- User authenticates
+- Settings change interface becomes available
+- Change is completed
+
+**Why this works**: Critical settings should require authentication. This verifies the security checkpoint is in place and functioning.
+
+### Scenario 6: Testing Biometric + PIN Fallback
+
+Testing what happens when a user chooses to use PIN instead of biometrics.
+
+```
+Test: "User declines biometric and uses PIN"
+
+1. Open: App requiring authentication
+2. Wait until: Biometric prompt appears
+3. Click "Use PIN instead" button
+4. Wait until: PIN entry screen loads
+5. Input: 1234 on PIN field
+6. Click "Submit" button
+7. Wait until: App unlocks
+8. Verify: Main screen loads
+```
+
+**Note**: In this scenario, we're NOT using Biometric Auth because we're testing the fallback flow. This shows when to use alternative interactions.
+
+**Why include this**: It's important to test both biometric success paths (using Biometric Auth) and fallback paths (using PIN/password alternatives).
+
+## Example Prompts
+
+Biometric Auth accepts several prompt variations:
+
+### Standard Prompts
+
+```
+biometric-auth
+```
+The simplest form—works for any biometric type.
+
+### Specific Biometric Types
+
+```
+faceId,true
+touchId,true
+accept faceId
+accept fingerprint
+```
+
+These explicitly specify the biometric type, which can be useful for documentation or when you want to be explicit about what's being tested.
+
+### Descriptive Prompts
+
+```
+input the fingerprint/face to login
+input the fingerprint/face to authorize an action
+accept biometric authentication
+confirm biometric prompt
+```
+
+These more descriptive forms make tests more readable and self-documenting.
+
+### Context-Specific Prompts
+
+```
+authenticate with fingerprint for payment
+use face id to unlock
+confirm identity with biometric
+verify biometric credentials
+```
+
+While these longer forms work, simpler prompts are typically sufficient.
+
+## Best Practices
+
+### 1. Always Wait for the Biometric Prompt
+
+Biometric prompts may take a moment to appear. Don't rush past them.
+
+**Good:**
+```
+1. Click "Login with Face ID" button
+2. Wait until: Face ID prompt appears
+3. Add prompt: biometric-auth
+4. Wait until: Prompt dismisses
+5. Wait until: Dashboard loads
+```
+
+**Risky:**
+```
+1. Click "Login with Face ID" button
+2. Add prompt: biometric-auth ← Might execute before prompt appears
+3. Continue...
+```
+
+### 2. Verify the Prompt Context
+
+Check that the biometric prompt shows the correct context message.
+
+**Good:**
+```
+1. Click "Make payment" button
+2. Wait until: Face ID prompt appears
+3. Verify: Prompt says "Authorize payment of $99.99"
+4. Add prompt: biometric-auth
+```
+
+**Why this matters**: Ensures your app is properly explaining why biometric authentication is required.
+
+### 3. Test Both Success and Cancellation
+
+Don't just test successful authentication—test what happens when users cancel.
+
+**Success path:**
+```
+Test: "Successful biometric authentication"
+1. Trigger: Biometric prompt
+2. Add prompt: biometric-auth
+3. Verify: Action completes
+```
+
+**Cancellation path:**
+```
+Test: "User cancels biometric prompt"
+1. Trigger: Biometric prompt
+2. Click "Cancel" button on prompt
+3. Verify: Action is cancelled
+4. Verify: User returns to previous screen
+```
+
+### 4. Test App Backgrounding During Biometric Prompt
+
+What happens if the app goes to background while waiting for biometrics?
+
+**Test scenario:**
+```
+Test: "App backgrounded during biometric auth"
+
+1. Trigger: Biometric prompt
+2. Wait until: Prompt appears
+3. Background: App
+4. Foreground: App
+5. Verify: Prompt is still visible OR new prompt appears
+6. Add prompt: biometric-auth
+7. Verify: Authentication completes successfully
+```
+
+### 5. Use Realistic Timing
+
+Biometric authentication takes a moment in real life. Your tests should reflect this.
+
+**Good:**
+```
+1. Add prompt: biometric-auth
+2. Wait until: Prompt dismisses (typically 0.5-2 seconds)
+3. Wait until: Next screen loads
+```
+
+This natural timing helps identify UI race conditions or timing bugs.
+
+### 6. Test Different Biometric States
+
+Test with various biometric configurations:
+
+**Test configurations:**
+- Device with Face ID enabled
+- Device with Touch ID enabled
+- Device with multiple enrolled fingerprints
+- Device with no biometrics enrolled (should fall back to PIN)
+
+### 7. Document Which Biometric Type Your Test Uses
+
+For clarity in test documentation:
+
+```
+Test: "Login with Face ID (iOS)"
+// This test requires an iOS device/simulator with Face ID capability
+
+Test: "Login with Fingerprint (Android)"
+// This test requires an Android device/emulator with fingerprint sensor
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting for Prompt to Appear
+
+**Problem:**
+```
+1. Click "Pay Now" button
+2. Add prompt: biometric-auth ← Executes too early
+3. Payment fails
+```
+
+**Why it fails**: Biometric Auth is triggered before the prompt appears, so it has nothing to interact with.
+
+**Solution:**
+```
+1. Click "Pay Now" button
+2. Wait until: Biometric prompt appears
+3. Add prompt: biometric-auth
+4. Wait until: Payment confirmation appears
+```
+
+### Pitfall 2: Assuming Immediate Dismissal
+
+**Problem:**
+```
+1. Add prompt: biometric-auth
+2. Click "Next" button ← Prompt might still be visible
+```
+
+**Why it fails**: Biometric prompts have dismissal animations that take time.
+
+**Solution:**
+```
+1. Add prompt: biometric-auth
+2. Wait until: Biometric prompt is no longer visible
+3. Wait until: Next screen is fully loaded
+4. Click "Next" button
+```
+
+### Pitfall 3: Not Handling Multiple Sequential Biometric Prompts
+
+**Problem:** Some flows require multiple biometric confirmations.
+
+**Example:** Deleting an account might require:
+1. First biometric check to access settings
+2. Second biometric check to confirm deletion
+
+**Solution:**
+```
+1. Navigate to: Delete account
+2. Wait until: First biometric prompt
+3. Add prompt: biometric-auth
+4. Wait until: Deletion confirmation screen
+5. Click "Confirm delete" button
+6. Wait until: Second biometric prompt
+7. Add prompt: biometric-auth
+8. Wait until: Account deleted
+```
+
+### Pitfall 4: Testing Only on Simulators
+
+**Problem:** Simulators may not perfectly replicate device biometric behavior.
+
+**Issues on simulators:**
+- Timing might differ from real devices
+- Certain biometric edge cases might not be testable
+- Performance characteristics differ
+
+**Solution:**
+- Test on simulators for rapid iteration
+- Validate on real devices before release
+- Use cloud device farms for real-device testing at scale
+
+### Pitfall 5: Not Testing Biometric Enrollment State
+
+**Problem:** Assuming biometrics are always enrolled and available.
+
+**Real-world scenarios:**
+- User hasn't enrolled any biometrics
+- User disabled biometrics
+- Device doesn't support biometrics
+
+**Solution:**
+```
+Test: "Graceful fallback when biometrics unavailable"
+
+1. Configure: Device with no enrolled biometrics
+2. Click "Login with Face ID" button
+3. Verify: App shows "Biometrics not available"
+4. Verify: PIN/password option is offered
+5. Use: PIN to login
+```
+
+### Pitfall 6: Ignoring Biometric Prompt Messages
+
+**Problem:** Not verifying that your app provides clear context in biometric prompts.
+
+**Bad user experience:**
+```
+Prompt message: "Authenticate" ← Not clear why
+```
+
+**Good user experience:**
+```
+Prompt message: "Authenticate to authorize $50 payment to Merchant Inc."
+```
+
+**Test for this:**
+```
+1. Click "Make payment" button
+2. Wait until: Biometric prompt appears
+3. Verify: Prompt message contains payment amount
+4. Verify: Prompt message contains merchant name
+5. Add prompt: biometric-auth
+```
+
+### Pitfall 7: Not Testing Repeated Authentication
+
+**Problem:** Some actions require multiple authentications in succession.
+
+**Example:** A banking app might require biometric auth to:
+1. Open the app
+2. View account details
+3. Initiate a transfer
+4. Confirm the transfer
+
+**Solution:** Test this flow completely:
+```
+Test: "Multiple biometric authentications in single session"
+
+1. Open: App
+2. Wait until: First biometric prompt (app unlock)
+3. Add prompt: biometric-auth
+4. Navigate to: Account details
+5. Wait until: Second biometric prompt (sensitive data)
+6. Add prompt: biometric-auth
+7. Initiate: Transfer
+8. Wait until: Third biometric prompt (transaction auth)
+9. Add prompt: biometric-auth
+10. Verify: All actions completed successfully
+```
+
+## Device and OS Considerations
+
+### iOS Specific Considerations
+
+**Face ID:**
+- Only available on iPhone X and newer
+- Requires TrueDepth camera
+- Works in various orientations
+- Has different behavior when attention detection is enabled
+
+**Touch ID:**
+- Available on iPhone 8 and earlier, some iPads
+- Sensor location varies (home button or power button)
+- Supports multiple enrolled fingerprints
+
+**iOS Simulator:**
+- Face ID can be simulated
+- Touch ID can be simulated
+- Toggle biometric states via: Features > Face ID > Enrolled / Touch ID > Enrolled
+- Simulate success/failure via: Features > Face ID > Matching Face / Touch ID > Matching Touch
+
+### Android Specific Considerations
+
+**Fingerprint:**
+- Most widely supported biometric on Android
+- Sensor location varies greatly by device
+- May have different UI from different manufacturers
+
+**Face Unlock:**
+- Implementation varies by manufacturer
+- Not all devices support face unlock
+- Security level varies (some are less secure than others)
+
+**Android Emulator:**
+- Fingerprint can be simulated
+- Face unlock support varies
+- Fingerprint simulation: emulator console > `finger touch 1`
+
+### Cross-Platform Testing Strategy
+
+**For apps supporting both iOS and Android:**
+
+```
+Test Suite: "Cross-platform biometric authentication"
+
+iOS Test:
+1. Platform: iOS
+2. Device: iPhone 13 (Face ID)
+3. Test: Login with Face ID
+4. Add prompt: faceId,true
+
+Android Test:
+1. Platform: Android
+2. Device: Pixel 6 (Fingerprint)
+3. Test: Login with Fingerprint
+4. Add prompt: accept fingerprint
+
+Verification:
+- Both platforms complete authentication
+- Both reach same post-auth state
+- UI adapts appropriately to each platform
+```
+
+## Security Testing with Biometric Auth
+
+### Testing Biometric Security Policies
+
+Verify your app enforces proper security policies:
+
+**Test biometric timeout:**
+```
+Test: "App requires re-authentication after timeout"
+
+1. Login: With biometric auth
+2. Use: App normally
+3. Wait: 10 minutes (or your app's timeout period)
+4. Attempt: Sensitive action
+5. Verify: Biometric prompt appears again
+6. Add prompt: biometric-auth
+7. Verify: Action is authorized
+```
+
+**Test biometric change detection:**
+```
+Test: "App detects changed biometrics"
+
+1. Login: With biometric auth
+2. Simulate: Biometric enrollment change (via device settings)
+3. Attempt: Sensitive action
+4. Verify: App requires full re-authentication
+5. Verify: Biometric prompt appears OR requires full login
+```
+
+### Testing Attack Scenarios
+
+**Verify biometric spoofing doesn't work:**
+
+While Biometric Auth simulates success in tests, your app should have proper security:
+
+```
+Security Test: "Verify biometric API usage"
+
+Verify your app:
+1. Uses BiometricPrompt API (Android) or LocalAuthentication (iOS)
+2. Sets appropriate security levels
+3. Handles fallback scenarios securely
+4. Validates biometric success correctly
+5. Doesn't cache biometric success indefinitely
+```
+
+**Test jailbreak/root detection:**
+```
+Test: "App detects compromised device"
+
+1. Run on: Jailbroken/rooted device
+2. Attempt: Biometric authentication
+3. Verify: App detects compromise and disables biometrics
+4. Verify: Requires alternative authentication
+```
+
+## Performance and Timing
+
+### Typical Biometric Authentication Timing
+
+**On real devices:**
+- Prompt appearance: 0.2-0.5 seconds after trigger
+- User recognition: 0.5-2 seconds (real world)
+- Prompt dismissal: 0.3-0.5 seconds
+- App response: 0.1-0.5 seconds
+
+**Total flow:** 1-4 seconds
+
+**In tests with Biometric Auth:**
+- Prompt appearance: 0.2-0.5 seconds
+- Simulated authentication: Nearly instant
+- Prompt dismissal: 0.3-0.5 seconds
+- App response: 0.1-0.5 seconds
+
+**Total flow:** 0.6-1.5 seconds
+
+### Optimizing Test Performance
+
+**Balance speed and realism:**
+
+**Fast tests (for unit/component testing):**
+```
+1. Trigger: Biometric prompt
+2. Add prompt: biometric-auth
+3. Continue immediately
+```
+
+**Realistic tests (for integration/E2E):**
+```
+1. Trigger: Biometric prompt
+2. Wait until: Prompt fully renders
+3. Wait: 500ms (simulate user recognition time)
+4. Add prompt: biometric-auth
+5. Wait until: Prompt fully dismisses
+6. Continue
+```
+
+The realistic approach better catches timing-related bugs.
+
+## Advanced Patterns
+
+### Pattern 1: Conditional Biometric Authentication
+
+Testing apps that use biometrics only when available:
+
+```
+Test: "App adapts to biometric availability"
+
+Scenario A: Biometrics available
+1. Launch: App on device with enrolled biometrics
+2. Verify: Biometric option is shown
+3. Click "Login with biometrics" button
+4. Add prompt: biometric-auth
+5. Verify: Login succeeds
+
+Scenario B: Biometrics unavailable
+1. Launch: App on device without enrolled biometrics
+2. Verify: Biometric option is NOT shown
+3. Verify: PIN/password option is available
+4. Use: PIN/password to login
+5. Verify: Login succeeds
+```
+
+### Pattern 2: Biometric with Retry Logic
+
+Testing apps that allow multiple biometric attempts:
+
+```
+Test: "Handle failed biometric attempt with retry"
+
+1. Trigger: Biometric prompt
+2. Simulate: Failed authentication (don't use Biometric Auth)
+3. Verify: Error message appears
+4. Verify: Prompt allows retry
+5. Add prompt: biometric-auth (successful attempt)
+6. Verify: Authentication succeeds
+```
+
+Note: Simulating failure might require specific device capabilities or test frameworks.
+
+### Pattern 3: Biometric Enrollment During Onboarding
+
+Testing the flow where users enable biometrics for the first time:
+
+```
+Test: "Enable biometrics during onboarding"
+
+1. Complete: Initial signup with email/password
+2. Reach: Security preferences screen
+3. See: "Enable Face ID for faster login?" prompt
+4. Click "Enable" button
+5. Wait until: iOS Face ID enrollment prompt appears
+6. Note: This is OS-level enrollment, not our Biometric Auth
+7. Complete: Enrollment in OS
+8. Verify: App shows "Face ID enabled"
+9. Logout: From app
+10. Click "Login with Face ID" button
+11. Add prompt: biometric-auth
+12. Verify: Login succeeds
+```
+
+### Pattern 4: Testing Biometric Credential Invalidation
+
+When biometric data changes, apps should require re-authentication:
+
+```
+Test: "App invalidates session when biometrics change"
+
+1. Login: With biometric authentication
+2. Store: Current session token
+3. Simulate: Biometric enrollment change (add/remove fingerprint)
+4. Attempt: To access app
+5. Verify: Session is invalidated
+6. Verify: Requires fresh login
+7. Complete: Fresh biometric authentication
+8. Verify: New session token is issued
+```
+
+### Pattern 5: Biometric Authentication Across App Updates
+
+Verify biometric authentication persists correctly across app updates:
+
+```
+Test: "Biometric login works after app update"
+
+1. Install: Version 1.0 of app
+2. Enable: Biometric authentication
+3. Login: Successfully with biometrics
+4. Update: App to version 2.0
+5. Reopen: App
+6. Wait until: Biometric prompt appears
+7. Add prompt: biometric-auth
+8. Verify: Login succeeds with existing biometric enrollment
+9. Verify: Settings are preserved
+```
+
+## Integration with Other Interactions
+
+### Biometric Auth + Click + Verify
+
+The most common pattern:
+
+```
+1. Click "Access secure feature" button
+2. Wait until: Biometric prompt appears
+3. Add prompt: biometric-auth
+4. Wait until: Prompt dismisses
+5. Verify: Secure feature is accessible
+```
+
+### Biometric Auth + Input Text + Click
+
+For flows combining biometrics with text input:
+
+```
+1. Input: Transfer amount on amount field
+2. Input: Recipient account on account field
+3. Click "Submit transfer" button
+4. Wait until: Biometric prompt appears
+5. Add prompt: biometric-auth
+6. Wait until: Transfer confirmed
+```
+
+### Biometric Auth + Scroll + Verify
+
+For accessing content requiring scrolling after auth:
+
+```
+1. Add prompt: biometric-auth for app unlock
+2. Wait until: App unlocks
+3. Scroll until: Find specific item in list
+4. Click: Item to view details
+```
+
+### Biometric Auth + Conditional Click
+
+For optional biometric prompts:
+
+```
+1. Click "Enable Face ID" button (optional feature)
+2. If: Biometric prompt appears
+3. Add prompt: biometric-auth
+4. Else: Continue without biometrics
+5. Verify: App adapts to user choice
+```
+
+## Comparing Biometric Auth with Alternatives
+
+### Biometric Auth vs Manual PIN Entry
+
+| Feature | Biometric Auth | PIN Entry |
+|---------|----------------|-----------|
+| **Speed** | Very fast (simulated) | Slower (type digits) |
+| **Security** | High (in production) | Medium (can be observed) |
+| **Device requirement** | Biometric hardware | Numeric input |
+| **Use in tests** | Use Biometric Auth | Use Input Text interaction |
+| **Best for** | Quick authentication testing | Fallback testing |
+
+### Biometric Auth vs Web Authentication
+
+| Feature | Mobile Biometric | Web Biometric (WebAuthn) |
+|---------|------------------|--------------------------|
+| **API** | Native OS APIs | WebAuthn API |
+| **Testing** | Biometric Auth interaction | Different approach needed |
+| **Platforms** | iOS, Android apps | Web browsers |
+| **Hardware** | Device sensors | Security keys, built-in sensors |
+
+Web biometric authentication (like Windows Hello or Touch ID on Safari) uses different mechanisms and requires different testing approaches.
+
+## Troubleshooting Guide
+
+### Issue: Biometric Prompt Doesn't Appear
+
+**Symptoms:** Expected biometric prompt never shows up.
+
+**Possible causes:**
+1. Biometrics not enrolled on test device
+2. App doesn't have biometric permission
+3. Biometrics disabled in app settings
+4. Device doesn't support biometrics
+
+**Solutions:**
+1. Verify biometrics are enrolled on test device/simulator
+2. Check app permissions for biometric access
+3. Ensure app settings have biometrics enabled
+4. Use compatible test device
+
+### Issue: Biometric Auth Doesn't Dismiss Prompt
+
+**Symptoms:** Prompt remains visible after Biometric Auth.
+
+**Possible causes:**
+1. Timing issue—prompt not fully ready
+2. Simulator/emulator bug
+3. App not properly handling biometric success
+
+**Solutions:**
+1. Add wait before Biometric Auth
+2. Restart simulator/emulator
+3. Verify app's biometric handling code
+4. Check app logs for errors
+
+### Issue: Authentication Succeeds but App Doesn't Respond
+
+**Symptoms:** Prompt dismisses but app doesn't proceed.
+
+**Possible causes:**
+1. App's post-authentication logic has bug
+2. Network request failing after authentication
+3. State management issue in app
+
+**Solutions:**
+1. Check app logs for errors after authentication
+2. Verify network connectivity
+3. Test manually to see if issue reproduces
+4. Add verification steps to confirm app state
+
+### Issue: Works on Simulator, Fails on Real Device
+
+**Symptoms:** Tests pass on simulator but fail on physical devices.
+
+**Possible causes:**
+1. Real device biometric hardware behaves differently
+2. Timing differences between simulator and device
+3. Security policies stricter on real devices
+4. Device-specific biometric implementation differences
+
+**Solutions:**
+1. Add additional wait time for real devices
+2. Test on multiple physical devices
+3. Check device-specific logs
+4. Adjust test timing for device testing
+
+## Key Takeaways
+
+1. **Biometric Auth is for mobile only** - It simulates fingerprint and face recognition on iOS and Android
+2. **Always wait for the prompt** - Biometric prompts take time to appear
+3. **Test the complete flow** - Don't stop at successful auth; verify the outcome
+4. **Test fallback scenarios** - Ensure your app handles cases where biometrics aren't available
+5. **Verify prompt context** - Check that biometric prompts explain why auth is required
+6. **Consider timing** - Add appropriate waits for prompt appearance and dismissal
+7. **Test on real devices** - Simulators are good for development but validate on real hardware
+8. **Test multiple biometric states** - Enrolled, not enrolled, disabled, changed
+9. **Document device requirements** - Specify which biometric types your tests require
+10. **Combine with security testing** - Verify proper implementation of biometric APIs
+
+## What's Next
+
+Now that you understand biometric authentication in mobile tests, explore these related topics:
+
+- **Login Google Account**: Learn about web-based OAuth authentication flows
+- **Click**: Master the fundamental interaction for triggering biometric prompts
+- **Wait Until**: Understand how to properly wait for biometric prompts and their dismissal
+- **Conditional Click**: Handle optional biometric prompts that may or may not appear
+- **Extract Information**: Capture auth tokens or session data after biometric authentication
+
+---
+
+**Platform-Specific Resources:**
+
+- **iOS**: Apple's LocalAuthentication framework documentation
+- **Android**: Google's BiometricPrompt API documentation
+- **Testing**: Review your test framework's biometric simulation capabilities
+
+**Need help?** If Biometric Auth isn't working as expected, verify that biometrics are enrolled on your test device, check that your app has the necessary permissions, and ensure the biometric prompt is actually appearing before invoking the interaction.

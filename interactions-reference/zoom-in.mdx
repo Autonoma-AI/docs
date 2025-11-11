@@ -1,0 +1,861 @@
+---
+title: "Zoom In"
+description: "Increase page magnification to test responsive design at higher zoom levels, verify text scaling, and validate user experience for users who require larger content."
+---
+
+## What is Zoom In?
+
+The Zoom In interaction increases the magnification level of the current web page, simulating what happens when users zoom in for better readability or to see content more clearly. This is equivalent to pressing `Ctrl +` (or `Cmd +` on Mac) or using the browser's zoom controls.
+
+Think of it as testing your application through a magnifying glass—you're verifying that as users increase the zoom level, your interface remains usable, readable, and functional.
+
+This is critical for:
+- Accessibility testing (users with visual impairments)
+- Responsive design validation
+- Text scaling compliance
+- UI element positioning at different zoom levels
+- Touch target size verification at magnification
+- Layout breakpoint testing
+
+## The Zoom Testing Challenge
+
+Users frequently zoom web pages for various reasons:
+
+**Vision Accessibility**
+```
+Users with low vision zoom to 200% or higher
+Content must remain readable and accessible
+UI controls must stay functional
+```
+
+**Content Inspection**
+```
+Users zoom to read fine print
+Examine detailed images
+View specific interface elements
+```
+
+**Device Differences**
+```
+High-DPI displays (Retina, 4K)
+Different default zoom levels
+Browser settings with custom zoom
+```
+
+**Compliance Requirements**
+```
+WCAG 2.1 requires content to be usable at 200% zoom
+Many jurisdictions mandate accessibility compliance
+Text must scale without horizontal scrolling
+```
+
+**Traditional testing limitations:**
+- **Manual testing**: Time-consuming and inconsistent
+- **Static screenshots**: Don't test actual behavior at zoom
+- **Device-only testing**: Misses zoom-specific issues
+- **Ignoring zoom**: Fails accessibility and leaves users underserved
+
+**Zoom In interaction** automates zoom testing, ensuring your application works correctly for users who need magnification.
+
+## When to Use Zoom In
+
+### Use Zoom In when:
+
+**Testing accessibility compliance**
+```
+Verifying 200% zoom usability (WCAG requirement)
+Testing text scaling without content loss
+Ensuring touch targets remain adequate
+Validating no horizontal scrolling at zoom
+```
+
+**Testing responsive design**
+```
+Verify layout adapts to zoom levels
+Check breakpoints triggered by zoom
+Test element positioning at magnification
+Ensure overlays and modals work when zoomed
+```
+
+**Testing text readability**
+```
+Confirm text remains legible when enlarged
+Check for text overflow or clipping
+Verify font scaling is proportional
+Test line height and spacing at zoom
+```
+
+**Testing UI element visibility**
+```
+Ensure buttons remain clickable when larger
+Check dropdown menus work at zoom
+Verify form fields are accessible
+Test navigation remains functional
+```
+
+**Testing images and media**
+```
+Check images scale appropriately
+Verify video players work at zoom
+Test image galleries at magnification
+Ensure canvas elements scale correctly
+```
+
+### Don't use when:
+
+**Testing mobile-specific zooming**
+```
+Pinch-to-zoom is different from browser zoom
+Use mobile-specific gestures instead
+```
+
+**Testing fixed-size elements**
+```
+Elements explicitly designed not to scale
+PDF viewers, fixed-size widgets
+```
+
+**When zoom should be prevented**
+```
+Some map interfaces disable zoom
+Certain full-screen applications
+Document this in your test
+```
+
+## How It Works
+
+When you use Zoom In:
+
+1. **Current Zoom Detection**: Autonoma detects the current page zoom level
+2. **Zoom Increase**: Browser zoom level is increased (typically by 10-20%)
+3. **Re-rendering**: Page re-renders at new zoom level
+4. **Layout Adjustment**: Elements reposition according to new magnification
+5. **Interaction Ready**: Page is ready for further interactions at zoomed level
+
+### Zoom Levels
+
+Browser zoom typically works in increments:
+- 100% - Default zoom (no magnification)
+- 110% - Small increase
+- 125% - Moderate increase
+- 150% - Significant increase
+- 200% - WCAG compliance requirement
+- 300%+ - Heavy magnification
+
+Each Zoom In interaction increases the zoom level by one increment (browser-dependent, usually 10%).
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not applicable (mobile uses pinch-to-zoom)
+
+Zoom In is specifically for web browser testing where zoom is controlled programmatically.
+
+## Real-World Scenarios
+
+### Scenario 1: Testing WCAG 200% Zoom Compliance
+
+You're testing that your application meets WCAG 2.1 requirements for 200% zoom usability.
+
+```
+Test: "Application usable at 200% zoom (WCAG compliance)"
+
+Navigate to Page:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Dashboard loads
+3. Assert: Page renders correctly at 100% zoom
+
+Gradually Increase Zoom:
+4. Zoom in
+5. Wait 1 second for re-render
+6. Assert: Layout remains functional
+7. Assert: No horizontal scrolling required
+
+8. Zoom in
+9. Wait 1 second for re-render
+10. Assert: Text is readable
+11. Assert: UI elements accessible
+
+12. Zoom in
+13. Wait 1 second for re-render
+14. Assert: Navigation menu works
+15. Assert: Buttons remain clickable
+
+Continue to 200% (approximately 7-10 zoom-ins):
+16. Zoom in repeatedly until 200% is reached
+17. Wait 1 second for final re-render
+
+Verify Functionality at 200%:
+18. Assert: All text is readable without horizontal scrolling
+19. Assert: Interactive elements are clickable
+20. Assert: Forms are usable
+21. Assert: Navigation is accessible
+22. Assert: No content is cut off or hidden
+23. Assert: Touch targets meet minimum size requirements
+
+Test Key Workflows at 200%:
+24. Fill out sample form
+25. Submit form
+26. Navigate between pages
+27. Use dropdown menus
+28. Test search functionality
+29. Assert: All features work correctly at 200% zoom
+```
+
+**Why Zoom In is essential**: WCAG 2.1 requires applications to be fully functional at 200% zoom. Automated testing ensures compliance.
+
+### Scenario 2: Testing Navigation Menu at Different Zoom Levels
+
+You're testing that your navigation menu remains accessible and functional as zoom increases.
+
+```
+Test: "Navigation menu functionality at various zoom levels"
+
+Test at Default Zoom (100%):
+1. Navigate to {{variable:APP_URL}}
+2. Wait until: Page loads
+3. Click navigation menu icon
+4. Wait until: Menu opens
+5. Assert: All menu items visible
+6. Assert: Menu items are clickable
+7. Extract menu item count with key MENU_COUNT_100
+
+Test at 125% Zoom:
+8. Zoom in twice (to approximately 125%)
+9. Wait 1 second for re-render
+10. Click navigation menu icon
+11. Wait until: Menu opens
+12. Assert: All menu items still visible
+13. Assert: Menu doesn't overflow viewport
+14. Assert: Menu items remain clickable
+15. Extract menu item count with key MENU_COUNT_125
+16. Assert: {{key:MENU_COUNT_125}} equals {{key:MENU_COUNT_100}}
+
+Test at 150% Zoom:
+17. Zoom in two more times (to approximately 150%)
+18. Wait 1 second for re-render
+19. Click navigation menu icon
+20. Wait until: Menu opens
+21. Assert: Menu adapts to zoom (may convert to mobile style)
+22. Assert: All items accessible (scrollable if needed)
+23. Assert: Click functionality maintained
+24. Test clicking each menu item
+
+Test at 200% Zoom:
+25. Zoom in additional times to reach 200%
+26. Wait 1 second for re-render
+27. Click navigation menu icon
+28. Wait until: Menu opens
+29. Assert: Menu is fully functional
+30. Assert: All items can be accessed
+31. Assert: Submenu behavior works correctly
+32. Test navigation to different pages
+```
+
+**Why Zoom In is essential**: Navigation must work at all zoom levels. Testing incrementally reveals at which zoom level issues appear.
+
+### Scenario 3: Testing Form Usability at High Zoom
+
+You're testing that forms remain usable and don't break at high zoom levels.
+
+```
+Test: "Form functionality at 200% zoom"
+
+Navigate and Zoom:
+1. Navigate to {{variable:APP_URL}}/contact
+2. Wait until: Contact form loads
+3. Zoom in repeatedly until approximately 200% zoom
+
+Verify Form Layout:
+4. Assert: Form fields are visible without horizontal scrolling
+5. Assert: Labels are associated with correct fields
+6. Assert: Required field indicators are visible
+7. Assert: Submit button is visible and accessible
+
+Test Form Interactions at Zoom:
+8. Click "Name" field
+9. Assert: Field focuses correctly
+10. Assert: Placeholder text is visible
+11. Input text: "Test User"
+12. Assert: Typed text is visible and not clipped
+
+13. Click "Email" field
+14. Assert: Field focuses correctly
+15. Input text: "test@example.com"
+16. Assert: Email is fully visible in field
+
+17. Click "Message" textarea
+18. Assert: Textarea expands appropriately
+19. Input text: "This is a test message to verify that text area works correctly at high zoom levels."
+20. Assert: Text wraps appropriately
+21. Assert: Scrollbar appears if needed (not horizontal)
+
+Test Validation at Zoom:
+22. Clear email field
+23. Click "Submit" button
+24. Wait until: Validation error appears
+25. Assert: Error message is visible and readable
+26. Assert: Error styling is appropriate at zoom
+27. Assert: Focus moves to error field
+
+Complete Submission at Zoom:
+28. Input text: "test@example.com" in email field
+29. Click "Submit" button
+30. Wait until: Success message appears
+31. Assert: Success message is visible and readable
+32. Assert: Form submission successful at 200% zoom
+```
+
+**Why Zoom In is essential**: Forms are critical UI elements that must work at all zoom levels for accessibility compliance.
+
+### Scenario 4: Testing E-commerce Product Grid at Zoom
+
+You're testing that product grid layout adapts correctly as zoom increases.
+
+```
+Test: "Product grid responsive to zoom levels"
+
+Test Default Layout:
+1. Navigate to {{variable:APP_URL}}/products
+2. Wait until: Product grid loads
+3. Extract number of columns with key COLUMNS_100
+4. Assert: Grid displays correctly
+5. Assert: Product images are visible
+6. Assert: Product names are readable
+7. Assert: Prices are displayed
+
+Zoom to 125%:
+8. Zoom in twice
+9. Wait 1 second for re-render
+10. Extract number of columns with key COLUMNS_125
+11. Assert: Grid may have fewer columns
+12. Assert: Product cards maintain proportions
+13. Assert: All product information visible
+14. Assert: "Add to Cart" buttons accessible
+
+Zoom to 150%:
+15. Zoom in twice more
+16. Wait 1 second for re-render
+17. Extract number of columns with key COLUMNS_150
+18. Assert: Grid may switch to 2-column layout
+19. Assert: No horizontal scrolling required
+20. Assert: Product images scale appropriately
+21. Assert: Buttons remain clickable
+
+Zoom to 200%:
+22. Zoom in to approximately 200%
+23. Wait 1 second for re-render
+24. Extract number of columns with key COLUMNS_200
+25. Assert: May display single-column layout
+26. Assert: All product information accessible
+27. Assert: No content cut off
+
+Test Interaction at 200% Zoom:
+28. Click first product
+29. Wait until: Product detail page loads
+30. Assert: Product details visible at zoom
+31. Click "Add to Cart" button
+32. Wait until: Item added to cart
+33. Assert: Cart badge updates
+34. Assert: Confirmation message visible at zoom
+```
+
+**Why Zoom In is essential**: Product grids must adapt gracefully to zoom, ensuring accessibility for users who need magnification while shopping.
+
+### Scenario 5: Testing Modal Dialogs at High Zoom
+
+You're testing that modal dialogs remain functional and accessible at high zoom levels.
+
+```
+Test: "Modal dialog usability at 200% zoom"
+
+Setup:
+1. Navigate to {{variable:APP_URL}}/dashboard
+2. Wait until: Dashboard loads
+3. Zoom in to approximately 200%
+4. Wait 1 second for re-render
+
+Trigger Modal:
+5. Click "Settings" button
+6. Wait until: Settings modal appears
+
+Verify Modal at Zoom:
+7. Assert: Modal is centered in viewport
+8. Assert: Modal background overlay covers page
+9. Assert: Modal content is readable without horizontal scrolling
+10. Assert: Close button is visible and accessible
+11. Assert: Modal doesn't extend beyond viewport
+
+Test Modal Content at Zoom:
+12. Assert: Modal heading is visible
+13. Assert: All form fields in modal are accessible
+14. Assert: Labels are properly aligned with fields
+15. Scroll within modal if needed
+16. Assert: Scrolling works without issues
+
+Test Modal Interactions at Zoom:
+17. Input text: "New Settings Value" in first field
+18. Assert: Text is visible in field
+19. Click "Save" button
+20. Wait until: Success message appears in modal
+21. Assert: Success message is readable at zoom
+
+Test Modal Closing at Zoom:
+22. Click close button (X)
+23. Wait until: Modal closes
+24. Assert: Modal closes smoothly
+25. Assert: Focus returns to trigger button
+26. Assert: Page behind modal is still at 200% zoom
+
+Test Different Modal at Zoom:
+27. Click "Delete Account" button
+28. Wait until: Confirmation modal appears
+29. Assert: Warning message is readable at zoom
+30. Assert: Buttons are clearly labeled and accessible
+31. Click "Cancel" button
+32. Assert: Modal closes correctly
+```
+
+**Why Zoom In is essential**: Modal dialogs can cause significant usability issues at high zoom if not properly designed. Testing ensures accessibility.
+
+### Scenario 6: Testing Data Table Accessibility at Zoom
+
+You're testing that data tables remain usable and accessible at different zoom levels.
+
+```
+Test: "Data table usability at increased zoom"
+
+Navigate to Table:
+1. Navigate to {{variable:APP_URL}}/reports
+2. Wait until: Data table loads
+3. Assert: Table displays with all columns visible
+
+Test Table at 125% Zoom:
+4. Zoom in twice
+5. Wait 1 second for re-render
+6. Assert: Table adapts appropriately
+7. Assert: Column headers remain visible
+8. Assert: Data cells are readable
+9. Assert: Horizontal scrolling may appear (acceptable for tables)
+
+Test Table at 150% Zoom:
+10. Zoom in twice more
+11. Wait 1 second for re-render
+12. Assert: Table remains functional
+13. Assert: Sort buttons in headers work
+14. Click column header to sort
+15. Wait until: Table re-sorts
+16. Assert: Sorting works correctly at zoom
+
+Test Table at 200% Zoom:
+17. Zoom in to approximately 200%
+18. Wait 1 second for re-render
+19. Assert: Table is accessible
+20. Assert: Horizontal scrolling available if needed
+21. Scroll table horizontally
+22. Assert: Fixed columns remain fixed (if applicable)
+23. Assert: Column data aligns correctly
+
+Test Table Interactions at Zoom:
+24. Click row to select
+25. Assert: Row highlights correctly
+26. Assert: Checkbox/radio button is clickable
+27. Click action button in row
+28. Wait until: Action completes
+29. Assert: Feedback visible at zoom level
+
+Test Table Pagination at Zoom:
+30. Scroll to bottom of table
+31. Assert: Pagination controls visible
+32. Assert: Page numbers are readable
+33. Click "Next Page" button
+34. Wait until: Next page loads
+35. Assert: Pagination works correctly at 200% zoom
+```
+
+**Why Zoom In is essential**: Data tables are complex UI elements that can break at high zoom. Testing ensures they remain accessible.
+
+## Example Prompts
+
+Here are effective ways to phrase Zoom In commands:
+
+**Basic zoom:**
+```
+zoom in
+zoom in the page
+increase zoom level
+magnify page
+```
+
+**With context:**
+```
+zoom in to test readability
+zoom in and verify layout
+increase magnification
+zoom in for accessibility testing
+```
+
+## Best Practices
+
+### 1. Test Incrementally
+
+Zoom in gradually to identify at which zoom level issues appear:
+
+```
+1. Start at 100% zoom
+2. Zoom in
+3. Test functionality
+4. Zoom in again
+5. Test functionality
+6. Continue until target zoom level reached
+```
+
+This helps pinpoint the exact zoom level where problems occur.
+
+### 2. Test Up to 200% Zoom
+
+WCAG 2.1 requires usability at 200% zoom:
+
+```
+Test: "WCAG zoom compliance"
+
+1. Navigate to page
+2. Zoom in multiple times until 200% is reached
+3. Verify all content accessible
+4. Test all interactive elements
+5. Ensure no horizontal scrolling for content
+```
+
+### 3. Wait After Zooming
+
+Allow the page to re-render after zoom:
+
+```
+1. Zoom in
+2. Wait 1 second for page re-render
+3. Continue testing
+```
+
+Some layouts take time to adjust to new zoom level.
+
+### 4. Test Key User Workflows
+
+Don't just verify layout—test actual functionality:
+
+```
+At 200% zoom:
+1. Complete a form
+2. Navigate between pages
+3. Use search
+4. Add items to cart
+5. Complete checkout
+```
+
+### 5. Check for Horizontal Scrolling
+
+WCAG requires no horizontal scrolling for text content:
+
+```
+At each zoom level:
+1. Assert: No horizontal scrollbar for text content
+2. Tables and wide images may scroll (acceptable)
+3. But text should reflow without horizontal scroll
+```
+
+### 6. Test Modals and Overlays
+
+Ensure overlays work at zoom:
+
+```
+1. Zoom to 200%
+2. Trigger modal
+3. Assert: Modal fits in viewport
+4. Assert: Modal content accessible
+5. Test closing modal
+```
+
+### 7. Combine with Other Interactions
+
+Test complete workflows at zoom:
+
+```
+1. Zoom in to 200%
+2. Fill form
+3. Submit form
+4. Navigate to next page
+5. Verify all steps work at zoom
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting After Zoom
+
+**Problem:**
+```
+1. Zoom in
+2. Immediately test element ← Layout hasn't finished adjusting!
+```
+
+**Solution:**
+```
+1. Zoom in
+2. Wait 1 second for re-render
+3. Test element
+```
+
+### Pitfall 2: Only Testing at 200% Zoom
+
+**Problem:**
+```
+Jump directly to 200% zoom
+Miss issues that appear at intermediate levels
+```
+
+**Solution:**
+```
+Test incrementally:
+1. Test at 100%
+2. Zoom to 125% and test
+3. Zoom to 150% and test
+4. Zoom to 200% and test
+
+Identify where issues first appear
+```
+
+### Pitfall 3: Not Testing Actual Functionality
+
+**Problem:**
+```
+1. Zoom in
+2. Check that elements are visible
+3. Assume they work
+```
+
+**Solution:**
+```
+1. Zoom in
+2. Check elements are visible
+3. Actually click and interact with them
+4. Verify functionality works at zoom
+```
+
+### Pitfall 4: Forgetting to Reset Zoom
+
+**Problem:**
+```
+Test 1: Zoom to 200%, test feature A
+Test 2: Test feature B ← Still at 200% zoom from Test 1!
+```
+
+**Solution:**
+```
+Test 1:
+1. Zoom to 200%
+2. Test feature A
+3. Reset zoom to 100% (or use Zoom Out)
+
+Test 2:
+1. Start at known zoom level
+2. Test feature B
+```
+
+### Pitfall 5: Not Testing Mobile Breakpoints at Zoom
+
+**Problem:**
+```
+Test only desktop layout at zoom
+Miss that zoom triggers mobile breakpoint
+```
+
+**Solution:**
+```
+1. Zoom in
+2. Check if mobile layout triggered
+3. If yes, verify mobile layout works correctly
+4. Test mobile-specific interactions
+```
+
+### Pitfall 6: Ignoring Browser Differences
+
+**Problem:**
+```
+Test only in Chrome
+Different browsers handle zoom differently
+```
+
+**Solution:**
+```
+Test zoom behavior in:
+- Chrome
+- Firefox
+- Safari
+- Edge
+
+Document any browser-specific differences
+```
+
+## Advanced Patterns
+
+### Pattern 1: Progressive Zoom Testing
+
+```
+Test: "Incremental zoom compliance"
+
+Baseline at 100%:
+1. Navigate to page
+2. Test all functionality at default zoom
+3. Document baseline behavior
+
+Test at 110%:
+4. Zoom in once
+5. Wait 1 second
+6. Test all functionality
+7. Compare with baseline
+
+Test at 125%:
+8. Zoom in more
+9. Wait 1 second
+10. Test all functionality
+11. Note any layout changes
+
+Test at 150%:
+12. Zoom in more
+13. Wait 1 second
+14. Test all functionality
+15. Verify accessibility maintained
+
+Test at 200% (WCAG target):
+16. Zoom in to 200%
+17. Wait 1 second
+18. Comprehensive functionality test
+19. Document compliance status
+```
+
+### Pattern 2: Zoom and Viewport Combination
+
+```
+Test: "Zoom with different viewport sizes"
+
+Small Viewport at 100%:
+1. Set viewport to 1024x768
+2. Navigate to page
+3. Test functionality
+
+Small Viewport at 200%:
+4. Zoom in to 200%
+5. Wait 1 second
+6. Test functionality
+7. May trigger mobile breakpoints
+
+Large Viewport at 100%:
+8. Set viewport to 1920x1080
+9. Navigate to page
+10. Test functionality
+
+Large Viewport at 200%:
+11. Zoom in to 200%
+12. Wait 1 second
+13. Test functionality
+14. More content visible than small viewport at zoom
+```
+
+### Pattern 3: Focus Management at Zoom
+
+```
+Test: "Keyboard navigation and focus at 200% zoom"
+
+Setup:
+1. Navigate to page
+2. Zoom in to 200%
+3. Wait 1 second
+
+Test Tab Navigation:
+4. Press Tab key
+5. Assert: First interactive element focuses
+6. Assert: Focus indicator visible at zoom
+7. Assert: Focused element scrolls into view if needed
+
+8. Press Tab key repeatedly
+9. Assert: Tab order is logical
+10. Assert: All interactive elements reachable
+11. Assert: Skip links work correctly
+
+Test Focus Visibility:
+12. Focus each element type
+13. Assert: Focus outline visible at zoom
+14. Assert: Focus indicator not clipped
+15. Assert: Contrast requirements met
+```
+
+## Debugging Zoom Issues
+
+### Issue: Layout Breaks at Certain Zoom
+
+**Problem:**
+```
+Layout looks fine at 100% and 150%
+Breaks at 175%
+```
+
+**Debugging approach:**
+```
+1. Zoom incrementally to find exact breakpoint
+2. Inspect layout at problematic zoom level
+3. Check if media query triggers incorrectly
+4. Verify CSS units (px vs rem vs em)
+5. Check for fixed widths that don't scale
+```
+
+### Issue: Horizontal Scrolling Appears
+
+**Problem:**
+```
+Text content requires horizontal scrolling at zoom
+WCAG violation
+```
+
+**Debugging approach:**
+```
+1. Identify which element causes horizontal scroll
+2. Check if element has fixed width
+3. Verify min-width or max-width constraints
+4. Test with viewport width: auto
+5. Ensure text reflows properly
+```
+
+### Issue: Text Becomes Unreadable
+
+**Problem:**
+```
+Text overlaps or gets clipped at high zoom
+```
+
+**Debugging approach:**
+```
+1. Check line-height settings
+2. Verify padding and margins scale
+3. Check for absolute positioning issues
+4. Test with different font sizes
+5. Ensure adequate spacing at zoom
+```
+
+## What's Next
+
+Now that you understand Zoom In, you can:
+- Test WCAG 2.1 zoom compliance (200% requirement)
+- Verify responsive design at different magnifications
+- Ensure accessibility for users with low vision
+- Test layout breakpoints triggered by zoom
+- Validate text scaling and readability
+
+Zoom In is an essential interaction for accessibility testing, ensuring your application serves users who need magnification.
+
+Explore related interactions:
+- **Zoom Out**: Decrease magnification level
+- **Assert**: Verify layout and content at zoom levels
+- **Click**: Test interaction at zoomed levels
+- **Scroll**: Navigate zoomed content
+
+---
+
+*Ready to explore more interactions? Return to [Interactions Reference →](/interactions-reference/introduction)*

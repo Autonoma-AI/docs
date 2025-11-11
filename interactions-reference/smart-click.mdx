@@ -1,0 +1,464 @@
+---
+title: "Smart Click"
+description: "An experimental clicking method for web elements that resist standard click behavior. Smart Click uses alternative detection strategies for challenging UI elements."
+---
+
+## What is Smart Click?
+
+Smart Click is an experimental interaction designed for edge cases where standard Click doesn't work on web applications. Think of it as your fallback option when you encounter unusually structured elements, complex custom components, or UI elements that don't respond to normal click detection.
+
+While standard Click handles 95% of scenarios perfectly, some web applications use unconventional DOM structures, shadow DOM implementations, or custom frameworks that make elements hard to target. Smart Click employs alternative detection methods to handle these challenging cases.
+
+The key word here is "experimental"—this interaction uses different strategies that might be slower or require more processing, but can succeed where standard methods fail.
+
+## When to Use Smart Click
+
+Smart Click is not a default choice. It's a specialized tool for specific situations.
+
+**Use Smart Click when:**
+- Standard Click consistently fails on a specific element
+- You've verified the element is clickable by manual testing
+- The element uses unconventional DOM structure
+- Custom web components don't respond to normal clicks
+- Complex JavaScript frameworks create unusual element hierarchies
+- The user explicitly requests "smart click" in their prompt
+
+**Don't use Smart Click when:**
+- Standard Click works fine (use regular Click)
+- The element isn't in the DOM at all (use OCR Click)
+- You need conditional clicking (use Conditional Click)
+- Mobile testing (Smart Click is web-only)
+- You haven't tried standard Click first
+
+## How It Works
+
+Smart Click employs alternative element detection strategies:
+
+1. **Deep DOM Analysis**: Examines element hierarchy more thoroughly
+2. **Alternative Selectors**: Uses multiple selector strategies
+3. **Event Simulation**: May use different event triggering methods
+4. **Visual Confirmation**: Validates the click target visually before acting
+5. **Retry Logic**: May attempt multiple approaches if first fails
+
+Because it tries multiple strategies, Smart Click can be slower than standard Click but more successful with problematic elements.
+
+## Platform Support
+
+- **Web**: Full support (experimental)
+- **Mobile**: Not supported
+
+Smart Click is specifically designed for web application challenges. For mobile apps, stick with standard Click or OCR Click.
+
+## Example Scenarios
+
+### Scenario 1: Custom Web Component Library
+
+You're testing an application built with a custom component library that wraps standard elements in unusual ways.
+
+```
+Test: "Submit form with custom button component"
+
+1. Navigate to form page
+2. Wait until: Form loads
+3. Type "user@example.com" in email field
+4. Type "password123" in password field
+5. Add prompt: "smart click on the submit button"
+6. Wait until: Success message appears
+```
+
+**Why Smart Click works here**: The custom button component might not expose standard clickable attributes. Smart Click's alternative detection strategies can find and activate it.
+
+### Scenario 2: Shadow DOM Elements
+
+You're testing an application that heavily uses Shadow DOM, and standard Click can't penetrate certain component boundaries.
+
+```
+Test: "Configure settings in shadow DOM panel"
+
+1. Click "Settings" menu (standard click works)
+2. Wait until: Settings panel opens
+3. Add prompt: "smart click on the custom-toggle element"
+4. Wait until: Toggle animation completes
+5. Add prompt: "smart click on save preferences button"
+6. Wait until: Settings saved confirmation appears
+```
+
+**Why Smart Click works here**: Shadow DOM can hide elements from normal selectors. Smart Click's deep analysis can traverse these boundaries.
+
+### Scenario 3: Complex SPA Framework
+
+You're testing a single-page application with a complex framework (React, Vue, Angular) where elements have dynamic, generated attributes.
+
+```
+Test: "Navigate complex dashboard"
+
+1. Navigate to dashboard
+2. Wait until: Dashboard renders
+3. Add prompt: "smart click on the analytics card"
+4. Wait until: Analytics detail view loads
+5. Add prompt: "smart click on the export data button"
+6. Wait until: Export menu appears
+```
+
+**Why Smart Click works here**: Framework-generated elements might have unpredictable attributes. Smart Click can adapt to these dynamic structures.
+
+### Scenario 4: Debugging a Failing Test
+
+You have a test that worked before but now fails at a specific click.
+
+```
+Original test (failing):
+1. Click "Advanced Options" button  ← Fails here
+2. Configure options
+3. Save
+
+Modified test (working):
+1. Add prompt: "smart click on Advanced Options button"  ← Now works
+2. Configure options
+3. Save
+```
+
+**Why Smart Click works here**: Perhaps a framework update changed how the button renders. Smart Click's alternative approaches can handle the new structure.
+
+## Example Prompts
+
+Smart Click requires explicit invocation in your prompts:
+
+**Explicit smart click syntax:**
+```
+smart click on the element
+smart-click on the submit button
+smart click the dropdown toggle
+smart click on the element at the top right
+```
+
+**With specific targets:**
+```
+smart click on the custom-button component
+smart-click the menu icon in the header
+smart click on the save button
+smart click the first item in the custom list
+```
+
+**Important**: You must include "smart click" or "smart-click" in your prompt. Unlike standard Click, which is the default, Smart Click must be explicitly requested.
+
+## Best Practices
+
+### 1. Try Standard Click First
+
+Always attempt standard Click before escalating to Smart Click.
+
+**Good workflow:**
+```
+1. Test with standard Click
+2. If it fails consistently, identify why
+3. If element is in DOM but not clickable normally, try Smart Click
+4. Document why Smart Click was needed
+```
+
+**Avoid:**
+```
+Using Smart Click by default without testing standard Click first
+```
+
+### 2. Use for Persistent Issues Only
+
+Don't sprinkle Smart Click throughout your tests. Reserve it for specific problematic elements.
+
+**Good:**
+```
+Test with 10 interactions:
+- 9 use standard Click
+- 1 uses Smart Click for the problematic custom widget
+```
+
+**Avoid:**
+```
+Test with 10 interactions:
+- All 10 use Smart Click "just in case"
+```
+
+### 3. Document Usage
+
+When you use Smart Click, add a comment or note explaining why.
+
+**Good:**
+```
+Add prompt: "smart click on the custom-dropdown"
+# Note: Custom web component requires Smart Click, standard Click fails
+```
+
+### 4. Monitor Performance
+
+Smart Click can be slower. If you use it frequently, monitor test execution time.
+
+**Watch for:**
+- Tests taking significantly longer
+- Multiple Smart Clicks in sequence
+- Opportunities to optimize or fix the underlying issue
+
+### 5. Consider Alternative Solutions
+
+Sometimes the right answer isn't Smart Click—it's fixing the test structure or using a different interaction.
+
+**Alternatives to consider:**
+- Is the element truly in the DOM? Maybe OCR Click is better
+- Is the element optional? Maybe Conditional Click is better
+- Can you wait longer for the element to be ready?
+- Can you interact with a parent or child element instead?
+
+## Common Pitfalls
+
+### Pitfall 1: Using as Default
+
+**Problem:**
+```
+Every click in test uses Smart Click
+```
+
+**Solution:**
+```
+Use standard Click by default, Smart Click only for proven problem elements
+```
+
+### Pitfall 2: Not Understanding Why It's Needed
+
+**Problem:**
+```
+Test uses Smart Click but you don't know why standard Click failed
+```
+
+**Solution:**
+```
+Debug the failure first:
+- Is element in DOM?
+- Is element visible?
+- Is element clickable?
+- Is there an overlay blocking it?
+Then decide if Smart Click is the right solution
+```
+
+### Pitfall 3: Using on Mobile
+
+**Problem:**
+```
+Test: "Mobile app test"
+Add prompt: "smart click on button"  ← Won't work, mobile not supported
+```
+
+**Solution:**
+```
+Use standard Click or OCR Click for mobile tests
+```
+
+### Pitfall 4: Expecting Instant Results
+
+**Problem:**
+```
+Smart Click is slow, assuming test is broken
+```
+
+**Solution:**
+```
+Understand Smart Click is experimental and may take longer to process
+Add appropriate wait conditions after Smart Click
+```
+
+### Pitfall 5: Not Retesting After App Updates
+
+**Problem:**
+```
+Using Smart Click for element that might now work with standard Click after app update
+```
+
+**Solution:**
+```
+Periodically review Smart Click usage
+Test if standard Click now works after application updates
+Optimize by reverting to standard Click when possible
+```
+
+## Comparison with Similar Interactions
+
+### Smart Click vs Click
+
+**Standard Click:**
+- Speed: Fast
+- Reliability: High for standard elements
+- Detection: Standard DOM + visual
+- Use case: 95% of scenarios
+- Platform: Web and Mobile
+
+**Smart Click:**
+- Speed: Slower
+- Reliability: High for challenging elements
+- Detection: Alternative methods
+- Use case: Edge cases, complex components
+- Platform: Web only
+
+**Decision rule**: Start with Click. Only escalate to Smart Click if Click consistently fails and you've confirmed the element is clickable.
+
+### Smart Click vs Visual Click
+
+**Smart Click:**
+- Approach: DOM-based with alternative strategies
+- Best for: Elements in DOM but hard to target
+- Precision: High
+- Speed: Moderate
+- Fallback level: Second tier
+
+**Visual Click:**
+- Approach: Pure visual/coordinate-based
+- Best for: Last resort when nothing else works
+- Precision: Lower
+- Speed: Slower
+- Fallback level: Third tier
+
+**Decision rule**: Try Smart Click before Visual Click. Visual Click is the absolute last resort.
+
+### Smart Click vs OCR Click
+
+**Smart Click:**
+- Detection: DOM-based alternative methods
+- Best for: Elements in DOM with unusual structure
+- Platform: Web only
+- Text visibility: Not required
+
+**OCR Click:**
+- Detection: Optical character recognition
+- Best for: Elements not in DOM or canvas-based
+- Platform: Web and Mobile
+- Text visibility: Required
+
+**Decision rule**: If element is in the DOM, try Smart Click. If element is purely visual (canvas, image), use OCR Click.
+
+## When Smart Click Isn't the Answer
+
+Sometimes you need a different solution entirely:
+
+### Issue: Element Truly Not Clickable
+
+**Wrong approach:**
+```
+Keep trying different click methods
+```
+
+**Right approach:**
+```
+Investigate why element isn't clickable:
+- Is it disabled?
+- Is it actually a display element, not interactive?
+- Do you need to enable it first?
+- Should you interact with a different element?
+```
+
+### Issue: Element Appears After Delay
+
+**Wrong approach:**
+```
+Use Smart Click hoping it will wait longer
+```
+
+**Right approach:**
+```
+Add explicit wait condition:
+1. Trigger action that causes element to appear
+2. Wait until: Element is visible and enabled
+3. Click element (standard Click may now work)
+```
+
+### Issue: Element Behind Overlay
+
+**Wrong approach:**
+```
+Use Smart Click to penetrate overlay
+```
+
+**Right approach:**
+```
+Close the overlay first:
+1. Close modal/popup/overlay
+2. Wait until: Overlay disappears
+3. Click target element
+```
+
+## Advanced Usage
+
+### Combining with Other Interactions
+
+Smart Click can be part of a larger interaction sequence:
+
+```
+Test: "Complex workflow with custom components"
+
+1. Click "Dashboard" (standard click)
+2. Wait until: Dashboard loads
+3. Add prompt: "smart click on the custom-analytics widget"
+4. Wait until: Widget expands
+5. Type "2024-01" in date field (standard interaction)
+6. Add prompt: "smart click on the apply-filters button"
+7. Wait until: Data updates
+```
+
+### Debugging Strategy
+
+When standard Click fails, use this debugging workflow:
+
+```
+Step 1: Verify element exists
+- Inspect page manually
+- Confirm element is in viewport
+- Check element is not hidden
+
+Step 2: Try standard Click
+- Use explicit, clear prompt
+- Ensure proper wait conditions
+- Check for overlays or blockers
+
+Step 3: Try Smart Click
+- Add "smart click" to prompt
+- Test if this resolves the issue
+- Document why it was needed
+
+Step 4: If Smart Click fails, escalate
+- Try OCR Click if text is visible
+- Try Visual Click as last resort
+- Consider if element is truly clickable
+```
+
+### Performance Optimization
+
+If you must use multiple Smart Clicks in a test:
+
+```
+Test: "Custom component-heavy workflow"
+
+Optimization strategies:
+1. Group Smart Clicks to minimize switching
+2. Add generous wait conditions to prevent retries
+3. Consider if some can revert to standard Click
+4. Monitor test execution time
+5. Document performance considerations
+```
+
+## Key Takeaways
+
+1. **Smart Click is experimental** - Use it knowingly, with intent
+2. **Not a default choice** - Reserve for proven problem cases
+3. **Try standard Click first** - Always exhaust simpler options
+4. **Web only** - Not available for mobile testing
+5. **Slower but thorough** - Accepts speed trade-off for reliability
+6. **Explicit invocation required** - Must use "smart click" in prompt
+7. **Document usage** - Explain why it's needed for future reference
+8. **Monitor performance** - Watch for impact on test execution time
+9. **Reevaluate periodically** - Check if still needed after app updates
+10. **Understand alternatives** - Know when other interactions are better suited
+
+## What's Next
+
+Now that you understand Smart Click for challenging web elements, explore these related interactions:
+
+- **Click**: Master the standard clicking approach that handles most scenarios
+- **Visual Click**: Learn about the last-resort clicking method for extreme edge cases
+- **OCR Click**: Discover how to click elements based on visible text when DOM access fails
+- **Conditional Click**: Understand how to handle optional elements that might not always appear

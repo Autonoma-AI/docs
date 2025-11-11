@@ -1,0 +1,1097 @@
+---
+title: "Wait Until"
+description: "Wait for conditions to be met before proceeding—the smart, adaptive way to handle loading states, dynamic content, and asynchronous operations in your tests."
+---
+
+# Wait Until
+
+## What It Does
+
+The `Wait Until` interaction pauses your test execution until a specific condition is met. Instead of waiting a fixed amount of time, it continuously checks whether your condition is true, and proceeds immediately once it is.
+
+```
+Wait until: Products load
+```
+
+Autonoma will:
+1. Check if products are loaded
+2. If no, wait briefly and check again
+3. Repeat until products appear
+4. Proceed immediately to the next step
+
+This is a **conditional wait**—it adapts to your application's actual behavior, making tests both faster and more reliable.
+
+## Why Wait Until is Essential
+
+Modern web and mobile applications are asynchronous by nature:
+- Pages load data from APIs
+- Content appears dynamically
+- Animations and transitions take time
+- Network speeds vary
+- Servers respond at different rates
+
+**Without conditional waits, tests fail unpredictably:**
+
+```
+Bad test:
+1. Click "Load Products"
+2. Assert: Products appear ← Fails! Products haven't loaded yet
+
+Good test:
+1. Click "Load Products"
+2. Wait until: Products appear ← Waits for async load
+3. Assert: Products are visible ← Now it's safe to verify
+```
+
+The `Wait Until` interaction is your solution to flaky tests caused by timing issues.
+
+## When to Use Wait Until
+
+### 1. After Navigation
+
+Every time you navigate to a new page, wait for it to load:
+
+```
+Test: "View product details"
+
+1. Navigate to {{variable:APP_URL}}/products/123
+2. Wait until: Product page loads ← Essential!
+3. Assert: Product title appears
+```
+
+**Why**: Pages don't load instantly. Without this wait, subsequent steps might execute before the page is ready.
+
+**Real-world timing**:
+- Fast connection: 200-500ms
+- Slow connection: 2-5 seconds
+- API delays: 3-10 seconds
+
+Conditional wait adapts to all of these scenarios.
+
+### 2. After Clicking Buttons
+
+Buttons often trigger actions that take time:
+
+```
+Test: "Add item to cart"
+
+1. Click "Add to Cart" button
+2. Wait until: Cart badge updates ← Wait for state change
+3. Assert: Cart badge shows "1"
+```
+
+**Without the wait**: Test might check the cart badge before the state updates, causing a false failure.
+
+**Common scenarios**:
+- Add to cart
+- Submit forms
+- Apply filters
+- Load more content
+- Trigger calculations
+- Start processes
+
+### 3. After Form Submission
+
+Forms typically make API calls that take time to complete:
+
+```
+Test: "Complete registration"
+
+1. Fill out registration form
+2. Click "Sign Up"
+3. Wait until: Success message appears ← Wait for API response
+4. Assert: "Welcome" message is visible
+```
+
+**Why**: Form submission involves:
+1. Client-side validation (100-300ms)
+2. API request (500-3000ms)
+3. Server processing (200-2000ms)
+4. Response handling (100-500ms)
+
+Total time varies widely. Conditional wait handles all cases.
+
+### 4. After Search or Filter Actions
+
+Search and filter operations query data and update the UI:
+
+```
+Test: "Search for products"
+
+1. Type "laptop" in search field
+2. Wait until: Search results appear ← Wait for search to complete
+3. Assert: Results contain "laptop"
+```
+
+**Common search/filter scenarios**:
+- Text search
+- Category filters
+- Price range filters
+- Date filters
+- Sort operations
+- Advanced filters
+
+All of these trigger backend queries that need time to complete.
+
+### 5. For Dynamic Content Loading
+
+Modern applications load content as you interact with them:
+
+```
+Test: "Infinite scroll"
+
+1. Navigate to news feed
+2. Wait until: Initial posts load ← First batch
+3. Scroll down
+4. Wait until: More posts appear ← Second batch loads
+5. Scroll down
+6. Wait until: Even more posts appear ← Third batch loads
+```
+
+**Dynamic loading patterns**:
+- Infinite scroll
+- Lazy loading images
+- Tab content switching
+- Accordion expansion
+- Modal content loading
+- Dropdown menu population
+
+### 6. For Element Visibility
+
+Waiting for specific elements to appear or disappear:
+
+```
+Test: "Modal workflow"
+
+1. Click "Open Settings"
+2. Wait until: Settings modal appears ← Modal takes time to render
+3. Change setting
+4. Click "Save"
+5. Wait until: Success message appears ← API call completes
+6. Wait until: Modal closes ← Auto-close after success
+```
+
+**Element visibility scenarios**:
+- Modals appearing
+- Tooltips showing
+- Dropdowns opening
+- Notifications appearing
+- Error messages displaying
+- Loading spinners disappearing
+
+### 7. For State Changes
+
+Waiting for application state to change:
+
+```
+Test: "Order status update"
+
+1. Navigate to order details
+2. Wait until: Order status loads
+3. Assert: Status shows "Processing"
+4. Click "Cancel Order"
+5. Wait until: Status changes to "Cancelled" ← Wait for state update
+6. Assert: Cancellation was successful
+```
+
+**State change scenarios**:
+- Order status updates
+- Payment processing
+- Account balance changes
+- User role changes
+- Subscription status updates
+- Document processing states
+
+### 8. For Animations and Transitions
+
+When animations affect element visibility or accessibility:
+
+```
+Test: "Sidebar navigation"
+
+1. Click "Menu" button
+2. Wait until: Sidebar slides in ← Sidebar has slide animation
+3. Click "Profile" in sidebar
+4. Wait until: Profile page loads
+```
+
+**Why this works**: The sidebar element becomes visible/clickable as it slides in. The conditional wait detects when it's ready for interaction.
+
+**Note**: If the animation doesn't affect state (purely visual), use a fixed `Wait` instead.
+
+## How Wait Until Works
+
+When you write:
+```
+Wait until: Dashboard loads
+```
+
+Here's what happens under the hood:
+
+1. **Parse Condition**: Autonoma's AI interprets "Dashboard loads"
+   - Looks for dashboard-related elements
+   - Identifies loading indicators
+   - Understands what "loaded" means in context
+
+2. **Check Condition**: Test whether the condition is met
+   - Are dashboard elements visible?
+   - Are loading spinners gone?
+   - Is content rendered?
+
+3. **Decision**:
+   - **Condition met**: Proceed immediately to next step
+   - **Condition not met**: Wait 100-500ms, check again
+
+4. **Repeat**: Keep checking until:
+   - Condition is met → Success, continue
+   - Timeout is reached → Fail with clear error
+
+**Key insight**: You describe what should happen in natural language, and Autonoma's AI figures out how to detect it.
+
+## How to Write Effective Wait Until Conditions
+
+### Be Specific and Clear
+
+**Vague conditions**:
+```
+Wait until: Page loads ← Which page? What elements?
+Wait until: It's ready ← What is "it"?
+Wait until: Done ← Done with what?
+```
+
+**Specific conditions**:
+```
+Wait until: Product page loads
+Wait until: Checkout form is visible
+Wait until: Payment processing completes
+Wait until: Search results appear
+```
+
+Specificity helps Autonoma's AI understand exactly what to check for.
+
+### Describe Visible Changes
+
+Focus on what you can see or verify:
+
+**Good descriptions**:
+```
+Wait until: Products appear
+Wait until: Loading spinner disappears
+Wait until: "Success" message is visible
+Wait until: Cart badge shows "1"
+Wait until: Error message appears
+```
+
+**Hard to detect**:
+```
+Wait until: API call completes ← Can't see API calls
+Wait until: Database updates ← Can't see database
+Wait until: State changes ← Too abstract
+```
+
+**Solution**: Describe the *visible result* of the invisible change:
+```
+Wait until: Order status changes to "Confirmed" ← Visible result
+Wait until: Balance updates to "$100" ← Visible result
+Wait until: New items appear in list ← Visible result
+```
+
+### Include Element Identifiers
+
+Help Autonoma locate what you're waiting for:
+
+**Better specificity**:
+```
+Wait until: "Add to Cart" button appears
+Wait until: "Checkout" heading is visible
+Wait until: Product titled "Laptop Pro" loads
+Wait until: Error message "Invalid password" appears
+```
+
+Including element text, labels, or identifying characteristics makes conditions more reliable.
+
+### Describe State Transitions
+
+When waiting for changes, mention the transition:
+
+**Good state descriptions**:
+```
+Wait until: Order status changes to "Shipped"
+Wait until: Cart badge updates to "3"
+Wait until: Loading spinner disappears
+Wait until: "Processing" changes to "Complete"
+```
+
+**Instead of just**:
+```
+Wait until: Order status ← What status?
+Wait until: Cart badge ← What should it show?
+```
+
+### Use Negative Conditions
+
+Sometimes you wait for something to disappear:
+
+```
+Wait until: Loading spinner is gone
+Wait until: Error message disappears
+Wait until: Modal closes
+Wait until: Overlay is not visible
+```
+
+This is useful when you need to verify that temporary elements (loaders, errors, overlays) have been removed.
+
+## Platform Support
+
+**Web**: Yes
+**Mobile**: Yes
+
+`Wait Until` works identically across all platforms. The AI adapts its detection strategies based on whether you're testing a web application or mobile app.
+
+## Real-World Examples
+
+### Example 1: E-commerce Product Search
+
+```
+Test: "Search and filter products"
+
+1. Navigate to {{variable:APP_URL}}/shop
+2. Wait until: Product grid loads ← Initial page load
+3. Type "laptop" in search field
+4. Wait until: Search results update ← Search API call
+5. Assert: Results show laptops
+6. Click "Price: Low to High" sort option
+7. Wait until: Results reorder ← Sort API call
+8. Assert: First product is cheapest laptop
+9. Click "In Stock Only" filter
+10. Wait until: Results filter ← Filter API call
+11. Assert: All products show "In Stock"
+```
+
+**Why multiple Wait Untils?** Each action triggers a different async operation. Each needs its own conditional wait.
+
+### Example 2: Multi-Step Form with Validation
+
+```
+Test: "Complete checkout"
+
+1. Navigate to checkout
+2. Wait until: Checkout form loads ← Page load
+3. Fill out shipping address
+4. Click "Continue to Payment"
+5. Wait until: Payment form appears ← Form transition
+6. Input credit card details
+7. Click "Review Order"
+8. Wait until: Order review page loads ← API fetches order summary
+9. Assert: Order total is correct
+10. Click "Place Order"
+11. Wait until: Payment processes ← Payment API call
+12. Wait until: Confirmation page appears ← Success redirect
+13. Assert: Order number is displayed
+```
+
+**Without these waits**: Test would fail at random steps depending on network speed and API response times.
+
+### Example 3: Dashboard with Multiple Widgets
+
+```
+Test: "Dashboard data loads correctly"
+
+1. Log in to application
+2. Navigate to dashboard
+3. Wait until: Dashboard page loads
+4. Wait until: Sales widget shows data ← First API call
+5. Assert: Sales data is visible
+6. Wait until: Activity widget shows data ← Second API call
+7. Assert: Recent activity is visible
+8. Wait until: Notifications widget loads ← Third API call
+9. Assert: Notifications are displayed
+10. Click "Refresh" button
+11. Wait until: All widgets update ← All APIs re-fetch
+12. Assert: Data has been refreshed
+```
+
+**Different widgets load at different speeds**. Conditional waits handle each independently.
+
+### Example 4: File Upload with Processing
+
+```
+Test: "Upload profile picture"
+
+1. Navigate to profile settings
+2. Wait until: Settings page loads
+3. Click "Change Profile Picture"
+4. Wait until: Upload modal appears ← Modal render
+5. Set file to upload: "profile.jpg"
+6. Click "Upload"
+7. Wait until: Upload progress reaches 100% ← File upload
+8. Wait until: "Processing image..." message appears ← Server processing
+9. Wait until: "Upload successful" message appears ← Processing complete
+10. Wait until: New profile picture displays ← UI updates
+11. Assert: Profile picture has changed
+```
+
+**Multiple async phases**: Upload → Processing → UI update. Each needs its own wait.
+
+### Example 5: Social Media Feed Interaction
+
+```
+Test: "Like and comment on post"
+
+1. Navigate to feed
+2. Wait until: Feed posts load ← Initial feed load
+3. Scroll until: Post titled "Product Launch" appears ← Find specific post
+4. Click "Like" button on post
+5. Wait until: Like count increments ← State update
+6. Assert: Like button is now filled
+7. Click "Comment" button
+8. Wait until: Comment input appears ← Comment UI loads
+9. Type "Great launch!" in comment field
+10. Click "Post Comment"
+11. Wait until: Comment appears in list ← Comment submission
+12. Assert: My comment is visible
+```
+
+**Each interaction triggers state changes** that need time to propagate from client → server → back to client.
+
+### Example 6: API-Driven Configuration Changes
+
+```
+Test: "Update email notification settings"
+
+1. Navigate to notification settings
+2. Wait until: Settings page loads
+3. Assert: "Email notifications" toggle is ON
+4. Click "Email notifications" toggle
+5. Wait until: Toggle animates to OFF ← Visual state change
+6. Wait until: "Settings saved" message appears ← API confirmation
+7. Refresh page
+8. Wait until: Settings page reloads ← Verify persistence
+9. Assert: "Email notifications" toggle is still OFF
+```
+
+**Toggle requires multiple waits**: Visual change → API save → Confirmation.
+
+### Example 7: Real-Time Updates
+
+```
+Test: "Order status updates in real-time"
+
+1. Navigate to order tracking page
+2. Wait until: Order details load
+3. Assert: Status shows "Processing"
+4. Wait until: Status changes to "Shipped" ← Real-time update (could take minutes)
+5. Assert: Tracking number appears
+6. Assert: Estimated delivery date is shown
+```
+
+**Real-time updates are unpredictable**. Conditional wait patiently checks until the update occurs.
+
+### Example 8: Modal Workflow with Multiple Steps
+
+```
+Test: "Multi-step modal configuration"
+
+1. Click "Create Project"
+2. Wait until: Create modal appears ← Modal renders
+3. Fill in project name
+4. Click "Next"
+5. Wait until: Step 2 appears ← Modal transitions
+6. Select project type
+7. Click "Next"
+8. Wait until: Step 3 appears ← Another transition
+9. Configure settings
+10. Click "Create"
+11. Wait until: "Creating project..." message appears ← API starts
+12. Wait until: "Project created!" message appears ← API completes
+13. Wait until: Modal closes automatically ← Auto-dismiss
+14. Wait until: New project appears in project list ← List refreshes
+```
+
+**Complex modal workflows** require waiting at each transition point.
+
+## Common Pitfalls
+
+### Pitfall 1: Not Waiting After Actions
+
+**The problem**:
+```
+Test: "Add to cart"
+
+1. Click "Add to Cart"
+2. Assert: Cart badge shows "1" ← Fails! State hasn't updated yet
+```
+
+**Why it fails**: The assertion executes immediately after the click, before the cart update completes.
+
+**The fix**:
+```
+Test: "Add to cart"
+
+1. Click "Add to Cart"
+2. Wait until: Cart badge updates ← Wait for state change
+3. Assert: Cart badge shows "1" ← Now it's safe to verify
+```
+
+**Rule**: Always wait for state changes after actions before making assertions.
+
+### Pitfall 2: Vague Wait Conditions
+
+**The problem**:
+```
+Wait until: Page loads ← Which page? What elements?
+Wait until: Ready ← Ready for what?
+Wait until: Done ← Done with what?
+```
+
+**Why it's problematic**: Vague conditions make it harder for Autonoma's AI to know what to check for.
+
+**The fix**:
+```
+Wait until: Checkout page loads ← Specific page
+Wait until: Form is ready for input ← Specific state
+Wait until: Payment processing completes ← Specific action
+```
+
+**Rule**: Be specific about what should happen or appear.
+
+### Pitfall 3: Waiting for Invisible Changes
+
+**The problem**:
+```
+Wait until: API call completes ← Can't see API calls
+Wait until: State management updates ← Can't see internal state
+Wait until: Database writes finish ← Can't see database
+```
+
+**Why it's problematic**: You can't wait for things that aren't visible in the UI.
+
+**The fix**: Wait for the *visible result* of the invisible change:
+```
+Wait until: New data appears in list ← Visible result of API
+Wait until: Success message displays ← Visible result of state change
+Wait until: Record appears in table ← Visible result of database write
+```
+
+**Rule**: Describe what you can see or verify visually.
+
+### Pitfall 4: Missing Waits in Chains
+
+**The problem**:
+```
+Test: "Multi-step workflow"
+
+1. Click "Start"
+2. Wait until: Step 1 loads
+3. Complete step 1
+4. Click "Next"
+5. Complete step 2 ← Missing wait! Step 2 might not be loaded
+6. Click "Next"
+7. Complete step 3 ← Missing wait! Step 3 might not be loaded
+```
+
+**The fix**:
+```
+Test: "Multi-step workflow"
+
+1. Click "Start"
+2. Wait until: Step 1 loads
+3. Complete step 1
+4. Click "Next"
+5. Wait until: Step 2 loads ← Added wait
+6. Complete step 2
+7. Click "Next"
+8. Wait until: Step 3 loads ← Added wait
+9. Complete step 3
+```
+
+**Rule**: Add waits between every step transition.
+
+### Pitfall 5: Over-Relying on Element Text
+
+**The problem**:
+```
+Wait until: "Loading..." disappears ← What if the text changes to "Loading, please wait..."?
+Wait until: Button says "Submit" ← What if it says "Submit Order"?
+```
+
+**Why it's problematic**: Exact text matches can break when copy changes.
+
+**The fix**:
+```
+Wait until: Loading indicator disappears ← More general description
+Wait until: Submit button appears ← Describes element, not exact text
+```
+
+**Rule**: Describe elements by their function and appearance, not just exact text.
+
+### Pitfall 6: Not Accounting for Multiple Loading States
+
+**The problem**:
+```
+Test: "View dashboard"
+
+1. Navigate to dashboard
+2. Wait until: Dashboard loads ← Only waits for page structure
+3. Assert: Sales data is visible ← Fails! Data hasn't loaded yet
+```
+
+**Why it fails**: The dashboard HTML might load quickly, but the data takes longer.
+
+**The fix**:
+```
+Test: "View dashboard"
+
+1. Navigate to dashboard
+2. Wait until: Dashboard page loads ← Page structure
+3. Wait until: Sales data appears ← Data from API
+4. Assert: Sales data is visible ← Now it's safe
+```
+
+**Rule**: Complex pages often have multiple loading phases. Wait for each.
+
+### Pitfall 7: Insufficient Wait Descriptions for Animations
+
+**The problem**:
+```
+1. Click "Open Menu"
+2. Wait until: Menu appears ← Menu element exists immediately
+3. Click menu item ← Click might happen mid-animation, causing mis-click
+```
+
+**Why it's problematic**: The element exists in the DOM before the animation completes, but it's not yet fully interactive.
+
+**The fix**:
+```
+1. Click "Open Menu"
+2. Wait until: Menu fully opens ← More specific about animation completion
+3. Click menu item ← Now safe to interact
+```
+
+**Alternative fix** (if needed):
+```
+1. Click "Open Menu"
+2. Wait until: Menu appears
+3. Wait 0.5 seconds ← Fixed wait for animation
+4. Click menu item
+```
+
+**Rule**: Consider whether animations affect element interactivity.
+
+## Best Practices
+
+### 1. Wait After Every Async Action
+
+**Pattern**: Action → Wait → Verify
+
+```
+1. [Perform action that triggers async operation]
+2. Wait until: [Expected result of action]
+3. Assert: [Verification]
+```
+
+**Examples**:
+```
+1. Click "Load More"
+2. Wait until: Additional items appear ← Wait
+3. Assert: More items are visible ← Verify
+
+1. Submit form
+2. Wait until: Success message appears ← Wait
+3. Assert: Form submission was successful ← Verify
+
+1. Apply filter
+2. Wait until: Results update ← Wait
+3. Assert: Filtered results are correct ← Verify
+```
+
+### 2. Be Specific in Your Conditions
+
+**Vague**:
+```
+Wait until: Stuff loads
+Wait until: Page is ready
+Wait until: Done
+```
+
+**Specific**:
+```
+Wait until: Product list loads
+Wait until: Checkout form is ready for input
+Wait until: Payment processing completes
+```
+
+More specific conditions are more reliable.
+
+### 3. Describe What's Visible
+
+Focus on visible UI changes:
+
+```
+Good:
+Wait until: "Success" message appears
+Wait until: Cart badge shows "2"
+Wait until: Loading spinner disappears
+Wait until: New product card appears
+
+Bad:
+Wait until: API returns ← Can't see API
+Wait until: Store updates ← Can't see internal state
+```
+
+### 4. Wait for Negative Conditions
+
+Don't forget to wait for things to disappear:
+
+```
+Wait until: Loading spinner is gone
+Wait until: Error message disappears
+Wait until: Modal closes
+Wait until: Overlay is not visible
+```
+
+### 5. Chain Waits for Complex Flows
+
+Don't be afraid to use multiple waits:
+
+```
+1. Click "Checkout"
+2. Wait until: Checkout page loads ← First wait
+3. Fill out form
+4. Click "Continue"
+5. Wait until: Payment form appears ← Second wait
+6. Enter payment details
+7. Click "Submit"
+8. Wait until: Processing message appears ← Third wait
+9. Wait until: Confirmation appears ← Fourth wait
+10. Assert: Order complete
+```
+
+Each phase needs its own wait.
+
+### 6. Combine with Assertions
+
+Verify that waits succeeded:
+
+```
+1. Click "Add to Cart"
+2. Wait until: Cart updates ← Wait
+3. Assert: Cart badge shows "1" ← Verify
+```
+
+The assertion confirms that the wait detected the right condition.
+
+### 7. Use Wait Until Over Fixed Waits
+
+**Default to conditional waits**:
+```
+Prefer: Wait until: Products load
+Avoid: Wait 3 seconds
+```
+
+Conditional waits are faster and more reliable.
+
+**Only use fixed waits for**:
+- Animation timing (visual only)
+- Deliberate pacing (demos)
+- Testing time-based features
+
+### 8. Test Your Waits Under Different Conditions
+
+Verify your waits work under:
+- **Fast network**: Does the test still work when things load quickly?
+- **Slow network**: Does the wait give enough time?
+- **Failed loads**: Does the test fail clearly when conditions aren't met?
+
+## Advanced Patterns
+
+### Pattern 1: Wait Chain for Multi-Phase Loading
+
+When loading happens in multiple phases:
+
+```
+Test: "Dashboard with widgets"
+
+1. Navigate to dashboard
+2. Wait until: Dashboard structure loads ← Phase 1: HTML
+3. Wait until: User profile loads ← Phase 2: User API
+4. Wait until: Sales widget loads ← Phase 3: Sales API
+5. Wait until: Activity widget loads ← Phase 4: Activity API
+6. Assert: All dashboard data is visible
+```
+
+### Pattern 2: Wait + Assert Sandwich
+
+Verify both the wait and the result:
+
+```
+1. Click "Submit Order"
+2. Wait until: Processing indicator appears ← Verify action started
+3. Assert: "Processing your order..." is visible
+4. Wait until: Confirmation appears ← Verify action completed
+5. Assert: "Order confirmed!" is visible
+```
+
+### Pattern 3: Progressive Enhancement Wait
+
+Wait for base content, then enhanced content:
+
+```
+1. Navigate to product page
+2. Wait until: Product details load ← Base content
+3. Assert: Product name and price are visible
+4. Wait until: Product reviews load ← Enhanced content
+5. Assert: Reviews are displayed
+6. Wait until: Recommendation widget loads ← More enhanced content
+7. Assert: Recommended products appear
+```
+
+### Pattern 4: Conditional Branching with Waits
+
+Wait for one of multiple possible outcomes:
+
+```
+1. Submit payment
+2. Wait until: Either success or error message appears ← Multiple possible outcomes
+3. If success message:
+   - Assert: Order was placed
+4. If error message:
+   - Assert: Error is shown
+   - Handle error case
+```
+
+### Pattern 5: Scroll + Wait Combination
+
+Combine scrolling with conditional waiting:
+
+```
+1. Navigate to infinite scroll feed
+2. Wait until: Initial posts load ← First batch
+3. Scroll to bottom
+4. Wait until: More posts load ← Second batch
+5. Scroll to bottom
+6. Wait until: Even more posts load ← Third batch
+```
+
+### Pattern 6: Real-Time Update Polling
+
+Wait for updates that happen at unpredictable times:
+
+```
+Test: "Real-time order tracking"
+
+1. Navigate to order details
+2. Wait until: Order status loads
+3. Assert: Status is "Processing"
+4. Wait until: Status changes to "Shipped" ← Could take seconds or minutes
+5. Extract: Tracking number
+6. Wait until: Tracking link becomes active
+7. Assert: Tracking information is available
+```
+
+### Pattern 7: Multi-Step Modal with Waits
+
+Handle complex modal workflows:
+
+```
+1. Click "Create Account"
+2. Wait until: Account creation modal appears ← Modal renders
+3. Fill step 1 fields
+4. Click "Next"
+5. Wait until: Step 2 appears ← Modal transitions
+6. Fill step 2 fields
+7. Click "Next"
+8. Wait until: Step 3 appears ← Another transition
+9. Review and confirm
+10. Click "Create"
+11. Wait until: Creation process completes ← API call
+12. Wait until: Success message appears ← Confirmation
+13. Wait until: Modal closes ← Auto-dismiss
+```
+
+## Troubleshooting
+
+### "Wait Until keeps timing out"
+
+**Possible causes**:
+1. **Condition never becomes true**: The element you're waiting for doesn't actually appear
+2. **Condition is too specific**: Description doesn't match what actually appears
+3. **Genuine performance issue**: Application is slow or broken
+
+**Solutions**:
+1. Verify the element actually appears when you manually test
+2. Make the condition more general: "Submit button" instead of "Submit Order Now button"
+3. Check application logs for errors or performance issues
+
+### "Test is slow"
+
+**Possible causes**:
+1. **Too many waits**: Unnecessary waiting
+2. **Vague conditions**: AI takes longer to interpret
+
+**Solutions**:
+1. Remove redundant waits
+2. Be more specific in wait conditions
+3. Ensure you're not accidentally using fixed `Wait` instead of `Wait Until`
+
+### "Wait succeeds but next step fails"
+
+**Possible causes**:
+1. **Wrong condition**: You're waiting for the wrong thing
+2. **Multiple loading phases**: There's another phase you didn't wait for
+3. **Animation not complete**: Element exists but animation is still running
+
+**Solutions**:
+1. Wait for the specific element you'll interact with next
+2. Add additional waits for subsequent loading phases
+3. Add a brief fixed wait for animation completion if needed
+
+### "Different results on different runs"
+
+**Possible causes**:
+1. **Race conditions**: Sometimes the wait succeeds, sometimes it doesn't
+2. **Network variability**: Different load times
+3. **Insufficient wait**: Not waiting for the right condition
+
+**Solutions**:
+1. Make wait conditions more specific
+2. Add additional waits in the flow
+3. Verify you're waiting for visible changes, not invisible ones
+
+## Comparison with Related Interactions
+
+### Wait Until vs Wait
+
+| Feature | Wait Until | Wait |
+|---------|-----------|------|
+| Type | Conditional | Fixed time |
+| Speed | Adapts to reality | Always same duration |
+| Reliability | More reliable | Can fail if too short |
+| Use case | Loading, state changes | Animations, pacing |
+| Default choice | Yes | No |
+
+**Rule**: Use `Wait Until` by default. Only use `Wait` for specific edge cases.
+
+### Wait Until vs Scroll With Condition
+
+Both wait for conditions, but handle scrolling differently:
+
+**Wait Until**:
+```
+Wait until: Element appears ← Waits without scrolling
+```
+
+**Scroll With Condition**:
+```
+Scroll until: Element appears ← Scrolls repeatedly to find element
+```
+
+Use `Scroll With Condition` when the element you're waiting for requires scrolling to reveal.
+
+### Wait Until vs Assert
+
+Both verify conditions, but with different behavior:
+
+**Wait Until**:
+```
+Wait until: Success message appears ← Waits for condition, then continues
+```
+
+**Assert**:
+```
+Assert: Success message appears ← Checks immediately, fails if not true
+```
+
+**Pattern**: Use `Wait Until` before `Assert`:
+```
+1. Wait until: Success message appears ← Wait for it
+2. Assert: Message says "Success!" ← Verify content
+```
+
+## Example Prompts
+
+Here are natural language prompts you can use:
+
+**Basic loading**:
+```
+Wait until: Page loads
+Wait until: Products appear
+Wait until: Dashboard is ready
+```
+
+**Specific elements**:
+```
+Wait until: "Add to Cart" button appears
+Wait until: Product titled "Laptop" loads
+Wait until: Checkout form is visible
+```
+
+**State changes**:
+```
+Wait until: Cart badge updates
+Wait until: Order status changes to "Shipped"
+Wait until: Balance updates
+```
+
+**Disappearing elements**:
+```
+Wait until: Loading spinner disappears
+Wait until: Error message is gone
+Wait until: Modal closes
+```
+
+**Content loading**:
+```
+Wait until: Search results display
+Wait until: More products load
+Wait until: Comments appear
+```
+
+**Processing completion**:
+```
+Wait until: Payment processes
+Wait until: File upload completes
+Wait until: Form submission finishes
+```
+
+**Messages and notifications**:
+```
+Wait until: Success message appears
+Wait until: Error notification displays
+Wait until: Confirmation appears
+```
+
+## Summary
+
+**Use `Wait Until` for**:
+- After navigation (page loads)
+- After clicking buttons (state changes)
+- After form submission (API responses)
+- After search/filter (data updates)
+- Dynamic content loading
+- Element appearance/disappearance
+- State transitions
+- Async operations
+
+**How to write good conditions**:
+- Be specific and clear
+- Describe visible changes
+- Include element identifiers
+- Focus on what you can see
+- Wait for negative conditions (disappearance)
+
+**Best practices**:
+- Wait after every async action
+- Chain multiple waits for complex flows
+- Combine waits with assertions
+- Prefer conditional waits over fixed waits
+- Test under different network conditions
+
+**Remember**:
+- `Wait Until` is your default choice for handling timing
+- It makes tests faster AND more reliable
+- Be specific in your condition descriptions
+- Always wait before asserting
+- Don't be afraid to use multiple waits in sequence
+
+The `Wait Until` interaction is the foundation of reliable test automation. Master it, and you'll write tests that adapt to your application's real behavior—making them fast when things are fast, and patient when things are slow.

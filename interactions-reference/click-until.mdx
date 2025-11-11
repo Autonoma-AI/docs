@@ -1,0 +1,597 @@
+---
+title: "Click Until"
+description: "Repeatedly click an element until a specific condition is met. Perfect for carousels, pagination, counters, and iterative UI interactions."
+---
+
+## What is Click Until?
+
+Click Until is a looping interaction that repeatedly clicks an element until a specified condition becomes true. Instead of clicking once, it keeps clicking until something specific happens—a certain value appears, specific content becomes visible, or a target state is reached.
+
+Think of it like pressing an elevator button until you reach the right floor, or clicking "Next" in a slideshow until you see the slide you want. You don't know exactly how many clicks it will take, but you know when to stop.
+
+This makes Click Until perfect for iterative interfaces: image carousels, pagination controls, increment/decrement buttons, and any UI where you need to click repeatedly to reach a goal.
+
+## When to Use Click Until
+
+Click Until is designed for scenarios where you need to click repeatedly based on a condition rather than a fixed number of times.
+
+**Use Click Until when:**
+- Navigating through carousels until specific content appears
+- Clicking pagination until you reach a particular page
+- Incrementing/decrementing counters to reach a target value
+- Scrolling through slideshows to find specific slides
+- Clicking "Load More" until all content is loaded
+- Advancing through multi-step wizards until a condition is met
+- Cycling through options until the right one is displayed
+- You need to click an unknown number of times to reach a goal
+
+**Don't use Click Until when:**
+- You need to click a fixed number of times (use regular Click in a loop)
+- The element should only be clicked once (use standard Click)
+- The condition might never be met (could cause infinite loop)
+- You need to interact with different elements (use separate Click actions)
+- Timeout risk is high (consider manual iteration with safer controls)
+
+## How It Works
+
+Click Until operates with built-in condition checking:
+
+1. **Initial State**: Captures current UI state
+2. **Condition Check**: Evaluates if target condition is met
+3. **Click or Stop**:
+   - **Condition not met**: Clicks the element
+   - **Condition met**: Stops clicking
+4. **Repeat**: Returns to step 2
+5. **Timeout Protection**: Stops after reasonable attempts to prevent infinite loops
+6. **Final Verification**: Confirms condition was achieved
+
+This cycle continues until either the condition is met or a safety timeout is reached.
+
+## Platform Support
+
+- **Web**: Full support
+- **Mobile**: Not supported (web only)
+
+Click Until is currently available only for web applications.
+
+## Example Scenarios
+
+### Scenario 1: Image Carousel
+
+You're testing an image gallery where users click "Next" to browse through images. You want to find a specific image.
+
+```
+Test: "Find specific image in carousel"
+
+1. Navigate to gallery page
+2. Wait until: Carousel loads
+3. Add prompt: "click on the next image until the car is visible"
+4. Wait until: Car image is displayed
+5. Click "View Details" on car image
+6. Verify: Car details page loads
+```
+
+**Why Click Until works here**: You don't know which position the car image is in. Click Until keeps clicking "Next" until the car appears, regardless of how many clicks that takes.
+
+### Scenario 2: Counter Increment
+
+You're testing a quantity selector where users click "+" to increase a count. You need to set it to a specific value.
+
+```
+Test: "Set product quantity"
+
+1. Navigate to product page
+2. Wait until: Product details load
+3. Add prompt: "click the up button until you reach 5 on the counter"
+4. Wait until: Counter shows 5
+5. Click "Add to Cart"
+6. Verify: Cart shows 5 items
+```
+
+**Why Click Until works here**: Rather than clicking "+" exactly 5 times, Click Until keeps clicking until the counter displays 5, handling any initial state.
+
+### Scenario 3: Pagination
+
+You're testing a data table with pagination. You need to reach a specific page or find specific content.
+
+```
+Test: "Find record in paginated list"
+
+1. Navigate to data table
+2. Wait until: First page loads
+3. Add prompt: "click next page until record ID 12345 is visible"
+4. Wait until: Record appears
+5. Click on record 12345
+6. Verify: Record details open
+```
+
+**Why Click Until works here**: Record could be on any page. Click Until keeps paginating until it finds the target record.
+
+### Scenario 4: Slideshow Navigation
+
+You're testing a product slideshow where each slide shows different information. You need to find a specific slide.
+
+```
+Test: "View specifications slide"
+
+1. Navigate to product page
+2. Wait until: Slideshow loads (shows first slide)
+3. Add prompt: "click next slide until specifications are visible"
+4. Wait until: Specifications slide displays
+5. Verify: Specifications content is correct
+```
+
+**Why Click Until works here**: Specifications could be on slide 3, 4, or 5. Click Until navigates to it regardless of position.
+
+### Scenario 5: Accordion Expansion
+
+You're testing an accordion interface where clicking "Show More" reveals additional items until all are visible.
+
+```
+Test: "Expand all accordion items"
+
+1. Navigate to FAQ page
+2. Wait until: Accordion loads
+3. Add prompt: "click show more until all FAQs are visible"
+4. Wait until: All items expanded
+5. Verify: Total count matches expected
+```
+
+**Why Click Until works here**: Unknown number of hidden items. Click Until keeps expanding until everything is revealed.
+
+## Example Prompts
+
+Click Until uses "until" language to indicate the looping condition:
+
+**Carousel navigation:**
+```
+click on the next image until the car is visible
+click next until the blue product appears
+click right arrow until slide 5 is shown
+```
+
+**Counter controls:**
+```
+click the up button until you reach 5 on the counter
+click increment until the value is 10
+click plus until quantity equals 3
+```
+
+**Pagination:**
+```
+click next page until record 12345 appears
+click next until page 10 is visible
+click more results until all items are loaded
+```
+
+**Slideshow/carousel:**
+```
+click next slide until specifications are visible
+click forward until the testimonials section appears
+click next until the last item is shown
+```
+
+**General pattern:**
+```
+click [element] until [condition is met]
+```
+
+## Best Practices
+
+### 1. Define Clear Exit Conditions
+
+Your "until" condition should be specific and achievable.
+
+**Good:**
+```
+click next until the car image is visible
+click plus until counter shows 5
+click next page until "John Smith" appears in the list
+```
+
+**Problematic:**
+```
+click next until done  ← Too vague
+click plus until enough  ← Unclear condition
+click next until it looks right  ← Subjective
+```
+
+### 2. Ensure Condition is Achievable
+
+Make sure the condition you're checking for can actually be reached.
+
+**Good:**
+```
+click next image until the red car is visible
+# You've confirmed the red car exists in the carousel
+```
+
+**Risky:**
+```
+click next image until the purple elephant is visible
+# If no purple elephant exists, this will timeout
+```
+
+### 3. Add Verification After Completion
+
+Confirm that clicking until the condition was met actually achieved your goal.
+
+**Good:**
+```
+1. click the up button until you reach 5 on the counter
+2. Wait until: Counter displays 5
+3. Verify: Counter value is 5
+```
+
+### 4. Consider Timeout Implications
+
+Click Until has timeout protection, but be aware of how long it might take.
+
+**Good:**
+```
+click next until page 5 appears  ← Reasonable, will take ~5 clicks
+```
+
+**Risky:**
+```
+click next until page 1000 appears  ← Might timeout, takes forever
+```
+
+### 5. Use for Iterative Navigation Only
+
+Click Until is for clicking the same element repeatedly, not different elements.
+
+**Good:**
+```
+click next button until target slide appears
+# Same "next" button clicked repeatedly
+```
+
+**Wrong approach:**
+```
+click different menu items until page changes
+# Should use separate Click actions, not Click Until
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Unclear Stop Condition
+
+**Problem:**
+```
+click next until ready
+# What does "ready" mean? Condition is too vague
+```
+
+**Solution:**
+```
+click next until the "Submit" button appears
+# Specific, observable condition
+```
+
+### Pitfall 2: Impossible Condition
+
+**Problem:**
+```
+click next image until the dragon appears
+# If no dragon exists in carousel, this will timeout
+```
+
+**Solution:**
+```
+Verify target content exists before using Click Until
+Have fallback if condition can't be met
+Monitor for timeout errors
+```
+
+### Pitfall 3: Using for Single Click Scenarios
+
+**Problem:**
+```
+click the login button until the page changes
+# Login button should only be clicked once
+```
+
+**Solution:**
+```
+click the login button  ← Standard Click
+Wait until: Dashboard loads
+# Use standard Click + Wait for single-click actions
+```
+
+### Pitfall 4: Not Handling Initial State
+
+**Problem:**
+```
+click increment until counter is 5
+# Counter might already be at 5, or at 10
+```
+
+**Solution:**
+```
+Option 1: Reset to known state first
+1. click reset counter button
+2. click increment until counter is 5
+
+Option 2: Use absolute condition
+1. click increment until counter is exactly 5 (handles any start)
+```
+
+### Pitfall 5: Forgetting Timeout Risk
+
+**Problem:**
+```
+click load more until everything is loaded
+# "Everything" might be thousands of items, causing timeout
+```
+
+**Solution:**
+```
+click load more until 100 items are visible
+# Specific, achievable limit
+# Or use alternative approach for massive datasets
+```
+
+## Comparison with Similar Interactions
+
+### Click Until vs Click (Standard)
+
+**Standard Click:**
+- Behavior: Clicks once
+- Best for: Single interactions
+- Stops: After one click
+- Use when: One click is sufficient
+
+**Click Until:**
+- Behavior: Clicks repeatedly
+- Best for: Iterative navigation
+- Stops: When condition is met
+- Use when: Unknown number of clicks needed
+
+**Decision rule**: Use standard Click for single actions. Use Click Until when you need to repeat until a goal is reached.
+
+### Click Until vs Loop with Click
+
+**Click Until:**
+- Syntax: Single natural language prompt
+- Condition: Checked automatically
+- Stops: When condition true
+- Simpler: One instruction
+
+**Manual Loop:**
+- Syntax: Multiple separate Click actions
+- Condition: Manual checking
+- Stops: After fixed iterations
+- More control: Explicit loop logic
+
+**Decision rule**: Use Click Until for condition-based iteration. Use manual loop if you need precise control or complex logic between clicks.
+
+### Click Until vs Conditional Click
+
+**Click Until:**
+- Purpose: Repeat until goal reached
+- Clicks: Multiple times
+- Condition: Exit condition for loop
+- Example: "Click next until item appears"
+
+**Conditional Click:**
+- Purpose: Click if element present
+- Clicks: Once or not at all
+- Condition: Whether to click at all
+- Example: "If modal appears, close it"
+
+**Completely different**: Click Until is for iteration. Conditional Click is for optional elements.
+
+## Interaction Patterns
+
+### Pattern 1: Carousel Navigation to Specific Content
+
+Navigate through carousel to find specific item:
+
+```
+Test: "Find and view specific product"
+
+1. Navigate to products page
+2. Wait until: Product carousel loads
+3. Add prompt: "click next until the laptop product is visible"
+4. Wait until: Laptop product is displayed
+5. Click on laptop product
+6. Verify: Product details page loads
+```
+
+### Pattern 2: Set Counter to Specific Value
+
+Increment or decrement to reach target value:
+
+```
+Test: "Configure quantity"
+
+1. Navigate to product page
+2. Wait until: Page loads
+3. Add prompt: "click the plus button until quantity is 3"
+4. Wait until: Quantity displays 3
+5. Click "Add to Cart"
+6. Verify: Cart contains 3 items
+```
+
+### Pattern 3: Load Paginated Content
+
+Page through results to find target:
+
+```
+Test: "Find specific record"
+
+1. Navigate to search results
+2. Wait until: First page loads
+3. Add prompt: "click next page until user 'Sarah Johnson' appears"
+4. Wait until: Sarah Johnson's record is visible
+5. Click on Sarah Johnson's record
+6. Verify: Record details are correct
+```
+
+### Pattern 4: Navigate Multi-Step Wizard
+
+Advance through wizard steps until reaching target:
+
+```
+Test: "Skip to summary step"
+
+1. Start configuration wizard
+2. Wait until: Step 1 loads
+3. Add prompt: "click next step until summary page is visible"
+4. Wait until: Summary page displays
+5. Verify: All previous steps were auto-filled
+```
+
+## Advanced Usage
+
+### Combining with Verification
+
+Use Click Until then verify the result:
+
+```
+Test: "Navigate and verify"
+
+1. Navigate to gallery
+2. Wait until: Gallery loads
+3. Add prompt: "click next image until image 10 is shown"
+4. Wait until: Image 10 is visible
+5. Verify: Image number is 10
+6. Verify: Image alt text contains expected content
+```
+
+### Handling Edge Cases
+
+Account for situations where condition might already be met:
+
+```
+Test: "Set counter (might already be set)"
+
+1. Navigate to product page
+2. Wait until: Page loads
+3. Check current counter value
+4. Add prompt: "click plus until counter is 5"
+   # If already 5, won't click
+   # If less than 5, will click until reaching 5
+   # If more than 5, might timeout (needs handling)
+5. Verify: Counter is 5
+```
+
+### Safety Limits
+
+For scenarios with unknown limits, add explicit bounds:
+
+```
+Test: "Load content with safety limit"
+
+Strategy 1: Limit by count
+"click load more until 50 items are visible"
+
+Strategy 2: Limit by content
+"click load more until 'no more items' message appears"
+
+Strategy 3: Combination
+"click load more until 100 items are loaded or 'all loaded' appears"
+```
+
+## Real-World Example: Product Comparison Tool
+
+Here's a complete test using Click Until effectively:
+
+```
+Test: "Compare specific products in carousel"
+
+Context: Product comparison tool with carousel showing products
+Need to find specific products and compare them
+
+Step 1: Navigate to comparison tool
+1. Navigate to compare page
+2. Wait until: Comparison tool loads
+
+Step 2: Find first product
+3. Add prompt: "click next in first carousel until Nike shoes appear"
+4. Wait until: Nike shoes visible in first slot
+5. Click "Add to Compare" for Nike shoes
+
+Step 3: Find second product
+6. Add prompt: "click next in second carousel until Adidas shoes appear"
+7. Wait until: Adidas shoes visible in second slot
+8. Click "Add to Compare" for Adidas shoes
+
+Step 4: View comparison
+9. Click "Compare Now" button
+10. Wait until: Comparison view loads
+11. Verify: Both products appear in comparison
+12. Verify: Specifications are displayed
+
+Why this works:
+- Used Click Until for unknown positions (steps 3, 6)
+- Each carousel might have different number of products
+- Don't know exact position of Nike or Adidas shoes
+- Click Until finds them regardless of position
+- Test adapts to different carousel states
+- Stops clicking as soon as target is found
+```
+
+## Troubleshooting Click Until
+
+### When Click Until Times Out
+
+If Click Until doesn't complete:
+
+```
+Checklist:
+□ Does the target content actually exist?
+□ Is the condition phrased clearly?
+□ Is the element being clicked actually changing the state?
+□ Is there a maximum number that makes sense?
+□ Should you use a different approach?
+
+Solutions:
+- Verify target content exists before test
+- Make condition more specific
+- Add explicit timeout handling
+- Consider alternative interaction pattern
+```
+
+### When Clicks Don't Change State
+
+If clicks aren't having an effect:
+
+```
+Problem: Clicking but nothing changes
+
+Diagnosis:
+- Is element actually clickable?
+- Are clicks registering?
+- Is there a delay between clicks needed?
+- Is JavaScript handling the clicks?
+
+Solutions:
+- Verify element is interactive
+- Add small delays between clicks if needed
+- Check if different click method needed (OCR, Smart Click)
+- Consider if Click Until is right approach
+```
+
+## Key Takeaways
+
+1. **Click Until is for iteration** - Repeatedly clicks until condition is met
+2. **Define clear exit conditions** - Specify exactly what you're looking for
+3. **Web only** - Currently not supported on mobile
+4. **Condition-based stopping** - Stops when target state is reached
+5. **Timeout protected** - Won't loop forever
+6. **Use "until" language** - Indicates looping behavior in prompt
+7. **For same element** - Clicks one element repeatedly, not different ones
+8. **Ensure achievability** - Condition must be reachable
+9. **Verify results** - Confirm condition was actually met
+10. **Consider alternatives** - Sometimes manual loop with better control is better
+
+## What's Next
+
+Now that you understand Click Until for iterative clicking, explore these related interactions:
+
+- **Click**: Master the standard single-click interaction
+- **Conditional Click**: Learn how to handle optional elements
+- **Wait Until**: Understand how to wait for conditions without clicking
+- **Double Tap**: Discover interactions requiring double-click behavior
