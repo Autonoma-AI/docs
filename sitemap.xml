@@ -132,4 +132,54 @@
     <loc>https://docs.autonoma.app/api-reference/run-all-tests-that-have-the-specified-tags</loc>
     <lastmod>2025-01-27</lastmod>
   </url>
+  <url>
+    <loc>https://docs.autonoma.app/slack-integration</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/variables</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/understanding-test-structure</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/random-data</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/extract-and-reuse-data</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/configure-your-application</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/what-is-autonoma</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+    </url>
+  <url>
+    <loc>https://docs.autonoma.app/your-first-test</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+    </url>
+  <url>
+    <loc>https://docs.autonoma.app/api-reference/get-a-specific-test-run</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/api-reference/list-tests</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/api-reference/list-test-runs</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
+  <url>
+    <loc>https://docs.autonoma.app/api-reference/get-a-specific-test</loc>
+    <lastmod>2025-01-27</lastmod>
+  </url>
 </urlset>
