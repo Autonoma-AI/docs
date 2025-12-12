@@ -1168,6 +1168,7 @@ paths:
             --header 'x-platform: android' \
             --form 'file=@"/path/to/updated_app.apk"' \
             --form 'tag=main' \
+            --form 'customID=build-456' \
             --form 'appName=My Android App v2.0'
         - lang: curl
           label: "iOS"
@@ -1178,6 +1179,7 @@ paths:
             --header 'x-platform: ios' \
             --form 'file=@"/Users/axel/Downloads/autonoma-bank-v2.zip"' \
             --form 'tag=staging' \
+            --form 'customID=release-v2.1' \
             --form 'appName=TestApiIOS v2.0'
         - lang: javascript
           label: "JavaScript Update"
@@ -1185,6 +1187,7 @@ paths:
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             formData.append('tag', 'main');
+            formData.append('customID', 'build-456');
             formData.append('appName', 'My App v2.0');
 
             fetch('https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq', {
