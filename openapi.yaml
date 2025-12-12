@@ -1253,7 +1253,7 @@ paths:
   /mobile/version:
     get:
       summary: Get application versions by customID
-      description: Retrieves application versions filtered by `customID`, ordered from newest to oldest. Returns only non-disabled versions. Currently available for the "Ualá" organization.
+      description: Retrieves application versions filtered by `customID`, ordered from newest to oldest. Returns only non-disabled versions. Note that the `tag` field is not included in the response. Currently available for the "Ualá" organization.
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
@@ -1283,7 +1283,6 @@ paths:
                       name: "1.0.0"
                       customID: "build-123"
                       path: "gs://bucket/path/to/app.apk"
-                      tag: "main"
                       createdAt: "2024-12-12T18:13:36.000Z"
                       application:
                         id: "cm7dbowr80042waka7thyjhkq"
@@ -1293,7 +1292,6 @@ paths:
                       name: "1.0.1"
                       customID: "build-123"
                       path: "gs://bucket/path/to/app-v2.apk"
-                      tag: "other"
                       createdAt: "2024-12-11T18:13:36.000Z"
                       application:
                         id: "cm7dbowr80042waka7thyjhkq"
