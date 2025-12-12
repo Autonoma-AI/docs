@@ -1250,7 +1250,7 @@ paths:
                   message:
                     type: string
                     example: "Failed to create application version"
-  /version:
+  /mobile/version:
     get:
       summary: Get application versions by customID
       description: Retrieves application versions filtered by `customID`, ordered from newest to oldest. Returns only non-disabled versions. Currently available for the "Ualá" organization.
@@ -1328,6 +1328,6 @@ paths:
         - lang: curl
           label: "Get versions by customID"
           source: |
-            curl --location --request GET 'https://autonoma.app/api/version?customID=build-123' \
+            curl --location --request GET 'https://autonoma.app/api/mobile/version?customID=build-123' \
             --header 'autonoma-client-id: YOUR_CLIENT_ID' \
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET'
