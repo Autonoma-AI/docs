@@ -114,6 +114,48 @@ components:
         path:
           type: string
           example: "https://autonoma.app"
+        customID:
+          type: string
+          nullable: true
+          description: Custom identifier for the version (e.g., "build-123", "release-v2.0")
+          example: "build-123"
+    VersionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "cm7dbowr80042waka7thyjhkr"
+        name:
+          type: string
+          example: "1.0.0"
+        customID:
+          type: string
+          nullable: true
+          description: Custom identifier for the version
+          example: "build-123"
+        path:
+          type: string
+          example: "gs://bucket/path/to/app.apk"
+        tag:
+          type: string
+          example: "main"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-12T18:13:36.000Z"
+        application:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "cm7dbowr80042waka7thyjhkq"
+            name:
+              type: string
+              example: "MyApp"
+            applicationType:
+              type: string
+              enum: [android, ios, web]
+              example: "android"
     Metadata:
       type: object
       properties:
@@ -897,6 +939,10 @@ paths:
                   type: string
                   description: JSON string containing geolocation data
                   example: '{"latitude": 40.7128, "longitude": -74.0060}'
+                customID:
+                  type: string
+                  description: Optional custom identifier for the version (e.g., "build-123", "release-v2.0")
+                  example: "build-123"
             examples:
               android_app:
                 summary: Android APK Upload
@@ -928,6 +974,7 @@ paths:
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
             --header 'x-platform: android' \
             --form 'name=TestApiAndroid' \
+            --form 'customID=build-123' \
             --form 'file=@"/path/to/your/app.apk"'
         - lang: curl
           label: "iOS ZIP"
@@ -937,6 +984,7 @@ paths:
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
             --header 'x-platform: ios' \
             --form 'name=TestApiIOS' \
+            --form 'customID=release-v2.0' \
             --form 'file=@"/Users/axel/Downloads/autonoma-bank.zip"'
         - lang: curl
           label: "Web Application"
@@ -948,6 +996,7 @@ paths:
             --form 'name=My Web App' \
             --form 'path=https://myapp.com' \
             --form 'version=1.0.0' \
+            --form 'customID=production-deploy' \
             --form 'cookies=session=abc123'
         - lang: javascript
           label: "JavaScript (FormData)"
@@ -1090,6 +1139,10 @@ paths:
                   type: string
                   description: JSON string containing geolocation data
                   example: '{"latitude": 40.7128, "longitude": -74.0060}'
+                customID:
+                  type: string
+                  description: Optional custom identifier for the version (e.g., "build-123", "release-v2.0")
+                  example: "build-123"
             examples:
               update_android:
                 summary: Update Android App
@@ -1115,6 +1168,7 @@ paths:
             --header 'x-platform: android' \
             --form 'file=@"/path/to/updated_app.apk"' \
             --form 'tag=main' \
+            --form 'customID=build-456' \
             --form 'appName=My Android App v2.0'
         - lang: curl
           label: "iOS"
@@ -1125,6 +1179,7 @@ paths:
             --header 'x-platform: ios' \
             --form 'file=@"/Users/axel/Downloads/autonoma-bank-v2.zip"' \
             --form 'tag=staging' \
+            --form 'customID=release-v2.1' \
             --form 'appName=TestApiIOS v2.0'
         - lang: javascript
           label: "JavaScript Update"
@@ -1132,6 +1187,7 @@ paths:
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             formData.append('tag', 'main');
+            formData.append('customID', 'build-456');
             formData.append('appName', 'My App v2.0');
 
             fetch('https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq', {
@@ -1194,3 +1250,82 @@ paths:
                   message:
                     type: string
                     example: "Failed to create application version"
+  /mobile/version:
+    get:
+      summary: Get application versions by customID
+      description: Retrieves application versions filtered by `customID`, ordered from newest to oldest. Returns only non-disabled versions. Note that the `tag` field is not included in the response. Currently available for the "Ualá" organization.
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: customID
+          in: query
+          required: true
+          description: The custom identifier to filter versions by (minimum 1 character)
+          schema:
+            type: string
+            minLength: 1
+            example: "build-123"
+      responses:
+        "200":
+          description: List of application versions matching the customID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VersionResponse"
+              examples:
+                success_response:
+                  summary: Successful response
+                  value:
+                    - id: "cm7dbowr80042waka7thyjhkr"
+                      name: "1.0.0"
+                      customID: "build-123"
+                      path: "gs://bucket/path/to/app.apk"
+                      createdAt: "2024-12-12T18:13:36.000Z"
+                      application:
+                        id: "cm7dbowr80042waka7thyjhkq"
+                        name: "MyApp"
+                        applicationType: "android"
+                    - id: "cm7dbowr80042waka7thyjhks"
+                      name: "1.0.1"
+                      customID: "build-123"
+                      path: "gs://bucket/path/to/app-v2.apk"
+                      createdAt: "2024-12-11T18:13:36.000Z"
+                      application:
+                        id: "cm7dbowr80042waka7thyjhkq"
+                        name: "MyApp"
+                        applicationType: "android"
+        "400":
+          description: Bad request - Missing or invalid customID parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    example: "Server error during processing"
+      x-codeSamples:
+        - lang: curl
+          label: "Get versions by customID"
+          source: |
+            curl --location --request GET 'https://autonoma.app/api/mobile/version?customID=build-123' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET'
