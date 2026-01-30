@@ -28,18 +28,19 @@ components:
   schemas:
     RunTestRequest:
       type: object
-      required:
-        - id
       properties:
         application_version_id:
           type: string
-          description: Optional application version ID to use for the test run
+          description: Run with a specific application version
           example: "cm7dbowr80042waka7thyjhkq"
-        source:
+        environment_application_version_id:
           type: string
-          description: Source of the test run request
-          default: "api"
-          example: "api"
+          description: Use a different version for the run environment
+          example: "cm7dbowr80042waka7thyjhkq"
+        run_on_latest:
+          type: boolean
+          description: Run with the latest application version
+          example: true
         runtime_metadata:
           type: object
           description: Variables to override when test is running, if variable does not match any of your saved variables it will ignore it
@@ -49,6 +50,19 @@ components:
             NAME: "CompanyName"
             ENVIRONMENT: "staging"
             API_KEY: "test-key-123"
+        source:
+          type: string
+          description: Source identifier (max 10 chars), defaults to "api"
+          default: "api"
+          example: "api"
+        use_physical_device:
+          type: boolean
+          description: Run on a physical device instead of simulator/emulator. Requires Device Farm to be enabled and for iOS, a .ipa file must be uploaded as physicalDevicePath for the application version.
+          example: true
+        device_arn:
+          type: string
+          description: "Specific AWS Device Farm device ARN to use. Priority: API device_arn over Test config deviceFarmDeviceArn over Org default device"
+          example: "arn:aws:devicefarm:us-west-2::device:ABC123..."
     RunFolderRequest:
       type: object
       properties:
@@ -114,6 +128,59 @@ components:
         path:
           type: string
           example: "https://autonoma.app"
+        customID:
+          type: string
+          nullable: true
+          description: Custom identifier for the version (e.g., "build-123", "release-v2.0")
+          example: "build-123"
+    VersionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "cm7dbowr80042waka7thyjhkr"
+        name:
+          type: string
+          example: "1.0.0"
+        customID:
+          type: string
+          nullable: true
+          description: Custom identifier for the version
+          example: "build-123"
+        path:
+          type: string
+          description: Cloud storage path for the simulator/emulator file
+          example: "gs://bucket/path/to/app.apk"
+        physicalDevicePath:
+          type: string
+          nullable: true
+          description: Cloud storage path for the physical device file (`.ipa` for iOS)
+          example: "gs://bucket/path/to/app.ipa"
+        minimumIOSVersion:
+          type: string
+          nullable: true
+          description: Minimum iOS version extracted from the `.ipa` file's `Info.plist`
+          example: "15.0"
+        tag:
+          type: string
+          example: "main"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-12T18:13:36.000Z"
+        application:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "cm7dbowr80042waka7thyjhkq"
+            name:
+              type: string
+              example: "MyApp"
+            applicationType:
+              type: string
+              enum: [android, ios, web]
+              example: "android"
     Metadata:
       type: object
       properties:
@@ -177,13 +244,17 @@ components:
       properties:
         message:
           type: string
-          example: "Test created successfully"
+          example: "Test run triggered successfully"
         url:
           type: string
           example: "https://autonoma.app/run/pby4qnbppbvimimuls4v5ajq"
-        run_id:
+        runID:
           type: string
-          example: pby4qnbppbvimimuls4v5ajq
+          example: "pby4qnbppbvimimuls4v5ajq"
+        runGroupID:
+          type: string
+          description: Group ID for the test run
+          example: "pby4qnbppbvimimuls4v5ajq"
     RunFolder:
       type: object
       properties:
@@ -358,6 +429,81 @@ components:
         message:
           type: string
           example: "Resource with id `cm8d9gt6v000c9fe5glmyi33u` not found"
+    DeviceFarmConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether Device Farm is enabled for the organization
+          example: true
+        project_arn:
+          type: string
+          description: AWS Device Farm project ARN
+          example: "arn:aws:devicefarm:us-west-2:123456789012:project:abc123..."
+        default_android_device_arn:
+          type: string
+          nullable: true
+          description: Default Android device ARN
+          example: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+        default_ios_device_arn:
+          type: string
+          nullable: true
+          description: Default iOS device ARN
+          example: "arn:aws:devicefarm:us-west-2::device:DEF456..."
+    DeviceFarmDevice:
+      type: object
+      properties:
+        arn:
+          type: string
+          description: AWS Device Farm device ARN
+          example: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+        name:
+          type: string
+          description: Device name
+          example: "Apple iPhone 16"
+        model:
+          type: string
+          description: Device model
+          example: "iPhone16,1"
+        manufacturer:
+          type: string
+          description: Device manufacturer
+          example: "Apple"
+        platform:
+          type: string
+          enum: [IOS, ANDROID]
+          description: Device platform
+          example: "IOS"
+        availability:
+          type: string
+          enum: [HIGHLY_AVAILABLE, AVAILABLE, BUSY, TEMPORARY_NOT_AVAILABLE]
+          description: Device availability status
+          example: "HIGHLY_AVAILABLE"
+        formFactor:
+          type: string
+          enum: [PHONE, TABLET]
+          description: Device form factor
+          example: "PHONE"
+        os:
+          type: string
+          description: Operating system version
+          example: "18.0"
+    DeviceFarmDevicesResponse:
+      type: object
+      properties:
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeviceFarmDevice"
+        default_device_arn:
+          type: string
+          nullable: true
+          description: Default device ARN for the platform
+          example: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+        project_arn:
+          type: string
+          description: AWS Device Farm project ARN
+          example: "arn:aws:devicefarm:us-west-2:123456789012:project:abc123..."
 paths:
   /test:
     get:
@@ -457,7 +603,18 @@ paths:
   /test/{test_id}/run:
     post:
       summary: Run test
-      description: Run a test by test ID
+      description: |
+        Triggers a test run. The test can be configured to run on a physical device either through test configuration or API parameters.
+        
+        **Physical Device Runs**: A test will run on a physical device in either of these scenarios:
+        1. **API Parameter**: Pass `use_physical_device: true` in the request body
+        2. **Test Configuration**: The test has `deviceFarmRunEnabled: true` in its test configuration
+        
+        When running on a physical device:
+        - The organization must have Device Farm enabled
+        - For iOS: A `.ipa` file must be uploaded as the `physicalDevicePath` for the application version
+        - For Android: Uses the same `.apk` file as emulator runs
+        - Device ARN priority: API `device_arn` > Test config `deviceFarmDeviceArn` > Org default device
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
@@ -476,9 +633,52 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RunTestRequest"
+            examples:
+              default_run:
+                summary: Run test on simulator/emulator (default)
+                value: {}
+              physical_device:
+                summary: Run test on physical device via API
+                value:
+                  use_physical_device: true
+              specific_device:
+                summary: Run test on specific physical device
+                value:
+                  use_physical_device: true
+                  device_arn: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+              version_with_physical:
+                summary: Run test with specific version on physical device
+                value:
+                  application_version_id: "version_456"
+                  use_physical_device: true
+      x-codeSamples:
+        - lang: curl
+          label: "Run on simulator/emulator (default)"
+          source: |
+            curl --location --request POST 'https://autonoma.app/api/test/g41k688vndxzt7kh4kq5m12s/run' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'Content-Type: application/json' \
+            --data '{}'
+        - lang: curl
+          label: "Run on physical device"
+          source: |
+            curl --location --request POST 'https://autonoma.app/api/test/g41k688vndxzt7kh4kq5m12s/run' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'Content-Type: application/json' \
+            --data '{"use_physical_device": true}'
+        - lang: curl
+          label: "Run on specific physical device"
+          source: |
+            curl --location --request POST 'https://autonoma.app/api/test/g41k688vndxzt7kh4kq5m12s/run' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'Content-Type: application/json' \
+            --data '{"use_physical_device": true, "device_arn": "arn:aws:devicefarm:us-west-2::device:ABC123..."}'
       responses:
-        "200":
-          description: Run creation result
+        "201":
+          description: Test run triggered successfully
           content:
             application/json:
               schema:
@@ -489,12 +689,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvalidCredentialsError"
+        "403":
+          description: Forbidden - Insufficient quota
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Forbidden"
+                  message:
+                    type: string
+                    example: "Insufficient quota"
         "404":
           description: Test not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/NotFoundError"
+        "500":
+          description: Internal server error - Device Farm not configured or server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    example: "Device Farm not configured"
   /folder:
     get:
       summary: List Folders
@@ -1036,7 +1262,19 @@ paths:
   /application/{application_id}:
     patch:
       summary: Update application version
-      description: Create a new version of an existing application by uploading a new file or updating web application details
+      description: |
+        Creates a new application version for an existing application, or updates an existing version to add a physical device file. 
+        Supports uploading both simulator/emulator files and physical device files (for iOS).
+        
+        **Creating a new version**: Upload a new `file` (APK for Android, ZIP for iOS, or provide `path` for web).
+        
+        **Updating an existing version**: When only `physicalDeviceFile` is provided (without `file`), the API will:
+        - Look up the existing application version by `version` name or `customID`
+        - Update the existing version with the physical device file
+        - Extract and store the minimum iOS version from the `.ipa` file's `Info.plist`
+        
+        **Note**: At least one of `file` or `physicalDeviceFile` must be provided. If only `physicalDeviceFile` is provided, 
+        either `version` or `customID` must be specified to identify the existing version.
       security:
         - ApiKeyAuth: []
           ApiSecretAuth: []
@@ -1062,16 +1300,29 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required:
-                - file
               properties:
                 file:
                   type: string
                   format: binary
-                  description: Application file (APK for Android, ZIP for iOS)
+                  description: |
+                    The main application file. 
+                    **Required** when creating a new application version.
+                    **Optional** when only adding a physical device file to an existing version.
+                    - **Android**: Must be an `.apk` file
+                    - **iOS**: Must be a `.zip` file containing a `.app` bundle (for simulators)
+                    - **Web**: Not required (use `path` field instead)
+                physicalDeviceFile:
+                  type: string
+                  format: binary
+                  description: |
+                    Physical device application file (iOS only).
+                    - **iOS only**: Must be a `.ipa` file
+                    - When provided, the API will upload the `.ipa` file.
+                    - **Adding to existing version**: If only `physicalDeviceFile` is provided (without `file`), 
+                      either `version` or `customID` must be provided to identify the existing version
                 tag:
                   type: string
-                  description: Version tag
+                  description: "Version tag. One of: main, staging, other. Defaults to main"
                   enum: [main, staging, other]
                   example: "staging"
                 cookies:
@@ -1080,32 +1331,89 @@ paths:
                   example: "session=xyz789"
                 version:
                   type: string
-                  description: Version name (required for web applications)
+                  description: |
+                    Version name for the new application version.
+                    Required when creating a new version or when updating an existing version by version name.
                   example: "2.0.0"
                 path:
                   type: string
-                  description: URL path (required for web applications)
+                  description: URL path/URL for web applications
                   example: "https://myapp.com/v2"
                 geolocation:
                   type: string
-                  description: JSON string containing geolocation data
+                  description: "JSON stringified geolocation object with latitude and longitude"
                   example: '{"latitude": 40.7128, "longitude": -74.0060}'
+                customID:
+                  type: string
+                  description: |
+                    Custom identifier for the version (e.g., "build-123", "release-v2.0").
+                    Can be used to identify an existing version when updating with physicalDeviceFile only.
+                  example: "build-123"
             examples:
+              ios_new_version_with_physical:
+                summary: iOS - Create New Version with Simulator and Physical Device Files
+                description: Create a new iOS application version with both simulator and physical device files
+                value:
+                  version: "1.0.0"
+                  tag: "main"
+                  file: "@/Users/axel/Downloads/autonoma-bank.zip"
+                  physicalDeviceFile: "@/Users/axel/Downloads/autonoma-bank.ipa"
+              ios_add_physical_to_existing:
+                summary: iOS - Add Physical Device File to Existing Version
+                description: Add a physical device file to an existing version identified by version name
+                value:
+                  version: "1.0.0"
+                  physicalDeviceFile: "@/Users/axel/Downloads/autonoma-bank.ipa"
+              ios_add_physical_by_customid:
+                summary: iOS - Add Physical Device File by customID
+                description: Add a physical device file to an existing version identified by customID
+                value:
+                  customID: "build-123"
+                  physicalDeviceFile: "@/Users/axel/Downloads/autonoma-bank.ipa"
               update_android:
-                summary: Update Android App
-                description: Example of updating an Android application
+                summary: Android - Create New Version
+                description: Create a new Android application version
                 value:
                   file: "@/path/to/updated_app.apk"
                   tag: "main"
-                  appName: "My Android App v2.0"
-              update_ios:
-                summary: Update iOS App
-                description: Example of updating an iOS application
+                  customID: "build-456"
+              update_web:
+                summary: Web - Create New Version
+                description: Create a new web application version
                 value:
-                  file: "@/Users/axel/Downloads/autonoma-bank-v2.zip"
-                  tag: "staging"
-                  appName: "TestApiIOS v2.0"
+                  version: "2.0.0"
+                  path: "https://myapp.com/v2"
+                  cookies: "session=xyz789"
       x-codeSamples:
+        - lang: curl
+          label: "iOS - New Version with Simulator and Physical Device Files"
+          source: |
+            curl --location --request PATCH 'https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: ios' \
+            --form 'version=1.0.0' \
+            --form 'tag=main' \
+            --form 'file=@"/Users/axel/Downloads/autonoma-bank.zip"' \
+            --form 'physicalDeviceFile=@"/Users/axel/Downloads/autonoma-bank.ipa"'
+        - lang: curl
+          label: "iOS - Add Physical Device File to Existing Version"
+          source: |
+            curl --location --request PATCH 'https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: ios' \
+            --form 'version=1.0.0' \
+            --form 'physicalDeviceFile=@"/Users/axel/Downloads/autonoma-bank.ipa"'
+        - lang: curl
+          label: "iOS - Add Physical Device File by customID"
+          source: |
+            curl --location --request PATCH 'https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+            --header 'x-platform: ios' \
+            --form 'customID=build-123' \
+            --form 'physicalDeviceFile=@"/Users/axel/Downloads/autonoma-bank.ipa"'
         - lang: curl
           label: "Android"
           source: |
@@ -1115,24 +1423,25 @@ paths:
             --header 'x-platform: android' \
             --form 'file=@"/path/to/updated_app.apk"' \
             --form 'tag=main' \
-            --form 'appName=My Android App v2.0'
+            --form 'customID=build-456'
         - lang: curl
-          label: "iOS"
+          label: "Web Application"
           source: |
             curl --location --request PATCH 'https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq' \
             --header 'autonoma-client-id: YOUR_CLIENT_ID' \
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
-            --header 'x-platform: ios' \
-            --form 'file=@"/Users/axel/Downloads/autonoma-bank-v2.zip"' \
-            --form 'tag=staging' \
-            --form 'appName=TestApiIOS v2.0'
+            --header 'x-platform: web' \
+            --form 'version=3.0.0' \
+            --form 'path=https://example.com' \
+            --form 'cookies=session=abc123'
         - lang: javascript
-          label: "JavaScript Update"
+          label: "JavaScript - iOS with Physical Device File"
           source: |
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            formData.append('version', '1.0.0');
             formData.append('tag', 'main');
-            formData.append('appName', 'My App v2.0');
+            formData.append('file', simulatorFileInput.files[0]);
+            formData.append('physicalDeviceFile', physicalDeviceFileInput.files[0]);
 
             fetch('https://autonoma.app/api/mobile/cm7dbowr80042waka7thyjhkq', {
               method: 'PATCH',
@@ -1194,3 +1503,200 @@ paths:
                   message:
                     type: string
                     example: "Failed to create application version"
+  /mobile/version:
+    get:
+      summary: Get application versions by customID
+      description: Retrieves application versions filtered by `customID`, ordered from newest to oldest. Returns only non-disabled versions. Note that the `tag` field is not included in the response. Currently available for the "Ualá" organization.
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: customID
+          in: query
+          required: true
+          description: The custom identifier to filter versions by (minimum 1 character)
+          schema:
+            type: string
+            minLength: 1
+            example: "build-123"
+      responses:
+        "200":
+          description: List of application versions matching the customID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VersionResponse"
+              examples:
+                success_response:
+                  summary: Successful response
+                  value:
+                    - id: "cm7dbowr80042waka7thyjhkr"
+                      name: "1.0.0"
+                      customID: "build-123"
+                      path: "gs://bucket/path/to/app.apk"
+                      createdAt: "2024-12-12T18:13:36.000Z"
+                      application:
+                        id: "cm7dbowr80042waka7thyjhkq"
+                        name: "MyApp"
+                        applicationType: "android"
+                    - id: "cm7dbowr80042waka7thyjhks"
+                      name: "1.0.1"
+                      customID: "build-123"
+                      path: "gs://bucket/path/to/app-v2.apk"
+                      createdAt: "2024-12-11T18:13:36.000Z"
+                      application:
+                        id: "cm7dbowr80042waka7thyjhkq"
+                        name: "MyApp"
+                        applicationType: "android"
+        "400":
+          description: Bad request - Missing or invalid customID parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+                  message:
+                    type: string
+                    example: "Server error during processing"
+      x-codeSamples:
+        - lang: curl
+          label: "Get versions by customID"
+          source: |
+            curl --location --request GET 'https://autonoma.app/api/mobile/version?customID=build-123' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET'
+  /device-farm/config:
+    get:
+      summary: Get Device Farm configuration
+      description: Returns the Device Farm configuration for your organization, including whether it's enabled and the default device ARNs.
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      responses:
+        "200":
+          description: Device Farm configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceFarmConfig"
+              examples:
+                enabled_config:
+                  summary: Device Farm enabled
+                  value:
+                    enabled: true
+                    project_arn: "arn:aws:devicefarm:us-west-2:123456789012:project:abc123..."
+                    default_android_device_arn: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+                    default_ios_device_arn: "arn:aws:devicefarm:us-west-2::device:DEF456..."
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "404":
+          description: Device Farm is not enabled for this organization
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+      x-codeSamples:
+        - lang: curl
+          label: "Get Device Farm config"
+          source: |
+            curl --location --request GET 'https://autonoma.app/api/device-farm/config' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET'
+  /device-farm/devices:
+    get:
+      summary: List available devices
+      description: Returns a list of available physical devices from AWS Device Farm that can be used for test runs.
+      security:
+        - ApiKeyAuth: []
+          ApiSecretAuth: []
+      parameters:
+        - name: platform
+          in: query
+          required: true
+          description: Device platform
+          schema:
+            type: string
+            enum: [android, ios]
+            example: "ios"
+      responses:
+        "200":
+          description: List of available devices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceFarmDevicesResponse"
+              examples:
+                ios_devices:
+                  summary: iOS devices
+                  value:
+                    devices:
+                      - arn: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+                        name: "Apple iPhone 16"
+                        model: "iPhone16,1"
+                        manufacturer: "Apple"
+                        platform: "IOS"
+                        availability: "HIGHLY_AVAILABLE"
+                        formFactor: "PHONE"
+                        os: "18.0"
+                      - arn: "arn:aws:devicefarm:us-west-2::device:DEF456..."
+                        name: "Apple iPhone 15 Pro"
+                        model: "iPhone15,2"
+                        manufacturer: "Apple"
+                        platform: "IOS"
+                        availability: "AVAILABLE"
+                        formFactor: "PHONE"
+                        os: "17.5"
+                    default_device_arn: "arn:aws:devicefarm:us-west-2::device:ABC123..."
+                    project_arn: "arn:aws:devicefarm:us-west-2:123456789012:project:abc123..."
+        "400":
+          description: Bad request - Missing or invalid platform parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidCredentialsError"
+        "404":
+          description: Device Farm is not enabled or not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+      x-codeSamples:
+        - lang: curl
+          label: "List iOS devices"
+          source: |
+            curl --location --request GET 'https://autonoma.app/api/device-farm/devices?platform=ios' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET'
+        - lang: curl
+          label: "List Android devices"
+          source: |
+            curl --location --request GET 'https://autonoma.app/api/device-farm/devices?platform=android' \
+            --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+            --header 'autonoma-client-secret: YOUR_CLIENT_SECRET'
