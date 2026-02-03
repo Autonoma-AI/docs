@@ -123,6 +123,7 @@
                 "pages": [
                   "api-reference/create-application",
                   "api-reference/update-application-version",
+                  "api-reference/upload-ipa-file-for-ios-application",
                   "api-reference/get-application-versions-by-custom-id"
                 ]
               },
@@ -160,8 +161,8 @@
               {
                 "group": "Device Farm",
                 "pages": [
-                  "api-reference/get-device-farm-configuration",
-                  "api-reference/list-available-devices"
+                  "api-reference/get-device-farm-config",
+                  "api-reference/get-device-farm-devices"
                 ]
               }
             ]
@@ -187,21 +188,21 @@
       "indexing": "all"
     }
   },
-    "footer": {
-      "socials": {
-        "linkedin": "https://www.linkedin.com/company/autonoma-ai/",
-        "twitter": "https://x.com/autonomaai"
-      },
-      "links": [
-        {
-          "header": "Product",
-          "items": [
-            {
-              "label": "Autonoma",
-              "href": "https://autonoma.app/"
-            }
-          ]
-        }
-      ]
-    }
+  "footer": {
+    "socials": {
+      "linkedin": "https://www.linkedin.com/company/autonoma-ai/",
+      "twitter": "https://x.com/autonomaai"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Autonoma",
+            "href": "https://autonoma.app/"
+          }
+        ]
+      }
+    ]
   }
+}

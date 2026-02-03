@@ -1,0 +1,115 @@
+---
+title: "Get Device Farm Configuration"
+description: "Get the Device Farm configuration for your organization, including whether it's enabled and the default device ARNs."
+openapi: get /device-farm/config
+---
+
+## Overview
+
+Returns the Device Farm configuration for your organization, including whether Device Farm is enabled and the default device ARNs for Android and iOS.
+
+## Endpoint
+
+```
+GET /api/device-farm/config
+```
+
+## Authentication
+
+This endpoint requires API key authentication using both headers:
+
+- `autonoma-client-id`: Your API client ID
+- `autonoma-client-secret`: Your API client secret
+
+## Response
+
+### Success (200 OK)
+
+```json
+{
+  "enabled": true,
+  "project_arn": "arn:aws:devicefarm:us-west-2:123456789012:project:abc123...",
+  "default_android_device_arn": "arn:aws:devicefarm:us-west-2::device:ABC123...",
+  "default_ios_device_arn": "arn:aws:devicefarm:us-west-2::device:DEF456..."
+}
+```
+
+### Error Responses
+
+- `401 Unauthorized`: Invalid or missing authentication credentials
+- `404 Not Found`: Device Farm is not enabled for this organization
+
+## Response Fields
+
+| Field                      | Type    | Description                                    |
+|----------------------------|---------|------------------------------------------------|
+| `enabled`                  | boolean | Whether Device Farm is enabled                 |
+| `project_arn`              | string  | AWS Device Farm project ARN                    |
+| `default_android_device_arn` | string \| null | Default Android device ARN (if configured) |
+| `default_ios_device_arn`   | string \| null | Default iOS device ARN (if configured)     |
+
+## Examples
+
+### Get Device Farm configuration
+
+```bash
+curl -X GET "https://autonoma.app/api/device-farm/config" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET"
+```
+
+### JavaScript Example
+
+```javascript
+const response = await fetch('https://autonoma.app/api/device-farm/config', {
+  method: 'GET',
+  headers: {
+    'autonoma-client-id': 'YOUR_CLIENT_ID',
+    'autonoma-client-secret': 'YOUR_CLIENT_SECRET'
+  }
+});
+
+if (response.status === 200) {
+  const config = await response.json();
+  console.log('Device Farm enabled:', config.enabled);
+  console.log('Project ARN:', config.project_arn);
+  console.log('Default iOS device:', config.default_ios_device_arn);
+} else if (response.status === 404) {
+  console.log('Device Farm is not enabled');
+}
+```
+
+### Python Example
+
+```python
+import requests
+
+headers = {
+    'autonoma-client-id': 'YOUR_CLIENT_ID',
+    'autonoma-client-secret': 'YOUR_CLIENT_SECRET'
+}
+
+response = requests.get(
+    'https://autonoma.app/api/device-farm/config',
+    headers=headers
+)
+
+if response.status_code == 200:
+    config = response.json()
+    print(f"Device Farm enabled: {config['enabled']}")
+    print(f"Project ARN: {config['project_arn']}")
+elif response.status_code == 404:
+    print("Device Farm is not enabled")
+```
+
+## Notes
+
+- Returns `404` if Device Farm is not enabled for your organization
+- Default device ARNs may be `null` if not configured
+- The project ARN is required for Device Farm operations
+- Default device ARNs are used when no specific device is requested in test runs
+
+## Related Endpoints
+
+- `GET /api/device-farm/devices` - List available devices
+- `POST /api/test/{test_id}/run` - Run a test (can use Device Farm)

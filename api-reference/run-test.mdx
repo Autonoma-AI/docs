@@ -1,5 +1,173 @@
 ---
 title: "Run Test API"
-description: "Execute a test by its ID and initiate a test run."
+description: "Execute a test by its ID and initiate a test run. Supports running tests on simulators/emulators or physical devices via AWS Device Farm."
 openapi: post /test/{test_id}/run
 ---
+
+## Overview
+
+The Run Test endpoint triggers a test execution. Tests can run on simulators/emulators (default) or on physical devices via AWS Device Farm.
+
+## Endpoint
+
+```
+POST /api/test/{test_id}/run
+```
+
+## Authentication
+
+This endpoint requires API key authentication using both headers:
+
+- `autonoma-client-id`: Your API client ID
+- `autonoma-client-secret`: Your API client secret
+
+## Path Parameters
+
+| Parameter | Type   | Required | Description           |
+|-----------|--------|----------|-----------------------|
+| `test_id` | string | Yes      | ID of the test to run |
+
+## Request Body (JSON)
+
+| Field                          | Type    | Required | Description                                                                                    |
+|--------------------------------|---------|----------|------------------------------------------------------------------------------------------------|
+| `application_version_id`       | string  | No       | Run with a specific application version                                                        |
+| `environment_application_version_id` | string | No | Use a different version for the run environment                                                |
+| `run_on_latest`                | boolean | No       | Run with the latest application version. Cannot be used with `application_version_id` or `environment_application_version_id` |
+| `runtime_metadata`             | object  | No       | Key-value pairs for runtime variables (overrides saved variables)                             |
+| `source`                       | string  | No       | Source identifier (max 10 chars), defaults to "api"                                            |
+| `use_physical_device`          | boolean | No       | Run on a physical device instead of simulator/emulator                                        |
+| `device_arn`                   | string  | No       | Specific AWS Device Farm device ARN to use                                                     |
+
+## Physical Device Runs
+
+A test will run on a physical device in either of these scenarios:
+
+1. **API Parameter**: Pass `use_physical_device: true` in the request body
+2. **Test Configuration**: The test has `deviceFarmRunEnabled: true` in its test configuration
+
+### Requirements for Physical Device Runs
+
+- The organization must have Device Farm enabled
+- For iOS: A `.ipa` file must be uploaded as the `physicalDevicePath` for the application version
+- For Android: Uses the same `.apk` file as emulator runs
+
+### Device ARN Priority
+
+When running on a physical device, the device ARN is determined in this order:
+
+1. API `device_arn` parameter (if provided)
+2. Test configuration `deviceFarmDeviceArn` (if set)
+3. Organization default device ARN
+
+## Response
+
+### Success (201 Created)
+
+```json
+{
+  "message": "Test run triggered successfully",
+  "url": "https://autonoma.app/run/{runID}",
+  "runID": "string",
+  "runGroupID": "string"
+}
+```
+
+### Error Responses
+
+- `401 Unauthorized`: Invalid or missing authentication credentials
+- `403 Forbidden`: Insufficient quota
+- `404 Not Found`: Test not found
+- `500 Internal Server Error`: Device Farm not configured or server error
+
+## Examples
+
+### Run test on simulator/emulator (default)
+
+```bash
+curl -X POST "https://autonoma.app/api/test/test_123/run" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  -d '{}'
+```
+
+### Run test on physical device via API
+
+```bash
+curl -X POST "https://autonoma.app/api/test/test_123/run" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  -d '{
+    "use_physical_device": true
+  }'
+```
+
+### Run test on specific physical device
+
+```bash
+curl -X POST "https://autonoma.app/api/test/test_123/run" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  -d '{
+    "use_physical_device": true,
+    "device_arn": "arn:aws:devicefarm:us-west-2::device:ABC123..."
+  }'
+```
+
+### Run test with specific version on physical device
+
+```bash
+curl -X POST "https://autonoma.app/api/test/test_123/run" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  -d '{
+    "application_version_id": "version_456",
+    "use_physical_device": true
+  }'
+```
+
+### Run test with runtime variables
+
+```bash
+curl -X POST "https://autonoma.app/api/test/test_123/run" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  -d '{
+    "runtime_metadata": {
+      "ENVIRONMENT": "staging",
+      "API_KEY": "test-key-123"
+    }
+  }'
+```
+
+### Run test with latest version
+
+```bash
+curl -X POST "https://autonoma.app/api/test/test_123/run" \
+  --header "autonoma-client-id: YOUR_CLIENT_ID" \
+  --header "autonoma-client-secret: YOUR_CLIENT_SECRET" \
+  --header "Content-Type: application/json" \
+  -d '{
+    "run_on_latest": true
+  }'
+```
+
+## Test Configuration for Physical Device
+
+Tests can be configured to always run on physical devices by setting `deviceFarmRunEnabled: true` in the test configuration. This can be done:
+
+1. **Via UI**: When creating or editing a test, enable "Run on Physical Device" in the advanced settings
+2. **Via API**: Include in the test configuration when creating the test
+
+When a test has this configuration enabled, it will automatically run on a physical device without needing to pass `use_physical_device` in the run request.
+
+## Related Endpoints
+
+- `GET /api/device-farm/config` - Get Device Farm configuration
+- `GET /api/device-farm/devices` - List available devices
+- `POST /api/mobile/{id}/ipa` - Upload IPA file for iOS physical device runs
