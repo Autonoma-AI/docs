@@ -1,0 +1,247 @@
+---
+title: "Upload IPA File for iOS Application"
+description: "Upload an iOS physical device file (.ipa) for an application. Supports parallel build workflows where .ipa and .app files can be uploaded independently."
+openapi: post /mobile/{id}/ipa
+---
+
+## Overview
+
+The Upload IPA File endpoint allows you to upload iOS physical device files (`.ipa`) for your iOS applications. This endpoint is designed to support parallel CI/CD workflows where `.ipa` (device) and `.app` (simulator) files may be built and uploaded independently.
+
+## Key Features
+
+- **Parallel Build Support**: Upload `.ipa` files before or after the corresponding `.app` version is created
+- **Automatic Linking**: Pending IPAs are automatically linked when the corresponding `.app` version is created
+- **Version Matching**: Match by version name or custom ID
+- **iOS Version Extraction**: Automatically extracts minimum iOS version from the IPA's `Info.plist`
+
+## Endpoint
+
+```
+POST /api/mobile/{id}/ipa
+```
+
+## Authentication
+
+This endpoint requires API key authentication using both headers:
+
+- `autonoma-client-id`: Your API client ID
+- `autonoma-client-secret`: Your API client secret
+
+## Path Parameters
+
+| Parameter | Type   | Required | Description                                    |
+|-----------|--------|----------|------------------------------------------------|
+| `id`      | string | Yes      | The application ID (must be an iOS application) |
+
+## Request Body
+
+The request must be sent as `multipart/form-data` with the following fields:
+
+| Field     | Type   | Required | Description                                                                                    |
+|-----------|--------|----------|------------------------------------------------------------------------------------------------|
+| `file`    | file   | Yes      | The `.ipa` file to upload (file size limit: 1GB)                                               |
+| `version` | string | No*      | Version name to match/associate with                                                           |
+| `customID`| string | No*      | Custom ID to match/associate with                                                               |
+
+\* At least one of `version` or `customID` must be provided.
+
+## Behavior
+
+### When Version Exists (200 OK)
+
+If an application version with the matching `version` name or `customID` already exists:
+
+- The IPA file is uploaded to cloud storage
+- The version is updated with the `physicalDevicePath` and `minimumIOSVersion`
+- Returns `200 OK` with the `application_version_id`
+
+**Response:**
+```json
+{
+  "application_version_id": "cm7dbowr80042waka7thyjhkr",
+  "message": "IPA added to existing application version"
+}
+```
+
+### When Version Doesn't Exist (202 Accepted)
+
+If no matching application version exists:
+
+- The IPA file is uploaded to cloud storage
+- The IPA is stored as "pending" in the `PendingPhysicalDeviceFile` table
+- Returns `202 Accepted` with `pending: true`
+- When the corresponding `.app` version is created later (via `PATCH /api/mobile/{id}`), the pending IPA is automatically linked
+
+**Response:**
+```json
+{
+  "application_version_id": null,
+  "message": "IPA stored as pending. It will be linked when the corresponding .app version is created.",
+  "pending": true
+}
+```
+
+## Parallel Build Workflow
+
+This endpoint enables a parallel CI/CD workflow for iOS applications:
+
+### Scenario 1: Upload IPA First
+
+1. Upload `.ipa` file via `POST /api/mobile/{id}/ipa` with `version` or `customID`
+2. System stores IPA as pending (returns 202)
+3. Later, upload `.app` file via `PATCH /api/mobile/{id}` with the same `version` or `customID`
+4. System automatically links the pending IPA to the new version
+
+### Scenario 2: Upload APP First
+
+1. Upload `.app` file via `PATCH /api/mobile/{id}` with `version` or `customID`
+2. Later, upload `.ipa` file via `POST /api/mobile/{id}/ipa` with the same `version` or `customID`
+3. System immediately links the IPA to the existing version (returns 200)
+
+### Scenario 3: Upload Both Together
+
+1. Upload both files in a single request via `PATCH /api/mobile/{id}` with both `file` (`.app`) and `physicalDeviceFile` (`.ipa`)
+2. System creates version with both files linked
+
+## Examples
+
+### Upload IPA with Version Name
+
+```bash
+curl -X POST 'https://autonoma.app/api/mobile/cmbv1q5aa00iwzh01olutey73/ipa' \
+  --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+  --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+  -F 'file=@MyApp.ipa' \
+  -F 'version=1.0.0'
+```
+
+### Upload IPA with Custom ID
+
+```bash
+curl -X POST 'https://autonoma.app/api/mobile/cmbv1q5aa00iwzh01olutey73/ipa' \
+  --header 'autonoma-client-id: YOUR_CLIENT_ID' \
+  --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
+  -F 'file=@MyApp.ipa' \
+  -F 'customID=build-abc123'
+```
+
+### JavaScript Example
+
+```javascript
+const formData = new FormData();
+formData.append('file', ipaFileInput.files[0]);
+formData.append('version', '1.0.0');
+
+const response = await fetch('https://autonoma.app/api/mobile/app_123/ipa', {
+  method: 'POST',
+  headers: {
+    'autonoma-client-id': 'YOUR_CLIENT_ID',
+    'autonoma-client-secret': 'YOUR_CLIENT_SECRET'
+  },
+  body: formData
+});
+
+const result = await response.json();
+if (response.status === 202) {
+  console.log('IPA stored as pending:', result.message);
+} else if (response.status === 200) {
+  console.log('IPA added to version:', result.application_version_id);
+}
+```
+
+### Python Example
+
+```python
+import requests
+
+files = {'file': open('/path/to/MyApp.ipa', 'rb')}
+data = {'version': '1.0.0'}
+headers = {
+    'autonoma-client-id': 'YOUR_CLIENT_ID',
+    'autonoma-client-secret': 'YOUR_CLIENT_SECRET'
+}
+
+response = requests.post(
+    'https://autonoma.app/api/mobile/app_123/ipa',
+    files=files,
+    data=data,
+    headers=headers
+)
+
+if response.status_code == 202:
+    print('IPA stored as pending')
+elif response.status_code == 200:
+    print(f'IPA added to version: {response.json()["application_version_id"]}')
+```
+
+## Response Codes
+
+| Status Code | Description                                                                 |
+|-------------|-----------------------------------------------------------------------------|
+| 200         | IPA added to existing application version                                   |
+| 202         | IPA stored as pending (will be linked when .app version is created)         |
+| 400         | Bad request - Missing required fields, invalid file type, or non-iOS app  |
+| 401         | Unauthorized - Invalid or missing authentication credentials                |
+| 404         | Application not found                                                      |
+| 500         | Internal server error                                                       |
+
+## Error Responses
+
+### 400 Bad Request
+
+**Missing identifier:**
+```json
+{
+  "error": "Bad request",
+  "message": "Either 'version' or 'customID' must be provided to identify the application version"
+}
+```
+
+**Invalid file type:**
+```json
+{
+  "error": "Bad request",
+  "message": "File must be a .ipa file"
+}
+```
+
+**Non-iOS application:**
+```json
+{
+  "error": "Bad request",
+  "message": "IPA files can only be uploaded for iOS applications"
+}
+```
+
+### 401 Unauthorized
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Invalid authentication credentials"
+}
+```
+
+### 404 Not Found
+
+```json
+{
+  "error": "Not found",
+  "message": "Application with id {id} not found"
+}
+```
+
+## Notes
+
+- **File Validation**: Only files with `.ipa` extension are accepted
+- **File Size Limit**: Maximum file size is 1GB
+- **iOS Version Extraction**: The minimum iOS version is automatically extracted from the IPA's `Info.plist` file (`MinimumOSVersion` or `LSMinimumSystemVersion`)
+- **Upsert Behavior**: If a pending IPA already exists for the same `version`/`customID`, it will be replaced with the new upload
+- **Pending Storage**: Pending IPAs are stored indefinitely until the corresponding version is created
+- **Automatic Cleanup**: Temporary files are automatically cleaned up after processing
+
+## Related Endpoints
+
+- `PATCH /api/mobile/{id}` - Create application version or add physical device file
+- `GET /api/mobile/version?customID={customID}` - Get application versions by custom ID

@@ -123,6 +123,7 @@
                 "pages": [
                   "api-reference/create-application",
                   "api-reference/update-application-version",
+                  "api-reference/upload-ipa-file-for-ios-application",
                   "api-reference/get-application-versions-by-custom-id"
                 ]
               },
@@ -155,6 +156,13 @@
                 "group": "Tag",
                 "pages": [
                   "api-reference/run-all-tests-that-have-the-specified-tags"
+                ]
+              },
+              {
+                "group": "Device Farm",
+                "pages": [
+                  "api-reference/get-device-farm-config",
+                  "api-reference/get-device-farm-devices"
                 ]
               }
             ]
