@@ -1136,6 +1136,10 @@ paths:
                   type: string
                   description: JSON string containing geolocation data
                   example: '{"latitude": 40.7128, "longitude": -74.0060}'
+                customID:
+                  type: string
+                  description: Optional custom identifier for the version (e.g., "build-123", "release-v2.0")
+                  example: "build-123"
             examples:
               android_app:
                 summary: Android APK Upload
@@ -1167,6 +1171,7 @@ paths:
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
             --header 'x-platform: android' \
             --form 'name=TestApiAndroid' \
+            --form 'customID=build-123' \
             --form 'file=@"/path/to/your/app.apk"'
         - lang: curl
           label: "iOS ZIP"
@@ -1176,6 +1181,7 @@ paths:
             --header 'autonoma-client-secret: YOUR_CLIENT_SECRET' \
             --header 'x-platform: ios' \
             --form 'name=TestApiIOS' \
+            --form 'customID=release-v2.0' \
             --form 'file=@"/Users/axel/Downloads/autonoma-bank.zip"'
         - lang: curl
           label: "Web Application"
@@ -1187,6 +1193,7 @@ paths:
             --form 'name=My Web App' \
             --form 'path=https://myapp.com' \
             --form 'version=1.0.0' \
+            --form 'customID=production-deploy' \
             --form 'cookies=session=abc123'
         - lang: javascript
           label: "JavaScript (FormData)"
